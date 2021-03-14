@@ -68,9 +68,7 @@ def get_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
 
 
 def _get_rank(pidx: int) -> pd.DataFrame:
-    '''
-    获取排行榜信息
-    '''
+
     rows = []
     columns = ['排名', '代码', '名称', '规模(亿元)']
     params = (
@@ -122,6 +120,19 @@ def _get_rank(pidx: int) -> pd.DataFrame:
 
 
 def get_rank(start=1, end=100) -> pd.DataFrame:
+    '''
+    获取排行榜信息，默认 1到 100
+
+    Parameters
+    ----------
+    start : 可选的
+        开始排名，默认为 1
+    end : 可选的
+        结束排名，默认为 100
+    Return
+    ------
+    DataFrame : 包含基金排名信息
+    '''
     s = start
     df = pd.DataFrame()
     q = Queue()
@@ -477,3 +488,59 @@ def get_base_info(fund_code: str) -> dict:
     for k, v in columns.items():
         fund[v] = json_response['Datas'][k]
     return fund
+
+
+def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
+    '''
+    获取指定基金行业分布信息
+
+    Parameters
+    ----------
+    fund_code : 6位基金代码
+    dates : 可选
+        None : 最新公开日期
+        '2020-01-01' : 一个公开持仓日期
+        ['2020-12-31' ,'2019-12-31'] : 多个公开持仓日期
+    Return
+    ------
+    DataFrame : 包含指定基金行业持仓信息的表格
+    
+    '''
+    columns = {
+        'HYMC': '行业名称',
+        'ZJZBL': '持仓比例',
+        'FSRQ': '公布日期',
+        'SZ': '市值'
+    }
+    df = pd.DataFrame(columns=columns.values())
+    if isinstance(dates, str):
+        dates = [dates]
+    for date in dates:
+
+        params = [
+
+            ('FCODE', fund_code),
+            ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
+            ('OSVersion', '14.4'),
+            ('appVersion', '6.3.8'),
+            ('cToken', '1fnc-1nne8cjcrdqud6rhrqqjee8fn-j.6'),
+            ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
+            ('passportid', '3061335960830820'),
+            ('plat', 'Iphone'),
+            ('product', 'EFund'),
+            ('serverVersion', '6.3.6'),
+            ('uToken', 'nnukrkhk-aake6k1ehj-d-c86fua-ck-1fx6j882.6'),
+            ('userId', 'f8d95b2330d84d9e804e7f28a802d809'),
+            ('version', '6.3.8'),
+        ]
+        if date is not None:
+            params.append(('DATE', date))
+        params = tuple(params)
+        response = requests.get('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation',
+                                headers=EastmoneyFundHeaders, params=params, verify=False)
+        datas = response.json()['Datas']
+        _df = pd.DataFrame(datas)
+        _df = df.rename(columns=columns)
+        pd.concat([df, _df])
+    df = df.drop_duplicates()
+    return df
