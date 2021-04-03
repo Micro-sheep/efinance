@@ -1,14 +1,11 @@
-
-from queue import Queue
 import re
 from typing import List, Union
 import pandas as pd
 import requests
-from .utils import threadmethod
 from .config import EastmoneyFundHeaders
 
 
-def get_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
+def get_k_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     '''
     根据基金代码和要获取的页码抓取基金净值信息
 
@@ -67,97 +64,7 @@ def get_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     return df
 
 
-def _get_rank(pidx: int) -> pd.DataFrame:
 
-    rows = []
-    columns = ['排名', '代码', '名称', '规模(亿元)']
-    params = (
-        ('FundType', '0'),
-        ('SortColumn', 'SYL_Y'),
-        ('Sort', 'desc'),
-        ('pageIndex', f'{pidx}'),
-        ('pageSize', '30'),
-        ('BUY', 'true'),
-        ('CompanyId', ''),
-        ('LevelOne', ''),
-        ('LevelTwo', ''),
-        ('ISABNORMAL', 'true'),
-        ('DISCOUNT', ''),
-        ('RISKLEVEL', ''),
-        ('ENDNAV', ''),
-        ('RLEVEL_SZ', ''),
-        ('ESTABDATE', ''),
-        ('TOPICAL', ''),
-        ('CLTYPE', ''),
-        ('DataConstraintType', '0'),
-        ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-        ('plat', 'Iphone'),
-        ('product', 'EFund'),
-        ('version', '6.2.8'),
-        ('GTOKEN', '98B423068C1F4DEF9842F82ADF08C5db'),
-    )
-    url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNRank'
-    json_response = requests.get(
-        url, headers=EastmoneyFundHeaders, params=params).json()
-    if json_response is None:
-        return pd.DataFrame(rows, columns=columns)
-    data = json_response['Datas']
-
-    for index, stock in enumerate(data):
-        code = stock['FCODE']
-        name = stock['SHORTNAME']
-        size = stock['ENDNAV']
-        rank = 30*(pidx-1)+index+1
-        _size = '-'
-        try:
-            _size = f'{float(size)/100000000}'
-        except:
-            pass
-        rows.append([rank, code, name, _size])
-    df = pd.DataFrame(rows, columns=columns)
-    df.index = df['排名'].to_numpy()
-    return df
-
-
-def get_rank(start=1, end=100) -> pd.DataFrame:
-    '''
-    获取排行榜信息，默认 1到 100
-
-    Parameters
-    ----------
-    start : 可选的
-        开始排名，默认为 1
-    end : 可选的
-        结束排名，默认为 100
-    Return
-    ------
-    DataFrame : 包含基金排名信息
-    '''
-    s = start
-    df = pd.DataFrame()
-    q = Queue()
-    _temp = []
-    while s < end:
-        q.put(s//30+1)
-        s += 30
-
-    @threadmethod
-    def _get_multi():
-
-        while not q.empty():
-            pidx = q.get()
-            _df = _get_rank(pidx)
-            if _df is None:
-                break
-            _temp.append(_df)
-
-    if end > s:
-        end = s
-    _get_multi()
-    df = pd.concat(_temp)
-    df.drop_duplicates(inplace=True)
-    df.sort_values(by=['排名'], inplace=True)
-    return df.iloc[start-1:end, :]
 
 
 def get_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFrame:
@@ -193,7 +100,7 @@ def get_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFrame:
         'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo', headers=EastmoneyFundHeaders, data=data).json()
     data_list = json_response['Datas']
 
-    columns = ['代码', '名称', '估算涨跌幅', '估算时间']
+    columns = ['基金代码', '名称', '估算涨跌幅', '估算时间']
     rows = []
     for fund in data_list:
         code = fund['FCODE']
@@ -253,7 +160,7 @@ def get_fund_codes(ft=None) -> pd.DataFrame:
     return df
 
 
-def get_inverst_postion(fund_code: str, date=None) -> pd.DataFrame:
+def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
     '''
     获取基金持仓占比信息
 
@@ -268,7 +175,18 @@ def get_inverst_postion(fund_code: str, date=None) -> pd.DataFrame:
     ------
     DataFrame : 包含指定基金特定日期的公开持仓信息
     '''
-    params = [
+    columns = {
+            'GPDM': '股票代码',
+            'GPJC': '股票简称',
+            'JZBL': '持仓占比',
+            'PCTNVCHG': '较上期变化',
+        }
+    df = pd.DataFrame(columns=columns.values())
+    if not isinstance(dates,List):
+        dates = [dates]
+    
+    for date in dates:
+        params = [
         ('FCODE', fund_code),
         ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
         ('OSVersion', '14.3'),
@@ -283,25 +201,21 @@ def get_inverst_postion(fund_code: str, date=None) -> pd.DataFrame:
         ('userId', 'f8d95b2330d84d9e804e7f28a802d809'),
         ('version', '6.2.8'),
     ]
-    if date is not None:
-        params.append(('DATE', date))
-    params = tuple(params)
-
-    response = requests.get('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition',
-                            headers=EastmoneyFundHeaders, params=params)
-    rows = []
-    stocks = response.json()['Datas']['fundStocks']
-    columns = {
-        'GPDM': '股票代码',
-        'GPJC': '股票简称',
-        'JZBL': '持仓占比',
-        'PCTNVCHG': '较上期变化',
-    }
-    if stocks is None:
-        return pd.DataFrame(rows, columns=columns.values())
-
-    df = pd.DataFrame(stocks)
-    df = df[list(columns.keys())].rename(columns=columns)
+        if date is not None:
+            params.append(('DATE',date))
+        params = tuple(params)
+        response = requests.get('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition',
+                                headers=EastmoneyFundHeaders, params=params)
+        stocks = response.json()['Datas']['fundStocks']
+        
+        if stocks is None or len(stocks) == 0:
+            continue
+        
+        _df = pd.DataFrame(stocks)
+        _df = _df[list(columns.keys())].rename(columns=columns)
+        _df['公开日期'] = [date for _ in range(len(_df))] 
+        df = pd.concat([df,_df],axis=0)
+    df.insert(0,'基金代码',[fund_code for _ in range(len(df))])
     return df
 
 
@@ -357,6 +271,7 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
 
     df = df[list(columns.keys())].rename(columns=columns)
     df['时间段'] = titles.values()
+    df.insert(0,'基金代码',[fund_code for _ in range(len(df))])
     return df
 
 
@@ -396,7 +311,7 @@ def get_public_dates(fund_code: str) -> List[str]:
     return json_response['Datas']
 
 
-def get_types_persentage(fund_code: str, date=None) -> pd.DataFrame:
+def get_types_persentage(fund_code: str, dates:Union[List[str],str,None]=None) -> pd.DataFrame:
     '''
     获取指定基金不同类型占比信息
 
@@ -406,13 +321,25 @@ def get_types_persentage(fund_code: str, date=None) -> pd.DataFrame:
 
     date : 可选的
         None : 最新公开持仓数据的日期
-        2020-09-30 指定日期数据
+
+        '2020-09-30' 指定日期数据
 
     Return
     ------
     DataFrame : 指定基金的在不同日期的不同类型持仓占比信息
     '''
-    params = [
+    columns = {
+            'GP': '股票比重',
+            'ZQ': '债券比重',
+            'HB': '现金比重',
+            'JZC': '总规模(亿元)',
+            'QT': '其他比重'
+        }
+    df = pd.DataFrame(columns = columns.values())
+    if not isinstance(dates,List):
+        dates = [dates]
+    for date in dates:
+        params = [
         ('FCODE', fund_code),
         ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
         ('OSVersion', '14.3'),
@@ -427,22 +354,18 @@ def get_types_persentage(fund_code: str, date=None) -> pd.DataFrame:
         ('userId', 'f8d95b2330d84d9e804e7f28a802d809'),
         ('version', '6.3.8'),
     ]
-    if date is not None:
-        params.append(('DATE', date))
-    params = tuple(params)
-    json_response = requests.get(
-        'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew', headers=EastmoneyFundHeaders, params=params).json()
-    columns = {
-        'GP': '股票比重',
-        'ZQ': '债券比重',
-        'HB': '现金比重',
-        'JZC': '总规模(亿元)',
-        'QT': '其他比重'
-    }
-    if len(json_response['Datas']) == 0:
-        return pd.DataFrame(columns=columns.values())
-    df = pd.DataFrame(json_response['Datas'])
-    df = df[list(columns.keys())].rename(columns=columns)
+        if date is not None:
+            params.append(('DATE', date))
+        params = tuple(params)
+        json_response = requests.get(
+            'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew', headers=EastmoneyFundHeaders, params=params).json()
+        
+        if len(json_response['Datas']) == 0:
+            continue
+        _df = pd.DataFrame(json_response['Datas'])
+        _df = df[list(columns.keys())].rename(columns=columns)
+        df = pd.concat([df,_df],axis=0)
+    df.insert(0,'基金代码',[fund_code for _ in range(len(df))])
     return df
 
 
@@ -537,10 +460,11 @@ def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = Non
             params.append(('DATE', date))
         params = tuple(params)
         response = requests.get('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation',
-                                headers=EastmoneyFundHeaders, params=params, verify=False)
+                                headers=EastmoneyFundHeaders, params=params)
         datas = response.json()['Datas']
         _df = pd.DataFrame(datas)
-        _df = df.rename(columns=columns)
-        pd.concat([df, _df])
+        _df = _df.rename(columns=columns)
+        df = pd.concat([df, _df],axis=0)
+    df.insert(0,'基金代码',[fund_code for _ in range(len(df))])
     df = df.drop_duplicates()
     return df

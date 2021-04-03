@@ -64,7 +64,7 @@ def get_k_history(stock_code: str, beg: str = '19000101', end: str = '20500101',
         rows.append(kline)
 
     df = pd.DataFrame(rows, columns=columns)
-
+    df.insert(0,'股票代码',[stock_code for _ in range(len(df))])
     return df
 
 
@@ -74,7 +74,7 @@ def get_k_historys(stock_codes: Union[str, List[str]],  beg: str = '19000101', e
 
     Parameters
     ----------
-    stock_code : 6 位股票代码
+    stock_code : 6 位股票代码 或者多个代码构成的列表
     beg : 开始日期 例如 20200101
     end : 结束日期 例如 20200201
     klt : k线间距 默认为 101 即日k
@@ -96,24 +96,25 @@ def get_k_historys(stock_codes: Union[str, List[str]],  beg: str = '19000101', e
     if isinstance(stock_codes, str):
         df = get_k_history(
             stock_codes, beg=beg, end=end, klt=klt, fqt=fqt)
+
         return df
 
     Q = Queue()
-    for code in stock_codes:
+    for stock_code in stock_codes:
 
-        Q.put(code) 
+        Q.put(stock_code) 
     dfs = {}
     @threadmethod
     def start():
         while not Q.empty():
-            code = Q.get()
+            stock_code = Q.get()
             try:
-
-                _df = get_k_history(code, beg, end)
-                dfs[code] = _df
+                _df = get_k_history(stock_code, beg, end)
+                _df.insert(0,'股票代码',[stock_code for _ in range(len(df))])
+                dfs[stock_code] = _df
 
             except:
-                Q.put(code)
+                Q.put(stock_code)
 
     start()
     return dfs

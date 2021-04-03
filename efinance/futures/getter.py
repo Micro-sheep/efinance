@@ -1,10 +1,14 @@
 import pandas as pd
 import requests
 from urllib.parse import urlencode
-from .utils import gen_secid
-from .config import EastmoneyHeaders,EastmoneyKlines
-def get_futures_base_info() -> pd.DataFrame:
 
+from .config import EastmoneyHeaders, EastmoneyKlines
+
+
+def get_futures_base_info() -> pd.DataFrame:
+    '''
+    获取全部期货基本信息
+    '''
     params = (
         ('np', '1'),
         ('fltt', '2'),
@@ -19,10 +23,10 @@ def get_futures_base_info() -> pd.DataFrame:
     )
     rows = []
     cfg = {
-        113:'上期所',
-        114:'大商所',
-        115:'郑商所',
-        8:'中金所'
+        113: '上期所',
+        114: '大商所',
+        115: '郑商所',
+        8: '中金所'
     }
     response = requests.get(
         'https://push2.eastmoney.com/api/qt/clist/get', headers=EastmoneyHeaders, params=params)
@@ -31,39 +35,43 @@ def get_futures_base_info() -> pd.DataFrame:
         name = item['f14']
         secid = str(item['f13'])+'.'+code
         belong = cfg[item['f13']]
-        row = [code, name, secid,belong]
+        row = [code, name, secid, belong]
         rows.append(row)
-    columns = ['期货代码', '期货名称', 'secid','归属交易所']
+    columns = ['期货代码', '期货名称', 'secid', '归属交易所']
     df = pd.DataFrame(rows, columns=columns)
     return df
 
 
 def get_k_history(secid: str, beg: str = '19000101', end: str = '20500101', klt: int = 101, fqt: int = 1) -> pd.DataFrame:
     '''
-    功能获取k线数据
-    -
-    参数
+    获取k线数据
 
-        secid : 形如 114.eb2110 如果没有，则需要根据 efinance.Futures.get_futures_base_info()函数获取
-        beg: 开始date 例如 20200101
-        end: 结束date 例如 20200201
-        klt: k线间距 默认为 101 即日k
-            klt:1 1 分钟
-            klt:5 5 分钟
-            klt:101 日
-            klt:102 周
-        fqt: 复权方式
+    Parameters
+    ----------
+    secid : 根据 efinance.Futures.get_futures_base_info 函数
+    获取4个交易所期货数据，取 secid 列来获取 secid
+    beg : 开始日期 例如 20200101
+    end : 结束日期 例如 20200201
+    klt : k线间距 默认为 101 即日k
+            klt : 1 1 分钟
+            klt : 5 5 分钟
+            klt : 101 日
+            klt : 102 周
+    fqt: 复权方式
             不复权 : 0
             前复权 : 1
             后复权 : 2 
+
+    Return
+    ------
+    DateFrame : 包含股票k线数据
+
     '''
-    
+
     fields = list(EastmoneyKlines.keys())
     columns = list(EastmoneyKlines.values())
     fields2 = ",".join(fields)
-    # 不提供 secid 则使用默认方式生成
-    if secid is None:
-        secid = gen_secid(code)
+
     params = (
         ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
         ('fields2', fields2),
@@ -81,7 +89,7 @@ def get_k_history(secid: str, beg: str = '19000101', end: str = '20500101', klt:
 
     data = json_response['data']
     if data is None:
-        print(code,'无数据')
+        print(secid, '无数据')
         return None
     # code = data['code']
     # name
