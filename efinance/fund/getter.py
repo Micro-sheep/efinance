@@ -5,7 +5,7 @@ import requests
 from .config import EastmoneyFundHeaders
 
 
-def get_k_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
+def get_qoute_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     '''
     根据基金代码和要获取的页码抓取基金净值信息
 
@@ -67,7 +67,7 @@ def get_k_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
 
 
 
-def get_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFrame:
+def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFrame:
     '''
     获取基金实时预期涨跌幅度
 
@@ -358,12 +358,12 @@ def get_types_persentage(fund_code: str, dates:Union[List[str],str,None]=None) -
             params.append(('DATE', date))
         params = tuple(params)
         json_response = requests.get(
-            'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew', headers=EastmoneyFundHeaders, params=params).json()
-        
+        'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew',  params=params).json()
+    
         if len(json_response['Datas']) == 0:
             continue
-        _df = pd.DataFrame(json_response['Datas'])
-        _df = df[list(columns.keys())].rename(columns=columns)
+        _df = pd.DataFrame(json_response['Datas'])[columns.keys()]
+        _df = _df.rename(columns=columns)
         df = pd.concat([df,_df],axis=0)
     df.insert(0,'基金代码',[fund_code for _ in range(len(df))])
     return df
@@ -458,7 +458,7 @@ def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = Non
         ]
         if date is not None:
             params.append(('DATE', date))
-        params = tuple(params)
+        
         response = requests.get('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation',
                                 headers=EastmoneyFundHeaders, params=params)
         datas = response.json()['Datas']

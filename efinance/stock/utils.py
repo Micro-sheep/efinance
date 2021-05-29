@@ -1,34 +1,44 @@
-from threading import Thread
+from ..share import QOUTE_SAVE_PATH
 
 
-def gen_secid(rawcode: str) -> str:
+def gen_secid(stock_code: str) -> str:
     '''
     生成东方财富专用的secid
     '''
-    if rawcode[:3] == '000':
-        return f'1.{rawcode}'
-    # 深证指数
-    if rawcode[:3] == '399':
-        return f'0.{rawcode}'
-    # 沪市股票
-    if rawcode[0] != '6':
-        return f'0.{rawcode}'
-    # 深市股票
-    return f'1.{rawcode}'
+    _type = get_stock_market_type(stock_code, update=False)
+    return f'{_type}.{stock_code}'
 
 
-def threadmethod(func, *args, cores: int = 30, **kwargs):
-    def thread(*args, **kwargs):
-        threads = []
-        for _ in range(cores):
-            t = Thread(target=func, args=args, kwargs=kwargs)
-            t.setDaemon(True)
-            threads.append(t)
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
+def get_stock_market_type(stock_code: str, update=True) -> int:
+    '''
+    根据股票代码获取其所属市场
 
-        return 1
+    Parameters
+    ----------
+    stock_code: 6 位股票代码
+    '''
+    import os
+    import pandas as pd
+    from . import get_realtime_quotes
+    if not os.path.exists(QOUTE_SAVE_PATH):
 
-    return thread
+        df = get_realtime_quotes()
+        df.to_csv(QOUTE_SAVE_PATH, encoding='utf-8-sig', index=None)
+
+    elif update is False:
+        import time
+        if time.time() - os.path.getmtime(QOUTE_SAVE_PATH) >= 24*3600:
+            df = get_realtime_quotes()
+            df.to_csv(QOUTE_SAVE_PATH, encoding='utf-8-sig', index=None)
+    else:
+        df = get_realtime_quotes()
+        df.to_csv(QOUTE_SAVE_PATH, encoding='utf-8-sig', index=None)
+    df = pd.read_csv(QOUTE_SAVE_PATH, dtype={
+        '股票代码': str
+    })
+    df.index = df['股票代码']
+    if stock_code in df.index:
+        return df.loc[stock_code, '沪/深']
+    raise KeyError(
+        f'股票代码 {stock_code} 可能有误 '
+    )

@@ -1,11 +1,12 @@
 # Folders
 */__pycache__/*
-efinance/__pycache__/*
 efinance.egg-info
 build
 dist
-# Files
 
+# Files
 *.pyc
 *.csv
 *.xlsx
+*.zip
+*.ipynb

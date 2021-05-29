@@ -1,1 +1,3 @@
-from efinance.api import Stock,Fund,Futures
+from efinance.api import (stock,
+                          fund,
+                          futures)

@@ -1,1 +1,3 @@
-from efinance.futures.getter import get_futures_base_info,get_k_history
+from .getter import (get_futures_base_info,
+                                     get_qoute_history)
+

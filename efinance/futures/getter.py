@@ -42,7 +42,7 @@ def get_futures_base_info() -> pd.DataFrame:
     return df
 
 
-def get_k_history(secid: str, beg: str = '19000101', end: str = '20500101', klt: int = 101, fqt: int = 1) -> pd.DataFrame:
+def get_qoute_history(secid: str, beg: str = '19000101', end: str = '20500101', klt: int = 101, fqt: int = 1) -> pd.DataFrame:
     '''
     获取k线数据
 
@@ -67,10 +67,11 @@ def get_k_history(secid: str, beg: str = '19000101', end: str = '20500101', klt:
     DateFrame : 包含股票k线数据
 
     '''
-
+    
     fields = list(EastmoneyKlines.keys())
     columns = list(EastmoneyKlines.values())
     fields2 = ",".join(fields)
+    
 
     params = (
         ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
