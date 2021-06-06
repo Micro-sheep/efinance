@@ -1,21 +1,9 @@
-from threading import Thread
+from .config import FUTURES_BASE_INFO_SAVE_PATH
 
 
-
-
-
-def threadmethod(func, *args, cores: int = 30, **kwargs):
-    def thread(*args, **kwargs):
-        threads = []
-        for _ in range(cores):
-            t = Thread(target=func, args=args, kwargs=kwargs)
-            t.setDaemon(True)
-            threads.append(t)
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
-
-        return 1
-
-    return thread
+def update_local_futures_info(path: str = FUTURES_BASE_INFO_SAVE_PATH) -> None:
+    from .getter import get_futures_base_info
+    df = get_futures_base_info()
+    df.to_csv(path,
+              encoding='utf-8-sig',
+              index=None)

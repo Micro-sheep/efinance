@@ -1,3 +1,7 @@
+from pathlib import Path
+HERE = Path(__file__).parent
+QUOTES_SAVE_PATH = HERE/'stock_quotes.csv'
+
 EastmoneyKlines = {
     'f51': '日期',
     'f52': '开盘',
@@ -49,4 +53,20 @@ EastmoneyHeaders = {
     'Accept': '*/*',
     'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
     'Referer': 'http://quote.eastmoney.com/center/gridlist.html',
+}
+
+EastmoneyStockInfo = {
+    'f57': '股票代码',
+    'f58': '股票名称',
+    'f162': '市盈率(动)',
+    'f167': '市盈率',
+    'f127': '所处行业',
+    'f116': '总市值',
+    'f117': '流通市值',
+    'f198': '板块编号',
+    'f173': 'ROE',
+    'f187': '净利率',
+    'f105': '净利润',
+    'f186': '毛利率'
+
 }

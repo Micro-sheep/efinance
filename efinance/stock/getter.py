@@ -1,19 +1,101 @@
-from __future__ import print_function
-from typing import Dict, List
+from typing import Dict, List, Union
 from retry import retry
 from urllib.parse import urlencode
 import pandas as pd
 import requests
-from .utils import gen_secid
+from .utils import (gen_secid,
+                    get_stock_market_type,
+                    update_local_market_stocks_info)
 from .config import (EastmoneyKlines,
                      EastmoneyHeaders,
                      EastmoneyBills,
-                     EastmoneyQuotes)
+                     EastmoneyQuotes,
+                     EastmoneyStockInfo)
 import multitasking
 import signal
 from tqdm import tqdm
 
 signal.signal(signal.SIGINT, multitasking.killall)
+
+
+def get_base_info_single(stock_code: str) -> pd.Series:
+    '''
+    获取股票基本信息
+
+    Parameters
+    ----------
+    stock_code : 6 位股票代码
+
+    Return
+    -------
+    Series : 包含单只股票基本信息
+    '''
+    fields = ",".join(EastmoneyStockInfo.keys())
+    params = (
+        ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
+        ('invt', '2'),
+        ('fltt', '2'),
+        ('fields', fields),
+        ('secid', gen_secid(stock_code)),
+
+    )
+
+    json_response = requests.get('http://push2.eastmoney.com/api/qt/stock/get',
+                                 headers=EastmoneyHeaders,
+                                 params=params).json()
+
+    s = pd.Series(json_response['data']).rename(index=EastmoneyStockInfo)
+    return s[EastmoneyStockInfo.values()]
+
+
+def get_base_info_muliti(stock_codes: List[str]) -> pd.Series:
+    '''
+    获取股票多只基本信息
+
+    Parameters
+    ----------
+    stock_codes : 6 位股票代码列表
+
+    Return
+    -------
+    DataFrame : 包含多只股票基本信息
+    '''
+    ss = []
+
+    @multitasking.task
+    def start(stock_code: str):
+        s = get_base_info_single(stock_code)
+        ss.append(s)
+        bar.update()
+        bar.set_description(f'processing {stock_code}')
+    bar = tqdm(total=len(stock_codes))
+    for stock_code in stock_codes:
+        start(stock_code)
+    multitasking.wait_for_tasks()
+    df = pd.DataFrame(ss)
+    return df
+
+
+def get_base_info(stock_codes: Union[str, List[str]]) -> pd.Series:
+    '''
+    获取股票基本信息
+
+    Parameters
+    ----------
+    stock_codes : 6 位股票代码 或 6 位股票代码构成的列表
+
+    Return
+    -------
+    Series 或 DataFrane
+        Series : 包含单只股票基本信息(当 stock_codes 是字符串时)
+        DataFrane : 包含多只股票基本信息(当 stock_codes 是字符串列表时)
+
+    '''
+    if isinstance(stock_codes, str):
+        return get_base_info_single(stock_codes)
+    elif hasattr(stock_codes, '__iter__'):
+        return get_base_info_muliti(stock_codes)
+    raise TypeError(f'所给的 {stock_codes} 不符合参数要求')
 
 
 def get_quote_history(stock_codes: str,
@@ -45,10 +127,18 @@ def get_quote_history(stock_codes: str,
 
     '''
     if isinstance(stock_codes, str):
-        return get_quote_history_single(stock_codes, beg=beg, end=end, klt=klt, fqt=fqt)
+        return get_quote_history_single(stock_codes,
+                                        beg=beg,
+                                        end=end,
+                                        klt=klt,
+                                        fqt=fqt)
     elif hasattr(stock_codes, '__iter__'):
         stock_codes = list(stock_codes)
-        return get_quote_history_multi(stock_codes, beg=beg, end=end, klt=klt, fqt=fqt)
+        return get_quote_history_multi(stock_codes,
+                                       beg=beg,
+                                       end=end,
+                                       klt=klt,
+                                       fqt=fqt)
     else:
         raise TypeError(
             '股票代码类型数据输入不正确！'
@@ -146,6 +236,8 @@ def get_quote_history_multi(stock_codes: List[str],
     '''
     dfs: Dict[str, pd.DataFrame] = {}
     total = len(stock_codes)
+    if total != 0:
+        update_local_market_stocks_info()
 
     @retry(tries=tries)
     @multitasking.task
@@ -351,15 +443,12 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
 
         '''
         # 沪市指数
-        if stock_code[:3] == '000':
+        _type = get_stock_market_type(stock_code)
+        _type = int(_type)
+        # 深市
+        if _type == 0:
             return f'{stock_code}02'
-        # 深证指数
-        if stock_code[:3] == '399':
-            return f'{stock_code}01'
-        # 深市股票
-        if stock_code[0] != '6':
-            return f'{stock_code}02'
-        # 沪市股票
+        # 沪市
         return f'{stock_code}01'
 
     def get_public_dates(stock_code: str, top: int = 4) -> List[str]:

@@ -1,3 +1,8 @@
+
+from pathlib import Path
+HERE = Path(__file__).parent
+FUTURES_BASE_INFO_SAVE_PATH = HERE/'futures_info.csv'
+
 EastmoneyKlines = {
     'f51': '日期',
     'f52': '开盘',
