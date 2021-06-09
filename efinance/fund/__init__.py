@@ -6,4 +6,5 @@ from .getter import (get_base_info,
                      get_period_change,
                      get_public_dates,
                      get_industry_distributing,
-                     get_quote_history)
+                     get_quote_history,
+                     get_pdf_reports)

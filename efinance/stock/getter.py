@@ -1,8 +1,10 @@
 from typing import Dict, List, Union
 from retry import retry
-from urllib.parse import urlencode
 import pandas as pd
 import requests
+import multitasking
+import signal
+from tqdm import tqdm
 from .utils import (gen_secid,
                     get_stock_market_type,
                     update_local_market_stocks_info)
@@ -10,17 +12,14 @@ from .config import (EastmoneyKlines,
                      EastmoneyHeaders,
                      EastmoneyBills,
                      EastmoneyQuotes,
-                     EastmoneyStockInfo)
-import multitasking
-import signal
-from tqdm import tqdm
+                     EastmoneyStockBaseInfo)
 
 signal.signal(signal.SIGINT, multitasking.killall)
 
 
 def get_base_info_single(stock_code: str) -> pd.Series:
     '''
-    获取股票基本信息
+    获取单股票基本信息
 
     Parameters
     ----------
@@ -30,7 +29,7 @@ def get_base_info_single(stock_code: str) -> pd.Series:
     -------
     Series : 包含单只股票基本信息
     '''
-    fields = ",".join(EastmoneyStockInfo.keys())
+    fields = ",".join(EastmoneyStockBaseInfo.keys())
     params = (
         ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
         ('invt', '2'),
@@ -44,8 +43,8 @@ def get_base_info_single(stock_code: str) -> pd.Series:
                                  headers=EastmoneyHeaders,
                                  params=params).json()
 
-    s = pd.Series(json_response['data']).rename(index=EastmoneyStockInfo)
-    return s[EastmoneyStockInfo.values()]
+    s = pd.Series(json_response['data']).rename(index=EastmoneyStockBaseInfo)
+    return s[EastmoneyStockBaseInfo.values()]
 
 
 def get_base_info_muliti(stock_codes: List[str]) -> pd.Series:
@@ -76,7 +75,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.Series:
     return df
 
 
-def get_base_info(stock_codes: Union[str, List[str]]) -> pd.Series:
+def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
     '''
     获取股票基本信息
 
@@ -96,53 +95,6 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> pd.Series:
     elif hasattr(stock_codes, '__iter__'):
         return get_base_info_muliti(stock_codes)
     raise TypeError(f'所给的 {stock_codes} 不符合参数要求')
-
-
-def get_quote_history(stock_codes: str,
-                      beg: str = '19000101',
-                      end: str = '20500101',
-                      klt: int = 101,
-                      fqt: int = 1) -> pd.DataFrame:
-    '''
-    获取k线数据
-
-    Parameters
-    ----------
-    stock_codes : 6 位股票代码 或者 6 位股票代码构成的列表
-    beg : 开始日期 例如 20200101
-    end : 结束日期 例如 20200201
-    klt : k线间距 默认为 101 即日k
-            klt : 1 1 分钟
-            klt : 5 5 分钟
-            klt : 101 日
-            klt : 102 周
-    fqt: 复权方式
-            不复权 : 0
-            前复权 : 1
-            后复权 : 2 
-
-    Return
-    ------
-    DateFrame : 包含股票k线数据
-
-    '''
-    if isinstance(stock_codes, str):
-        return get_quote_history_single(stock_codes,
-                                        beg=beg,
-                                        end=end,
-                                        klt=klt,
-                                        fqt=fqt)
-    elif hasattr(stock_codes, '__iter__'):
-        stock_codes = list(stock_codes)
-        return get_quote_history_multi(stock_codes,
-                                       beg=beg,
-                                       end=end,
-                                       klt=klt,
-                                       fqt=fqt)
-    else:
-        raise TypeError(
-            '股票代码类型数据输入不正确！'
-        )
 
 
 def get_quote_history_single(stock_code: str,
@@ -188,10 +140,12 @@ def get_quote_history_single(stock_code: str,
         ('klt', f'{klt}'),
         ('fqt', f'{fqt}'),
     )
-    base_url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
-    url = base_url+'?'+urlencode(params)
+
+    url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
+
     json_response = requests.get(
-        url, headers=EastmoneyHeaders).json()
+        url, headers=EastmoneyHeaders, params=params).json()
+
     data = json_response.get('data')
     if data is None:
         return pd.DataFrame(columns=columns)
@@ -254,6 +208,53 @@ def get_quote_history_multi(stock_codes: List[str],
     multitasking.wait_for_tasks()
     pbar.close()
     return dfs
+
+
+def get_quote_history(stock_codes: str,
+                      beg: str = '19000101',
+                      end: str = '20500101',
+                      klt: int = 101,
+                      fqt: int = 1) -> pd.DataFrame:
+    '''
+    获取k线数据
+
+    Parameters
+    ----------
+    stock_codes : 6 位股票代码 或者 6 位股票代码构成的列表
+    beg : 开始日期 例如 20200101
+    end : 结束日期 例如 20200201
+    klt : k线间距 默认为 101 即日k
+            klt : 1 1 分钟
+            klt : 5 5 分钟
+            klt : 101 日
+            klt : 102 周
+    fqt: 复权方式
+            不复权 : 0
+            前复权 : 1
+            后复权 : 2 
+
+    Return
+    ------
+    DateFrame : 包含股票k线数据
+
+    '''
+    if isinstance(stock_codes, str):
+        return get_quote_history_single(stock_codes,
+                                        beg=beg,
+                                        end=end,
+                                        klt=klt,
+                                        fqt=fqt)
+    elif hasattr(stock_codes, '__iter__'):
+        stock_codes = list(stock_codes)
+        return get_quote_history_multi(stock_codes,
+                                       beg=beg,
+                                       end=end,
+                                       klt=klt,
+                                       fqt=fqt)
+    else:
+        raise TypeError(
+            '股票代码类型数据输入不正确！'
+        )
 
 
 def get_realtime_quotes() -> pd.DataFrame:
@@ -427,7 +428,7 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
 
     Return
     ------
-    DataFrame
+    DataFrame：包含持股前 10 的股东的一些信息
     '''
     def gen_fc(stock_code: str) -> str:
         '''

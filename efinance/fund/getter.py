@@ -1,8 +1,14 @@
+import os
 import re
 from typing import List, Union
+from warnings import resetwarnings
 import pandas as pd
 import requests
+from tqdm import tqdm
+import multitasking
+import signal
 from .config import EastmoneyFundHeaders
+signal.signal(signal.SIGINT, multitasking.killall)
 
 
 def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
@@ -366,7 +372,7 @@ def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = No
     return df
 
 
-def get_base_info(fund_code: str) -> dict:
+def get_base_info_single(fund_code: str) -> pd.Series:
     '''
     获取基金的一些基本信息
 
@@ -376,7 +382,7 @@ def get_base_info(fund_code: str) -> dict:
 
     Return
     ------
-    Dict : 字典形式的信息
+    Series
     '''
     params = (
         ('FCODE', fund_code),
@@ -404,10 +410,59 @@ def get_base_info(fund_code: str) -> dict:
         'FSRQ': '净值更新日期',
         'COMMENTS': '简介',
     }
-    fund = {}
-    for k, v in columns.items():
-        fund[v] = json_response['Datas'][k]
-    return fund
+    s = pd.Series(json_response['Datas']).rename(index=columns)
+    s = s.apply(lambda x: x.replace('\n', ' ').strip()
+                if isinstance(x, str) else x)
+    return s
+
+
+def get_base_info_muliti(fund_codes: List[str]) -> pd.Series:
+    '''
+    获取多只基金基本信息
+
+    Parameters
+    ----------
+    stock_codes : 6 位基金代码列表
+
+    Return
+    -------
+    DataFrame : 包含多只基金基本信息
+    '''
+    ss = []
+
+    @multitasking.task
+    def start(fund_code: str) -> None:
+        s = get_base_info_single(fund_code)
+        ss.append(s)
+        bar.update()
+        bar.set_description(f'processing {fund_code}')
+    bar = tqdm(total=len(fund_codes))
+    for fund_code in fund_codes:
+        start(fund_code)
+    multitasking.wait_for_tasks()
+    df = pd.DataFrame(ss)
+    return df
+
+
+def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
+    '''
+    获取基金的一些基本信息
+
+    Parameters
+    ----------
+    fund_code : 6 位基金代码 或多个 6 位 基金代码构成的列表
+
+    Return
+    ------
+    Series 或 DataFrane
+        Series : 包含单只基金基本信息(当 fund_codes 是字符串时)
+        DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
+    '''
+    if isinstance(fund_codes, str):
+        return get_base_info_single(fund_codes)
+    elif hasattr(fund_codes, '__iter__'):
+        return get_base_info_muliti(fund_codes)
+    raise TypeError(f'所给的 {fund_codes} 不符合参数要求')
 
 
 def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
@@ -465,3 +520,66 @@ def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = Non
     df.insert(0, '基金代码', [fund_code for _ in range(len(df))])
     df = df.drop_duplicates()
     return df
+
+
+def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') -> None:
+    '''
+    根据基金代码获取其全部 pdf 报告
+
+    Parameters
+    ----------
+    fund_code : 6 位基金代码
+    max_count : 要获取的最大个数个 pdf(从最新的的开始数)
+    save_dir : pdf 保存的文件夹路径
+    Return
+    ------
+    None
+    '''
+    headers = {
+        'Connection': 'keep-alive',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 Edg/89.0.774.77',
+        'Accept': '*/*',
+        'Referer': 'http://fundf10.eastmoney.com/',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    }
+
+    @multitasking.task
+    def download_file(fund_code: str, url: str, filename: str, file_type='.pdf'):
+        '''
+        根据文件名、文件直链等参数下载文件
+        '''
+
+        bar.set_description(f'processing {fund_code}')
+        fund_code = str(fund_code)
+        if not os.path.exists(save_dir+'/'+fund_code):
+            os.mkdir(save_dir+'/'+fund_code)
+        response = requests.get(url, headers=headers)
+        path = f'{save_dir}/{fund_code}/{filename}{file_type}'
+        with open(path, 'wb') as f:
+            f.write(response.content)
+        if os.path.getsize(path) == 0:
+            os.remove(path)
+            return
+        bar.update(1)
+    params = (
+        ('fundcode', fund_code),
+        ('pageIndex', '1'),
+        ('pageSize', '200000'),
+        ('type', '3'),
+    )
+
+    json_response = requests.get(
+        'http://api.fund.eastmoney.com/f10/JJGG', headers=headers, params=params).json()
+
+    base_link = 'http://pdf.dfcfw.com/pdf/H2_{}_1.pdf'
+
+    bar = tqdm(total=min(max_count, len(json_response['Data'])))
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+    for item in json_response['Data'][-max_count:]:
+
+        title = item['TITLE']
+        download_url = base_link.format(item['ID'])
+        download_file(fund_code, download_url, title)
+    multitasking.wait_for_tasks()
+    bar.close()

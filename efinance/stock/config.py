@@ -55,7 +55,7 @@ EastmoneyHeaders = {
     'Referer': 'http://quote.eastmoney.com/center/gridlist.html',
 }
 
-EastmoneyStockInfo = {
+EastmoneyStockBaseInfo = {
     'f57': '股票代码',
     'f58': '股票名称',
     'f162': '市盈率(动)',
