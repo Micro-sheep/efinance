@@ -10,9 +10,15 @@ from retry import retry
 
 
 def get_futures_base_info() -> pd.DataFrame:
-    '''
-    获取全部期货基本信息
-    '''
+    """
+    获取四个交易所全部期货基本信息
+
+    Returns
+    -------
+    DataFrame
+        四个交易所全部期货基本信息
+    """
+
     params = (
         ('np', '1'),
         ('fltt', '2'),
@@ -51,30 +57,36 @@ def get_quote_history_single(secid: str,
                              end: str = '20500101',
                              klt: int = 101,
                              fqt: int = 1) -> pd.DataFrame:
-    '''
-    获取k线数据
+    """
+    获取期货历史行情信息
 
     Parameters
     ----------
-    secid : 根据 efinance.Futures.get_futures_base_info 函数
-    获取4个交易所期货数据，取 secid 列来获取 secid
-    beg : 开始日期 例如 20200101
-    end : 结束日期 例如 20200201
-    klt : k线间距 默认为 101 即日k
+    secid : str
+        根据 efinance.Futures.get_futures_base_info 函数获取
+    beg : str, optional
+        开始日期，默认为 '19000101'，表示 1900年1月1日
+    end : str, optional
+        结束日期，默认为 '20500101'，表示 2050年1月1日
+    klt : int, optional
+        行情之间的时间间隔
+        可选示例如下
             klt : 1 1 分钟
             klt : 5 5 分钟
             klt : 101 日
             klt : 102 周
-    fqt: 复权方式
+    fqt : int, optional
+        复权方式，默认为 1
+        可选示例如下
             不复权 : 0
             前复权 : 1
             后复权 : 2 
 
-    Return
-    ------
-    DateFrame : 包含股票k线数据
-
-    '''
+    Returns
+    -------
+    DataFrame
+        指定日期区间的期货历史行情信息
+    """
 
     fields = list(EastmoneyKlines.keys())
     columns = list(EastmoneyKlines.values())
@@ -120,28 +132,39 @@ def get_quote_history_multi(secids: List[str],
                             klt: int = 101,
                             fqt: int = 1,
                             tries: int = 3) -> Dict[str, pd.DataFrame]:
-    '''
-    获取多只股票历史行情信息
+    """
+    获取多个期货历史行情信息
 
     Parameters
     ----------
-    secids : 多个 期货 secid 列表
-    beg : 开始日期 例如 20200101
-    end : 结束日期 例如 20200201
-    klt : k线间距 默认为 101 即日k
+    secids : List[str]
+        多个 期货 secid 列表
+    beg : str, optional
+        开始日期，默认为 '19000101'，表示 1900年1月1日
+    end : str, optional
+        结束日期，默认为 '20500101'，表示 2050年1月1日
+    klt : int, optional
+        行情之间的时间间隔
+        可选示例如下
             klt : 1 1 分钟
             klt : 5 5 分钟
             klt : 101 日
             klt : 102 周
-    fqt: 复权方式
+    fqt : int, optional
+        复权方式，默认为 1
+        可选示例如下
             不复权 : 0
             前复权 : 1
             后复权 : 2 
+    tries : int, optional
+        单个线程出错时重试次数, 默认为  3
 
-    Return
-    ------
-    DateFrame : 包含股票k线数据
-    '''
+    Returns
+    -------
+    Dict[str, pd.DataFrame]
+        以 期货 secid 为 key，以 DataFrame 为值的 dict
+    """
+
     dfs: Dict[str, pd.DataFrame] = {}
     total = len(secids)
     if total != 0:
@@ -169,29 +192,49 @@ def get_quote_history(secids: Union[str, List[str]],
                       end: str = '20500101',
                       klt: int = 101,
                       fqt: int = 1) -> pd.DataFrame:
-    '''
-    获取k线数据
+    """
+    获取期货历史行情信息
 
     Parameters
     ----------
-    secids : 6 位股票代码 或者 6 位股票代码构成的列表
-    beg : 开始日期 例如 20200101
-    end : 结束日期 例如 20200201
-    klt : k线间距 默认为 101 即日k
+    secids : Union[str, List[str]]
+        一个期货 secid，或者多个期货 secid构成的列表
+    beg : str, optional
+        开始日期，默认为 '19000101'，表示 1900年1月1日
+    end : str, optional
+        结束日期，默认为 '20500101'，表示 2050年1月1日
+    klt : int, optional
+        行情之间的时间间隔
+        可选示例如下
             klt : 1 1 分钟
             klt : 5 5 分钟
             klt : 101 日
             klt : 102 周
-    fqt: 复权方式
+    fqt : int, optional
+        复权方式，默认为 1
+        可选示例如下
             不复权 : 0
             前复权 : 1
             后复权 : 2 
+    tries : int, optional
+        单个线程出错时重试次数, 默认为  3
 
-    Return
+    Returns
+    -------
+    Dict[str, pd.DataFrame]
+        以 期货 secid 为 key，以 DataFrame 为值的 dict
+
+    Returns
+    -------
+    pd.DataFrame
+        [description]
+
+    Raises
     ------
-    DateFrame : 包含股票k线数据
+    TypeError
+        当 secids 不符合类型要求时
+    """
 
-    '''
     if isinstance(secids, str):
         return get_quote_history_single(secids, beg=beg, end=end, klt=klt, fqt=fqt)
     elif hasattr(secids, '__iter__'):

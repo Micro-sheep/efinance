@@ -1,7 +1,6 @@
 import os
 import re
 from typing import List, Union
-from warnings import resetwarnings
 import pandas as pd
 import requests
 from tqdm import tqdm
@@ -12,18 +11,22 @@ signal.signal(signal.SIGINT, multitasking.killall)
 
 
 def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
-    '''
+    """
     根据基金代码和要获取的页码抓取基金净值信息
 
     Parameters
     ----------
-    fund_code : 6位基金代码
-    page : 页码 1 为最新页数据
+    fund_code : str
+        6 位基金代码
+    pz : int, optional
+        页码, 默认为 40000 以获取全部历史数据
 
-    Return
-    ------
-    DataFrame : 包含基金历史k线数据
-    '''
+    Returns
+    -------
+    DataFrame
+        包含基金历史净值等数据
+    """
+
     data = {
         'FCODE': f'{fund_code}',
         'IsShareNet': 'true',
@@ -71,18 +74,20 @@ def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
 
 
 def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFrame:
-    '''
-    获取基金实时预期涨跌幅度
+    """
+    获取基金实时估算涨跌幅度
 
     Parameters
     ----------
-    fund_codes : 6 位基金代码或者 6 位基金代码构成的字符串列表
+    fund_codes : Union[List[str], str]
+        6 位基金代码或者 6 位基金代码构成的字符串列表
 
-    Return
-    ------
-    DataFrame : 单只或者多只基金实时涨跌情况
+    Returns
+    -------
+    DataFrame
+        单只或者多只基金实时估算涨跌情况
+    """
 
-    '''
     if not isinstance(fund_codes, list):
         fund_codes = [fund_codes]
     data = {
@@ -115,21 +120,24 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
     return df
 
 
-def get_fund_codes(ft=None) -> pd.DataFrame:
-    '''
+def get_fund_codes(ft: str = None) -> pd.DataFrame:
+    """
     获取天天基金网公开的全部公墓基金名单
 
     Parameters
     ----------
-    ft : 可选的
-        zq : 债券类型基金
-        gp : 股票类型基金
-        None : 全部
+    ft : str, optional
+        基金类型
+            'zq' : 债券类型基金
+            'gp' : 股票类型基金
+            None : 全部
 
-    Return
-    ------
-    DataFrame : 包含天天基金网基金名单数据
-    '''
+    Returns
+    -------
+    DataFrame
+        包含天天基金网基金名单数据
+    """
+
     params = [
         ('op', 'ph'),
         ('dt', 'kf'),
@@ -164,20 +172,25 @@ def get_fund_codes(ft=None) -> pd.DataFrame:
 
 
 def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
-    '''
+    """
     获取基金持仓占比信息
 
     Parameters
     ----------
-    fund_code : 6 位基金代码
-    date : 可选的
-        None : 最新公开持仓数据的日期
-        2020-09-30 指定日期数据
+    fund_code : str
+        6 位基金代码
+    dates : Union[str, List[str]], optional
+        日期或日期组成的列表
+        例如：
+            None : 表示最新公开持仓数据的日期
+            '2020-09-30' 表示指定日期数据
 
-    Return
-    ------
-    DataFrame : 包含指定基金特定日期的公开持仓信息
-    '''
+    Returns
+    -------
+    DataFrame
+        包含指定基金特定日期的公开持仓信息
+    """
+
     columns = {
         'GPDM': '股票代码',
         'GPJC': '股票简称',
@@ -223,18 +236,20 @@ def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> 
 
 
 def get_period_change(fund_code: str) -> pd.DataFrame:
-    '''
-    阶段涨跌幅度
+    """
+    获取基金阶段涨跌幅度
 
     Parameters
     ----------
-    fund_code : 6 位基金代码
+    fund_code : str
+        6 位基金代码
 
-    Return
-    ------
-    DataFrame : 包含特定基金的阶段涨跌数据
+    Returns
+    -------
+    DataFrame
+        包含指定基金的阶段涨跌数据
+    """
 
-    '''
     params = (
         ('AppVersion', '6.3.8'),
         ('FCODE', fund_code),
@@ -279,17 +294,19 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
 
 
 def get_public_dates(fund_code: str) -> List[str]:
-    '''
+    """
     获取历史上更新持仓情况的日期列表
 
     Parameters
     ----------
-    fund_code : 6位基金代码
+    fund_code : str
+        6 位基金代码
 
-    Return
-    ------
-    List[str] : 指定基金公开持仓的日期列表
-    '''
+    Returns
+    -------
+    List[str]
+        指定基金公开持仓的日期列表
+    """
 
     params = (
         ('FCODE', fund_code),
@@ -315,22 +332,25 @@ def get_public_dates(fund_code: str) -> List[str]:
 
 
 def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = None) -> pd.DataFrame:
-    '''
+    """
     获取指定基金不同类型占比信息
 
     Parameters
     ----------
-    fund_code : 6 位基金代码
+    fund_code : str
+        6 位基金代码
+    dates : Union[List[str], str, None]
+        可选值类型示例如下
+            None : 最新公开持仓数据的日期
 
-    date : 可选的
-        None : 最新公开持仓数据的日期
+            '2020-09-30' 指定日期数据
 
-        '2020-09-30' 指定日期数据
+    Returns
+    -------
+    DataFrame
+        指定基金的在不同日期的不同类型持仓占比信息
+    """
 
-    Return
-    ------
-    DataFrame : 指定基金的在不同日期的不同类型持仓占比信息
-    '''
     columns = {
         'GP': '股票比重',
         'ZQ': '债券比重',
@@ -373,17 +393,20 @@ def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = No
 
 
 def get_base_info_single(fund_code: str) -> pd.Series:
-    '''
+    """
     获取基金的一些基本信息
 
     Parameters
     ----------
-    fund_code : 6 位基金代码
+    fund_code : str
+        6 位基金代码
 
-    Return
-    ------
+    Returns
+    -------
     Series
-    '''
+        包含基金的一些基本信息
+    """
+
     params = (
         ('FCODE', fund_code),
         ('utoken', 'a166hhqnrajucnfcjkfkeducanekj1dd1cc2a-e9.6'),
@@ -417,17 +440,20 @@ def get_base_info_single(fund_code: str) -> pd.Series:
 
 
 def get_base_info_muliti(fund_codes: List[str]) -> pd.Series:
-    '''
+    """
     获取多只基金基本信息
 
     Parameters
     ----------
-    stock_codes : 6 位基金代码列表
+    fund_codes : List[str]
+        6 位基金代码列表
 
-    Return
+    Returns
     -------
-    DataFrame : 包含多只基金基本信息
-    '''
+    Series
+        包含多只基金基本信息
+    """
+
     ss = []
 
     @multitasking.task
@@ -445,19 +471,26 @@ def get_base_info_muliti(fund_codes: List[str]) -> pd.Series:
 
 
 def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
-    '''
+    """
     获取基金的一些基本信息
 
     Parameters
     ----------
-    fund_code : 6 位基金代码 或多个 6 位 基金代码构成的列表
+    fund_codes : Union[str, List[str]]
+        6 位基金代码 或多个 6 位 基金代码构成的列表
 
-    Return
-    ------
-    Series 或 DataFrane
+    Returns
+    -------
+    Union[pd.Series, pd.DataFrame]
         Series : 包含单只基金基本信息(当 fund_codes 是字符串时)
         DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
-    '''
+
+    Raises
+    ------
+    TypeError
+        当 fund_codes 类型不符合要求时
+    """
+
     if isinstance(fund_codes, str):
         return get_base_info_single(fund_codes)
     elif hasattr(fund_codes, '__iter__'):
@@ -466,21 +499,26 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
 
 
 def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
-    '''
+    """
     获取指定基金行业分布信息
 
     Parameters
     ----------
-    fund_code : 6位基金代码
-    dates : 可选
-        None : 最新公开日期
-        '2020-01-01' : 一个公开持仓日期
-        ['2020-12-31' ,'2019-12-31'] : 多个公开持仓日期
-    Return
-    ------
-    DataFrame : 包含指定基金行业持仓信息的表格
+    fund_code : str
+        6 位基金代码
+    dates : Union[str, List[str]], optional
+        日期
+        可选值类型示例如下
+            None : 最新公开日期
+            '2020-01-01' : 一个公开持仓日期
+            ['2020-12-31' ,'2019-12-31'] : 多个公开持仓日期
 
-    '''
+    Returns
+    -------
+    DataFrame
+        包含指定基金行业持仓信息
+    """
+
     columns = {
         'HYMC': '行业名称',
         'ZJZBL': '持仓比例',
@@ -523,18 +561,19 @@ def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = Non
 
 
 def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') -> None:
-    '''
+    """
     根据基金代码获取其全部 pdf 报告
 
     Parameters
     ----------
-    fund_code : 6 位基金代码
-    max_count : 要获取的最大个数个 pdf(从最新的的开始数)
-    save_dir : pdf 保存的文件夹路径
-    Return
-    ------
-    None
-    '''
+    fund_code : str
+        6 位基金代码
+    max_count : int, optional
+        要获取的最大个数个 pdf(从最新的的开始数), 默认为 12
+    save_dir : str, optional
+        pdf 保存的文件夹路径, 默认为 'pdf'
+    """
+
     headers = {
         'Connection': 'keep-alive',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 Edg/89.0.774.77',
@@ -544,10 +583,21 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
     }
 
     @multitasking.task
-    def download_file(fund_code: str, url: str, filename: str, file_type='.pdf'):
-        '''
+    def download_file(fund_code: str, url: str, filename: str, file_type='.pdf') -> None:
+        """
         根据文件名、文件直链等参数下载文件
-        '''
+
+        Parameters
+        ----------
+        fund_code : str
+            6 位基金代码
+        url : str
+            下载连接
+        filename : str
+            文件后缀名
+        file_type : str, optional
+            文件类型, 默认为 '.pdf'
+        """
 
         bar.set_description(f'processing {fund_code}')
         fund_code = str(fund_code)

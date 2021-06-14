@@ -18,17 +18,19 @@ signal.signal(signal.SIGINT, multitasking.killall)
 
 
 def get_base_info_single(stock_code: str) -> pd.Series:
-    '''
+    """
     获取单股票基本信息
 
     Parameters
     ----------
-    stock_code : 6 位股票代码
+    stock_code : str
+        6 位股票代码
 
-    Return
+    Returns
     -------
     Series : 包含单只股票基本信息
-    '''
+
+    """
     fields = ",".join(EastmoneyStockBaseInfo.keys())
     params = (
         ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
@@ -47,18 +49,21 @@ def get_base_info_single(stock_code: str) -> pd.Series:
     return s[EastmoneyStockBaseInfo.values()]
 
 
-def get_base_info_muliti(stock_codes: List[str]) -> pd.Series:
-    '''
+def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
+    """
     获取股票多只基本信息
 
     Parameters
     ----------
-    stock_codes : 6 位股票代码列表
+    stock_codes : List[str]
+        6 位股票代码列表
 
-    Return
+    Returns
     -------
-    DataFrame : 包含多只股票基本信息
-    '''
+    DataFrame
+        包含多只股票基本信息
+    """
+
     ss = []
 
     @multitasking.task
@@ -76,20 +81,28 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.Series:
 
 
 def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
-    '''
-    获取股票基本信息
+    """
+    [summary]
 
     Parameters
     ----------
-    stock_codes : 6 位股票代码 或 6 位股票代码构成的列表
+    stock_codes : Union[str, List[str]]
+        6 位股票代码 或 6 位股票代码构成的列表
 
-    Return
+    Returns
     -------
-    Series 或 DataFrane
-        Series : 包含单只股票基本信息(当 stock_codes 是字符串时)
-        DataFrane : 包含多只股票基本信息(当 stock_codes 是字符串列表时)
+    Union[Series, DataFrame]
+        Series 
+            包含单只股票基本信息(当 stock_codes 是字符串时)
+        DataFrane
+            包含多只股票基本信息(当 stock_codes 是字符串列表时)
 
-    '''
+    Raises
+    ------
+    TypeError
+        当 stock_codes 类型不符合要求时
+    """
+
     if isinstance(stock_codes, str):
         return get_base_info_single(stock_codes)
     elif hasattr(stock_codes, '__iter__'):
@@ -100,31 +113,35 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
 def get_quote_history_single(stock_code: str,
                              beg: str = '19000101',
                              end: str = '20500101',
-                             klt: int = 101,
-                             fqt: int = 1) -> pd.DataFrame:
-    '''
-    获取k线数据
+                             klt: int = 101, fqt: int = 1) -> pd.DataFrame:
+    """
+    获取单只股票k线数据
 
     Parameters
     ----------
-    stock_code : 6 位股票代码
-    beg : 开始日期 例如 20200101
-    end : 结束日期 例如 20200201
-    klt : k线间距 默认为 101 即日k
+    stock_code : str
+        6 位股票代码
+    beg : str, optional
+        开始日期 例如 20200101
+    end : str, optional
+        结束日期 例如 20200201
+    klt : int, optional
+        k线间距 默认为 101 即日k
             klt : 1 1 分钟
             klt : 5 5 分钟
             klt : 101 日
             klt : 102 周
-    fqt: 复权方式
+    fqt : int, optional
+        复权方式
             不复权 : 0
             前复权 : 1
             后复权 : 2 
 
-    Return
-    ------
-    DateFrame : 包含股票k线数据
-
-    '''
+    Returns
+    -------
+    DataFrame
+        包含股票k线数据
+    """
 
     fields = list(EastmoneyKlines.keys())
     columns = list(EastmoneyKlines.values())
@@ -166,28 +183,37 @@ def get_quote_history_multi(stock_codes: List[str],
                             klt: int = 101,
                             fqt: int = 1,
                             tries: int = 3) -> Dict[str, pd.DataFrame]:
-    '''
+    """
     获取多只股票历史行情信息
 
     Parameters
     ----------
-    stock_codes : 多个 6 位股票代码的列表
-    beg : 开始日期 例如 20200101
-    end : 结束日期 例如 20200201
-    klt : k线间距 默认为 101 即日k
+    stock_code : str
+        6 位股票代码
+    beg : str, optional
+        开始日期 例如 20200101
+    end : str, optional
+        结束日期 例如 20200201
+    klt : int, optional
+        k线间距 默认为 101 即日k
             klt : 1 1 分钟
             klt : 5 5 分钟
             klt : 101 日
             klt : 102 周
-    fqt: 复权方式
+    fqt : int, optional
+        复权方式
             不复权 : 0
             前复权 : 1
             后复权 : 2 
+    tries : int, optional
+        失败某个线程出错时重试次数
 
-    Return
-    ------
-    DateFrame : 包含股票k线数据
-    '''
+    Returns
+    -------
+    Dict[str, DataFrame]
+        以 股票代码为 key，以 DataFrame 为 value 的 dict
+    """
+
     dfs: Dict[str, pd.DataFrame] = {}
     total = len(stock_codes)
     if total != 0:
@@ -215,29 +241,35 @@ def get_quote_history(stock_codes: str,
                       end: str = '20500101',
                       klt: int = 101,
                       fqt: int = 1) -> pd.DataFrame:
-    '''
+    """
     获取k线数据
 
     Parameters
     ----------
-    stock_codes : 6 位股票代码 或者 6 位股票代码构成的列表
-    beg : 开始日期 例如 20200101
-    end : 结束日期 例如 20200201
-    klt : k线间距 默认为 101 即日k
+    stock_codes : str
+        6 位股票代码 或者 6 位股票代码构成的列表
+    beg : str, optional
+        开始日期 例如 20200101
+    end : str, optional
+        结束日期 例如 20200201
+    klt : int, optional
+        k线间距 默认为 101 即日k
             klt : 1 1 分钟
             klt : 5 5 分钟
             klt : 101 日
             klt : 102 周
-    fqt: 复权方式
+    fqt : int, optional
+        复权方式
             不复权 : 0
             前复权 : 1
             后复权 : 2 
 
-    Return
-    ------
-    DateFrame : 包含股票k线数据
+    Returns
+    -------
+    DataFrame
+        包含股票k线数据
+    """
 
-    '''
     if isinstance(stock_codes, str):
         return get_quote_history_single(stock_codes,
                                         beg=beg,
@@ -258,18 +290,15 @@ def get_quote_history(stock_codes: str,
 
 
 def get_realtime_quotes() -> pd.DataFrame:
-    '''
-    获取沪深全市场股票最新交易日最新时刻数据
+    """
+    获取沪深市场最新行情总体情况
 
-    Parameters
-    ----------
-    无
-
-    Return
-    ------
+    Returns
+    -------
     DataFrame
-    '''
-    # http://quote.eastmoney.com/center/gridlist.html#hs_a_board
+        包含沪深全市场上市公司的最新行情信息（涨跌幅、换手率等信息）
+    """
+
     fields = ",".join(EastmoneyQuotes.keys())
     columns = list(EastmoneyQuotes.values())
     params = (
@@ -297,18 +326,19 @@ def get_realtime_quotes() -> pd.DataFrame:
 
 
 def get_history_bill(stock_code: str) -> pd.DataFrame:
-    '''
-
+    """
+    获取单只股票历史单子流入流出数据
 
     Parameters
     ----------
-    code: 6 位股票代码
+    stock_code : str
+        6 位股票代码
 
-    Return
-    ------
-    DataFrame : 包含指定股票的历史单子数据
-
-    '''
+    Returns
+    -------
+    DataFrame
+        包含沪深市场单只股票历史单子流入流出数据
+    """
 
     fields = list(EastmoneyBills.keys())
     columns = list(EastmoneyBills.values())
@@ -337,17 +367,20 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
 
 
 def get_today_bill(stock_code: str) -> pd.DataFrame:
-    '''
-    获取超大单 大单 主力流入数据
+    """
+    获取最新交易日单只股票最新交易日单子流入流出数据
+
     Parameters
     ----------
-    stock_code : 6 位股票代码
+    stock_code : str
+        6 位股票代码
 
-    Return
-    ------
-    DataFrame : 包含指定股票全部日单子数据
+    Returns
+    -------
+    DataFrame
+        包含沪深市场单只股票最新交易日的单子流入流出数据
+    """
 
-    '''
     params = (
         ('lmt', '0'),
         ('klt', '1'),
@@ -371,15 +404,20 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
 
 
 def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
-    '''
+    """
+    获取沪深市场多只股票的实时涨幅情况
+
     Parameters
     ----------
-    stock_codes 多只股票代码列表
+    stock_codes : List[str]
+        多只股票代码列表
 
-    Return
-    ------   
-    DataFrame : 多只股票涨跌情况
-    '''
+    Returns
+    -------
+    DataFrame
+        包含沪深市场多只股票的实时涨幅情况
+    """
+
     secids = ",".join([gen_secid(code) for code in stock_codes])
     params = (
         ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
@@ -418,31 +456,37 @@ def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
 
 
 def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
-    '''
-    获取前十大股东信息
+    """
+    获取沪深市场指定股票前十大股东信息
 
     Parameters
     ----------
-    stock_code: 6 位股票代码
-    top : 最新 top 个前 10 大流通股东公开信息
+    stock_code : str
+        6 位股票代码
+    top : int, optional
+        最新 top 个前 10 大流通股东公开信息, 默认为 4
 
-    Return
-    ------
-    DataFrame：包含持股前 10 的股东的一些信息
-    '''
+    Returns
+    -------
+    DataFrame
+        包含个股持仓占比前 10 的股东的一些信息
+    """
+
     def gen_fc(stock_code: str) -> str:
-        '''
-        生成东方财富专用的secid
+        """
+        生成东方财富专用的东西
 
         Parameters
         ----------
-        stock_code : 6 位股票代码
+        stock_code : str
+            6 位股票代码
 
-        Return
-        ------
-        str: 指定格式的字符串
+        Returns
+        -------
+        str
+            指定格式的字符串
+        """
 
-        '''
         # 沪市指数
         _type = get_stock_market_type(stock_code)
         _type = int(_type)
@@ -453,18 +497,22 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
         return f'{stock_code}01'
 
     def get_public_dates(stock_code: str, top: int = 4) -> List[str]:
-        '''
+        """
         获取指定股票公开股东信息的日期
+
         Parameters
         ----------
-        stock_code : 6 位 A 股股票代码
-        top : 最新的 top 个日期
+        stock_code : str
+            6 位 A 股股票代码
+        top : int, optional
+            最新的 top 个日期, 默认为 4
 
-        Return
-        ------
-        公开股东信息的日期列表
+        Returns
+        -------
+        List[str]
+            持仓公开日期列表
+        """
 
-        '''
         headers = {
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 color=b eastmoney_ios appversion_9.3 pkg=com.eastmoney.iphone mainBagVersion=9.3 statusBarHeight=20.000000 titleBarHeight=44.000000 density=2.000000 fontsize=3',
             'Content-Type': 'application/json;charset=utf-8',
