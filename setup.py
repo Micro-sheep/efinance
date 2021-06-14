@@ -8,9 +8,8 @@ README = (HERE / "README.md").read_text()
 REQUIREMENTS = (HERE/'requirements.txt').read_text().split()
 
 setup(
-    # 在 pypi 里面显示的项目名称
+    # name in pypi
     name="efinance",
-    # 版本
     version="0.1",
     description="A finance tool for crawl stock,fund and futures data base on eastmoney",
     long_description=README,
@@ -25,7 +24,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    # 要安装到 site-packages 的包名称
+    # package to be installed in  site-packages
     packages=["efinance"],
     include_package_data=True,
     install_requires=REQUIREMENTS,

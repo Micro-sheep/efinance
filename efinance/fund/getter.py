@@ -25,6 +25,24 @@ def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     -------
     DataFrame
         包含基金历史净值等数据
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> ef.fund.get_quote_history('161725')
+        日期    单位净值    累计净值     涨跌幅
+    0    2021-06-11  1.5188  3.1499   -3.09
+    1    2021-06-10  1.5673  3.1984    1.69
+    2    2021-06-09  1.5412  3.1723    0.11
+    3    2021-06-08  1.5395  3.1706    -6.5
+    4    2021-06-07  1.6466  3.2777    1.61
+    ...         ...     ...     ...     ...
+    1469 2015-06-08  1.0380  1.0380  2.5692
+    1470 2015-06-05  1.0120  1.0120  1.5045
+    1471 2015-06-04  0.9970  0.9970      --
+    1472 2015-05-29  0.9950  0.9950      --
+    1473 2015-05-27  1.0000  1.0000      --
+    [1474 rows x 4 columns]
     """
 
     data = {
@@ -86,6 +104,18 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
     -------
     DataFrame
         单只或者多只基金实时估算涨跌情况
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> # 单只基金
+    >>> ef.fund.get_realtime_increase_rate('161725')
+        基金代码              名称  估算涨跌幅              估算时间
+    0  161725  招商中证白酒指数(LOF)A  -0.64  2021-06-15 11:13
+    >>> # 多只基金
+    >>> ef.fund.get_realtime_increase_rate(['161725','005827'])
+        基金代码              名称  估算涨跌幅              估算时间
+    0  161725  招商中证白酒指数(LOF)A  -0.60  2021-06-15 11:16
+    1  005827       易方达蓝筹精选混合  -1.36  2021-06-15 11:16
     """
 
     if not isinstance(fund_codes, list):
@@ -136,6 +166,27 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
     -------
     DataFrame
         包含天天基金网基金名单数据
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> # 全部类型的基金
+    >>> ef.fund.get_fund_codes()
+    >>> # 股票型基金
+    >>> ef.fund.get_fund_codes(ft = 'gp')
+        基金代码                  基金简称
+    0     003834              华夏能源革新股票
+    1     005669            前海开源公用事业股票
+    2     004040             金鹰医疗健康产业A
+    3     517793                 1.20%
+    4     004041             金鹰医疗健康产业C
+    ...      ...                   ...
+    1981  012503      国泰中证环保产业50ETF联接A
+    1982  012517  国泰中证细分机械设备产业主题ETF联接C
+    1983  012600             中银内核驱动股票C
+    1984  011043             国泰价值先锋股票C
+    1985  012516  国泰中证细分机械设备产业主题ETF联接A
+    [1986 rows x 2 columns]
     """
 
     params = [
@@ -189,6 +240,46 @@ def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> 
     -------
     DataFrame
         包含指定基金特定日期的公开持仓信息
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> # 获取最新公开的持仓数据
+    >>> ef.fund.get_inverst_postion('002542')
+         基金代码    股票代码  股票简称  持仓占比  较上期变化  公开日期
+    0  002542  603208  江山欧派  8.15    3.1  None
+    1  002542  600519  贵州茅台   6.5   1.71  None
+    2  002542  300572  安车检测  5.87  -0.01  None
+    3  002542  002706  良信股份  4.99  -2.36  None
+    4  002542  300696   爱乐达  4.97  -0.27  None
+    5  002542  002541  鸿路钢构  4.79   -3.1  None
+    6  002542  002791  坚朗五金   4.7   0.56  None
+    7  002542  601888  中国中免  4.46   4.46  None
+    8  002542  600809  山西汾酒  4.04   4.04  None
+    9  002542  688598  金博股份  3.01   3.01  None
+    >>> # 获取近 2 个公开持仓日数据
+    >>> public_dates = ef.fund.get_public_dates('161725')
+    >>> ef.fund.get_inverst_postion('161725',public_dates[:2])
+        基金代码    股票代码  股票简称   持仓占比  较上期变化        公开日期
+    0  161725  000568  泸州老窖  15.98   1.27  2021-03-31
+    1  161725  600519  贵州茅台  15.02   2.35  2021-03-31
+    2  161725  600809  山西汾酒  14.86  -0.37  2021-03-31
+    3  161725  000858   五粮液  13.43   0.54  2021-03-31
+    4  161725  002304  洋河股份  11.41  -2.21  2021-03-31
+    5  161725  000799   酒鬼酒   4.43  -0.15  2021-03-31
+    6  161725  603369   今世缘   3.94  -0.09  2021-03-31
+    7  161725  000860  顺鑫农业   3.12   -0.7  2021-03-31
+    8  161725  000596  古井贡酒    3.1  -0.15  2021-03-31
+    9  161725  603589   口子窖   2.86   0.21  2021-03-31
+    0  161725  600809  山西汾酒  15.23   0.62  2021-01-08
+    1  161725  000568  泸州老窖  14.71    0.8  2021-01-08
+    2  161725  002304  洋河股份  13.62  -0.43  2021-01-08
+    3  161725  000858   五粮液  12.89   0.19  2021-01-08
+    4  161725  600519  贵州茅台  12.67  -0.32  2021-01-08
+    5  161725  000799   酒鬼酒   4.58   0.59  2021-01-08
+    6  161725  603369   今世缘   4.03   0.03  2021-01-08
+    7  161725  000860  顺鑫农业   3.82  -0.35  2021-01-08
+    8  161725  000596  古井贡酒   3.25   -0.2  2021-01-08
+    9  161725  603589   口子窖   2.65  -0.12  2021-01-08
     """
 
     columns = {
@@ -248,6 +339,21 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
     -------
     DataFrame
         包含指定基金的阶段涨跌数据
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> ef.fund.get_period_change('161725')
+        基金代码     收益率   同类平均  同类排行  同类总数   时间段
+    0  161725   -6.28   0.07  1408  1409   近一周
+    1  161725   10.85   5.82   178  1382   近一月
+    2  161725   25.32   7.10    20  1332   近三月
+    3  161725   22.93  10.39    79  1223   近六月
+    4  161725  103.76  33.58     7  1118   近一年
+    5  161725  166.59  55.42     9   796   近两年
+    6  161725  187.50  48.17     2   611   近三年
+    7  161725  519.44  61.62     1   389   近五年
+    8  161725    6.46   5.03   423  1243  今年以来
+    9  161725  477.00                     成立以来
     """
 
     params = (
@@ -306,6 +412,13 @@ def get_public_dates(fund_code: str) -> List[str]:
     -------
     List[str]
         指定基金公开持仓的日期列表
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> public_dates = ef.fund.get_public_dates('161725')
+    >>> # 展示前 5 个
+    >>> public_dates[:5]
+    ['2021-03-31', '2021-01-08', '2020-12-31', '2020-09-30', '2020-06-30']
     """
 
     params = (
@@ -349,6 +462,19 @@ def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = No
     -------
     DataFrame
         指定基金的在不同日期的不同类型持仓占比信息
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> # 获取持仓公开日期
+    >>> public_dates = ef.fund.get_public_dates('005827')
+    >>> # 取前两个公开持仓日期
+    >>> dates = public_dates[:2]
+    >>> ef.fund.get_types_persentage('005827',dates)
+        基金代码   股票比重 债券比重  现金比重         总规模(亿元) 其他比重
+    0  005827   94.4   --  6.06  880.1570625231    0
+    0  005827  94.09   --  7.63   677.007455712    0
+
     """
 
     columns = {
@@ -489,6 +615,29 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
     ------
     TypeError
         当 fund_codes 类型不符合要求时
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> # 获取单只基金基本信息
+    >>> ef.fund.get_base_info('161725')
+    基金代码                                                161725
+    基金简称                                        招商中证白酒指数(LOF)A
+    FTYPE                                                 股票指数
+    FEATURE                                    020,050,051,054
+    BFUNDTYPE                                              001
+                                        ...
+    HSGRT                                                0.10%
+    BENCH                 中证白酒指数收益率*95%+金融机构人民币活期存款基准利率(税后)*5%
+    FINSALES                                                 0
+    INVESTMENTIDEAR                                         --
+    INVESTMENTIDEARIMG                                      --
+    Length: 118, dtype: object
+    >>> # 获取多只基金基本信息
+    >>> ef.fund.get_base_info(['161725','005827'])
+        基金代码            基金简称 FTYPE  ... FINSALES INVESTMENTIDEAR INVESTMENTIDEARIMG
+    0  005827       易方达蓝筹精选混合   混合型  ...        0              --                 --
+    1  161725  招商中证白酒指数(LOF)A  股票指数  ...        0              --                 --
+    [2 rows x 118 columns]
     """
 
     if isinstance(fund_codes, str):
@@ -498,7 +647,7 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
     raise TypeError(f'所给的 {fund_codes} 不符合参数要求')
 
 
-def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
+def get_industry_distribution(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
     """
     获取指定基金行业分布信息
 
@@ -517,6 +666,36 @@ def get_industry_distributing(fund_code: str, dates: Union[str, List[str]] = Non
     -------
     DataFrame
         包含指定基金行业持仓信息
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> # 获取持仓公开日期
+    >>> public_dates = ef.fund.get_public_dates('161725')
+    >>> # 取前一个公开持仓日期
+    >>> dates = public_dates[:1]
+    >>> ef.fund.get_industry_distribution('161725',dates)
+        基金代码              行业名称   持仓比例        公布日期              市值
+    0   161725               制造业  94.92  2021-03-31  4737709.835521
+    1   161725               金融业   0.01  2021-03-31      554.417158
+    2   161725            批发和零售业      0  2021-03-31        3.307382
+    3   161725   信息传输、软件和信息技术服务业      0  2021-03-31      121.184075
+    4   161725              房地产业      0  2021-03-31         1.02003
+    5   161725        科学研究和技术服务业      0  2021-03-31         1.87866
+    6   161725  电力、热力、燃气及水生产和供应业      0  2021-03-31        2.403612
+    7   161725     水利、环境和公共设施管理业      0  2021-03-31        3.339202
+    8   161725          农、林、牧、渔业     --  2021-03-31              --
+    9   161725            住宿和餐饮业     --  2021-03-31              --
+    10  161725               采矿业     --  2021-03-31              --
+    11  161725          租赁和商务服务业     --  2021-03-31              --
+    12  161725       交通运输、仓储和邮政业     --  2021-03-31              --
+    13  161725               建筑业     --  2021-03-31              --
+    14  161725     居民服务、修理和其他服务业     --  2021-03-31              --
+    15  161725                教育     --  2021-03-31              --
+    16  161725           卫生和社会工作     --  2021-03-31              --
+    17  161725         文化、体育和娱乐业     --  2021-03-31              --
+    18  161725                综合     --  2021-03-31              --
+    19  161725                合计  94.94  2021-03-31   4738397.38564
     """
 
     columns = {
@@ -572,6 +751,12 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
         要获取的最大个数个 pdf(从最新的的开始数), 默认为 12
     save_dir : str, optional
         pdf 保存的文件夹路径, 默认为 'pdf'
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> # 获取基金代码为 161725 的基金最新的两个 pdf 报道文件
+    >>> ef.fund.get_pdf_reports('161725',max_count = 2)
+    161725 的 pdf 文件已存储到文件夹 pdf/161725 中
     """
 
     headers = {
@@ -633,3 +818,4 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
         download_file(fund_code, download_url, title)
     multitasking.wait_for_tasks()
     bar.close()
+    print(f'{fund_code} 的 pdf 文件已存储到文件夹 {save_dir}/{fund_code} 中')

@@ -3,11 +3,13 @@
 *.egg-info*
 build
 dist
-
+.vscode
 # Files
 *.pyc
 *.csv
 *.xlsx
 *.zip
+*.tar
+*.tar.gz
 
 
