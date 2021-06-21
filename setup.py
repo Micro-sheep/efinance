@@ -2,11 +2,8 @@
 import pathlib
 from setuptools import setup
 HERE = pathlib.Path(__file__).parent
-
-
-README = (HERE / "README.md").read_text()
+README = (HERE / "README.md").read_text(encoding='utf-8')
 REQUIREMENTS = (HERE/'requirements.txt').read_text().split()
-
 setup(
     # name in pypi
     name="efinance",
