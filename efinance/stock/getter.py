@@ -66,6 +66,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
 
     ss = []
 
+    @retry(tries=3, delay=0.5)
     @multitasking.task
     def start(stock_code: str):
         s = get_base_info_single(stock_code)
@@ -243,7 +244,7 @@ def get_quote_history_multi(stock_codes: List[str],
     if total != 0:
         update_local_market_stocks_info()
 
-    @retry(tries=tries)
+    @retry(tries=3,delay = 0.5)
     @multitasking.task
     def start(stock_code: str):
         _df = get_quote_history_single(
