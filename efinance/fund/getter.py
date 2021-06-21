@@ -583,8 +583,8 @@ def get_base_info_muliti(fund_codes: List[str]) -> pd.Series:
 
     ss = []
 
-    @retry(tries=3, delay=0.5)
     @multitasking.task
+    @retry(tries=3, delay=1)
     def start(fund_code: str) -> None:
         s = get_base_info_single(fund_code)
         ss.append(s)
@@ -769,8 +769,8 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     }
 
-    @retry(tries=3, delay=0.5)
     @multitasking.task
+    @retry(tries=3, delay=1)
     def download_file(fund_code: str, url: str, filename: str, file_type='.pdf') -> None:
         """
         根据文件名、文件直链等参数下载文件

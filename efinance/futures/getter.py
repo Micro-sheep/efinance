@@ -187,8 +187,9 @@ def get_quote_history_multi(secids: List[str],
     total = len(secids)
     if total != 0:
         update_local_futures_info()
-    @retry(tries=3,delay = 0.5)
+
     @multitasking.task
+    @retry(tries=3, delay=1)
     def start(stock_code: str):
         _df = get_quote_history_single(
             stock_code, beg=beg, end=end, klt=klt, fqt=fqt)
