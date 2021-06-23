@@ -1,0 +1,33 @@
+{% extends "frame.html.jinja2" %}
+{% block title %}{{ error }}{% endblock %}
+{% block style %}
+    {{ super() | safe }}
+    <style>
+        body {
+            padding: 2rem;
+        }
+
+        footer {
+            text-align: right;
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+        }
+
+        footer svg {
+            max-width: 70px;
+            transition: all 200ms;
+            filter: grayscale(100%);
+        }
+
+        footer svg:hover {
+            filter: grayscale(0%);
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <h1>{{ error }}</h1>
+    <pre>{{ details }}</pre>
+    <hr>
+{% endblock %}

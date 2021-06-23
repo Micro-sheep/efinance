@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="pdoc {{ __version__ }}" />
+    <title>{% block title %}{% endblock %}</title>
+    {% block favicon %}
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,{% filter urlencode %}{% include "favicon.svg" %}{% endfilter %}"/>
+    {% endblock %}
+
+    {% block head %}{% endblock %}
+    {% block style %}
+        <style>{% include 'bootstrap-reboot.min.css' %}</style>
+    {% endblock %}
+
+</head>
+<body>{% block body %}{% endblock %}</body>
+</html>

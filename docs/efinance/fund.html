@@ -1290,6 +1290,7 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
     <span class="p">}</span>
 
     <span class="nd">@multitasking</span><span class="o">.</span><span class="n">task</span>
+    <span class="nd">@retry</span><span class="p">(</span><span class="n">tries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_type</span><span class="o">=</span><span class="s1">&#39;.pdf&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        根据文件名、文件直链等参数下载文件</span>
