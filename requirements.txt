@@ -1,6 +1,5 @@
 requests
 tqdm
 pandas
-openpyxl
 retry
 multitasking

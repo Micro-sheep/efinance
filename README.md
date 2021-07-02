@@ -1,5 +1,12 @@
+
+
 ## Introduction
-[efinance](https://github.com/Micro-sheep/efinance) 是由个人打造的用于获取股票、基金、期货数据的免费开源 Python 库，使用它你可以很方便地获取数据以便更好地服务于个人的交易系统需求。
+[![python](https://img.shields.io/badge/python-3.6+-blue.svg?style=flat)](https://pypi.python.org/pypi/efinance)
+[![pypi](https://img.shields.io/pypi/v/efinance.svg?maxAge=60)](https://pypi.python.org/pypi/efinance)
+[![python](https://img.shields.io/github/stars/Micro-sheep/efinance.svg?style=social&label=Star&maxAge=60)](https://github.com/Micro-sheep/efinance)
+
+[efinance](https://github.com/Micro-sheep/efinance) 是由个人打造的用于获取股票、基金、期货数据的免费开源 Python 库，你可以使用它很方便地获取数据以便更好地服务于个人的交易系统需求。
+
 ## Installation
 ```bash
 pip install efinance
@@ -166,4 +173,8 @@ pip install efinance
 ```
 ## Docs
 更多使用例子详见文档 [efinance-docs](https://micro-sheep.github.io/efinance)
+
+## Contact
+
+[![zhihu](https://img.shields.io/badge/-知乎-blue)](https://www.zhihu.com/people/la-ge-lang-ri-96-69)
 
