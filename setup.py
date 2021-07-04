@@ -1,23 +1,24 @@
 
 import pathlib
-from setuptools import setup,find_packages
-
+from setuptools import setup, find_packages
 here = pathlib.Path(__file__).parent
 # require = (here / "requirements.txt").read_text(encoding='utf-8').split()
 require = ['requests', 'pandas', 'tqdm', 'retry', 'multitasking']
 readme = (here / "README.md").read_text(encoding='utf-8')
+about = {}
+exec((here/'efinance'/'__version__.py').read_text(encoding='utf-8'), about)
 setup(
-    name="efinance",
-    version="0.2",
-    description="A finance tool to get stock,fund and futures data base on eastmoney",
+    name=about['__title__'],
+    version=about['__version__'],
+    description=about['__description__'],
     long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://github.com/Micro-sheep/efinance",
-    author="micro sheep",
-    author_email="micro-sheep@outlook.com",
+    url=about['__url__'],
+    author=about['__author__'],
+    author_email=about['__author_email__'],
     license="MIT",
     platforms=['any'],
-    keywords=['finance', 'quant', 'stock', 'fund', 'futures'],
+    keywords=about['__keywords__'],
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.6",
@@ -27,10 +28,5 @@ setup(
     ],
     packages=find_packages(),
     install_requires=require,
-    package_data={'': ['LICENSE', 'requirements.txt']},
-    include_package_data=True,
-    project_urls={
-        'Documentation': 'https://micro-sheep.github.io/efinance',
-        'Source': 'https://github.com/Micro-sheep/efinance',
-    },
+    project_urls=about['__project_urls__']
 )
