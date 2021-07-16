@@ -3,7 +3,8 @@
 ## Introduction
 [![python](https://img.shields.io/badge/python-3.6+-blue.svg?style=flat)](https://pypi.python.org/pypi/efinance)
 [![pypi](https://img.shields.io/pypi/v/efinance.svg?maxAge=60)](https://pypi.python.org/pypi/efinance)
-[![python](https://img.shields.io/github/stars/Micro-sheep/efinance.svg?style=social&label=Star&maxAge=60)](https://github.com/Micro-sheep/efinance)
+[![pypi-install](https://img.shields.io/pypi/dm/efinance.svg?maxAge=2592000&label=installs&color=%2327B1FF)](https://github.com/Micro-sheep/efinance)
+[![github](https://img.shields.io/github/stars/Micro-sheep/efinance.svg?style=social&label=Star&maxAge=60)](https://github.com/Micro-sheep/efinance)
 
 [efinance](https://github.com/Micro-sheep/efinance) 是由个人打造的用于获取股票、基金、期货数据的免费开源 Python 库，你可以使用它很方便地获取数据以便更好地服务于个人的交易系统需求。
 
