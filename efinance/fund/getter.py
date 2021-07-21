@@ -8,6 +8,7 @@ from tqdm import tqdm
 import multitasking
 import signal
 from .config import EastmoneyFundHeaders
+from ..utils import to_numeric
 signal.signal(signal.SIGINT, multitasking.killall)
 
 
@@ -92,6 +93,7 @@ def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     return df
 
 
+@to_numeric
 def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFrame:
     """
     获取基金实时估算涨跌幅度
@@ -223,6 +225,7 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
     return df
 
 
+@to_numeric
 def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
     """
     获取基金持仓占比信息
@@ -327,6 +330,7 @@ def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> 
     return df
 
 
+@to_numeric
 def get_period_change(fund_code: str) -> pd.DataFrame:
     """
     获取基金阶段涨跌幅度
@@ -400,6 +404,7 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
     return df
 
 
+@to_numeric
 def get_public_dates(fund_code: str) -> List[str]:
     """
     获取历史上更新持仓情况的日期列表
@@ -445,6 +450,7 @@ def get_public_dates(fund_code: str) -> List[str]:
     return json_response['Datas']
 
 
+@to_numeric
 def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = None) -> pd.DataFrame:
     """
     获取指定基金不同类型占比信息
@@ -519,6 +525,7 @@ def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = No
     return df
 
 
+@to_numeric
 def get_base_info_single(fund_code: str) -> pd.Series:
     """
     获取基金的一些基本信息
@@ -649,6 +656,7 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
     raise TypeError(f'所给的 {fund_codes} 不符合参数要求')
 
 
+@to_numeric
 def get_industry_distribution(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
     """
     获取指定基金行业分布信息

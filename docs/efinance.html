@@ -76,13 +76,27 @@ efinance    </h1>
 
 <p><a href="https://pypi.python.org/pypi/efinance"><img src="https://img.shields.io/badge/python-3.6+-blue.svg?style=flat" alt="python" /></a>
 <a href="https://pypi.python.org/pypi/efinance"><img src="https://img.shields.io/pypi/v/efinance.svg?maxAge=60" alt="pypi" /></a>
-<a href="https://github.com/Micro-sheep/efinance"><img src="https://img.shields.io/github/stars/Micro-sheep/efinance.svg?style=social&amp;label=Star&amp;maxAge=60" alt="python" /></a></p>
+<a href="https://github.com/Micro-sheep/efinance"><img src="https://img.shields.io/pypi/dm/efinance.svg?maxAge=2592000&amp;label=installs&amp;color=%2327B1FF" alt="pypi-install" /></a>
+<a href="https://github.com/Micro-sheep/efinance"><img src="https://img.shields.io/github/stars/Micro-sheep/efinance.svg?style=social&amp;label=Star&amp;maxAge=60" alt="github" /></a></p>
 
 <p><a href="https://github.com/Micro-sheep/efinance">efinance</a> 是由个人打造的用于获取股票、基金、期货数据的免费开源 Python 库，你可以使用它很方便地获取数据以便更好地服务于个人的交易系统需求。</p>
 
 <h2 id="installation">Installation</h2>
 
+<ul>
+<li>通过 <code>pip</code> 安装</li>
+</ul>
+
 <div class="codehilite"><pre><span></span><code>pip install efinance
+</code></pre></div>
+
+<ul>
+<li>源码安装（用于开发）</li>
+</ul>
+
+<div class="codehilite"><pre><span></span><code>git clone https://github.com/Micro-sheep/efinance
+<span class="nb">cd</span> efinance
+pip install -e .
 </code></pre></div>
 
 <h2 id="examples">Examples</h2>
@@ -94,7 +108,7 @@ efinance    </h1>
 </ul>
 
 <div class="codehilite"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="c1"># 获取单只给股票历史行情（日 k）</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># 获取单只股票历史行情（日 k）</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_quote_history</span><span class="p">(</span><span class="s1">&#39;600519&#39;</span><span class="p">)</span>
     <span class="n">股票名称</span>    <span class="n">股票代码</span>          <span class="n">日期</span>       <span class="n">开盘</span>       <span class="n">收盘</span>       <span class="n">最高</span>       <span class="n">最低</span>     <span class="n">成交量</span>             <span class="n">成交额</span>     <span class="n">振幅</span>    <span class="n">涨跌幅</span>     <span class="n">涨跌额</span>    <span class="n">换手率</span>
 <span class="mi">0</span>     <span class="n">贵州茅台</span>  <span class="mi">600519</span>  <span class="mi">2001</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">27</span>   <span class="o">-</span><span class="mf">70.44</span>   <span class="o">-</span><span class="mf">70.24</span>   <span class="o">-</span><span class="mf">69.79</span>   <span class="o">-</span><span class="mf">70.77</span>  <span class="mi">406318</span>   <span class="mf">1410347000.00</span>  <span class="o">-</span><span class="mf">1.38</span>   <span class="mf">1.15</span>    <span class="mf">0.82</span>  <span class="mf">56.83</span>
@@ -108,7 +122,7 @@ efinance    </h1>
 <span class="mi">4726</span>  <span class="n">贵州茅台</span>  <span class="mi">600519</span>  <span class="mi">2021</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">2195.00</span>  <span class="mf">2238.48</span>  <span class="mf">2251.37</span>  <span class="mf">2190.08</span>   <span class="mi">25567</span>   <span class="mf">5707338496.00</span>   <span class="mf">2.79</span>   <span class="mf">1.77</span>   <span class="mf">38.98</span>   <span class="mf">0.20</span>
 <span class="mi">4727</span>  <span class="n">贵州茅台</span>  <span class="mi">600519</span>  <span class="mi">2021</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">2239.00</span>  <span class="mf">2178.81</span>  <span class="mf">2244.00</span>  <span class="mf">2178.81</span>   <span class="mi">33971</span>   <span class="mf">7513797120.00</span>   <span class="mf">2.91</span>  <span class="o">-</span><span class="mf">2.67</span>  <span class="o">-</span><span class="mf">59.67</span>   <span class="mf">0.27</span>
 <span class="mi">4728</span>  <span class="n">贵州茅台</span>  <span class="mi">600519</span>  <span class="mi">2021</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">15</span>  <span class="mf">2195.10</span>  <span class="mf">2186.60</span>  <span class="mf">2208.88</span>  <span class="mf">2148.00</span>   <span class="mi">19079</span>   <span class="mf">4157285376.00</span>   <span class="mf">2.79</span>   <span class="mf">0.36</span>    <span class="mf">7.79</span>   <span class="mf">0.15</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="c1"># 获取多只给股票历史行情（日 k）</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="c1"># 获取多只股票历史行情（日 k）</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_quote_history</span><span class="p">([</span><span class="s1">&#39;600519&#39;</span><span class="p">,</span><span class="s1">&#39;300750&#39;</span><span class="p">])</span>
 <span class="p">{</span><span class="s1">&#39;300750&#39;</span><span class="p">:</span>      <span class="n">股票名称</span>    <span class="n">股票代码</span>          <span class="n">日期</span>      <span class="n">开盘</span>      <span class="n">收盘</span>      <span class="n">最高</span>      <span class="n">最低</span>     <span class="n">成交量</span>            <span class="n">成交额</span>     <span class="n">振幅</span>    <span class="n">涨跌幅</span>    <span class="n">涨跌额</span>   <span class="n">换手率</span>
 <span class="mi">0</span>    <span class="n">宁德时代</span>  <span class="mi">300750</span>  <span class="mi">2018</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">11</span>   <span class="mf">29.81</span>   <span class="mf">35.84</span>   <span class="mf">35.84</span>   <span class="mf">29.81</span>     <span class="mi">788</span>     <span class="mf">2845471.00</span>  <span class="mf">24.33</span>  <span class="mf">44.63</span>  <span class="mf">11.06</span>  <span class="mf">0.04</span>
@@ -259,11 +273,13 @@ efinance    </h1>
 
 <h2 id="docs">Docs</h2>
 
-<p>更多使用例子详见文档 <a href="https://micro-sheep.github.io/efinance">efinance-docs</a></p>
+<p>更多使用例子详见文档 <a href="https://micro-sheep.github.io/efinance/efinance.html"><img src="https://img.shields.io/badge/efinance-docs-blue" alt="docs" /></a></p>
 
 <h2 id="contact">Contact</h2>
 
-<p><a href="https://www.zhihu.com/people/la-ge-lang-ri-96-69"><img src="https://img.shields.io/badge/-知乎-blue" alt="zhihu" /></a></p>
+<p><a href="https://www.zhihu.com/people/la-ge-lang-ri-96-69"><img src="https://img.shields.io/badge/知乎-blue" alt="zhihu" /></a>
+<a href="https://github.com/Micro-sheep"><img src="https://img.shields.io/badge/Github-blue?style=social&amp;logo=github" alt="Github" /></a>
+<a href="mailto:micro-sheep@qq.com"><img src="https://img.shields.io/badge/Email-blue" alt="Email" /></a></p>
 </div>
 
                         <details>

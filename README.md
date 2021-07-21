@@ -1,6 +1,6 @@
 
-
 ## Introduction
+
 [![python](https://img.shields.io/badge/python-3.6+-blue.svg?style=flat)](https://pypi.python.org/pypi/efinance)
 [![pypi](https://img.shields.io/pypi/v/efinance.svg?maxAge=60)](https://pypi.python.org/pypi/efinance)
 [![pypi-install](https://img.shields.io/pypi/dm/efinance.svg?maxAge=2592000&label=installs&color=%2327B1FF)](https://github.com/Micro-sheep/efinance)
@@ -9,16 +9,30 @@
 [efinance](https://github.com/Micro-sheep/efinance) 是由个人打造的用于获取股票、基金、期货数据的免费开源 Python 库，你可以使用它很方便地获取数据以便更好地服务于个人的交易系统需求。
 
 ## Installation
+
+- 通过 ``pip`` 安装
+
 ```bash
 pip install efinance
 ```
+
+- 源码安装（用于开发）
+
+```bash
+git clone https://github.com/Micro-sheep/efinance
+cd efinance
+pip install -e .
+```
+
 ## Examples
+
 ### Stock
 
 - 获取股票历史 k 线数据
+
 ```python
 >>> import efinance as ef
->>> # 获取单只给股票历史行情（日 k）
+>>> # 获取单只股票历史行情（日 k）
 >>> ef.stock.get_quote_history('600519')
     股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量             成交额     振幅    涨跌幅     涨跌额    换手率
 0     贵州茅台  600519  2001-08-27   -70.44   -70.24   -69.79   -70.77  406318   1410347000.00  -1.38   1.15    0.82  56.83
@@ -32,7 +46,7 @@ pip install efinance
 4726  贵州茅台  600519  2021-06-10  2195.00  2238.48  2251.37  2190.08   25567   5707338496.00   2.79   1.77   38.98   0.20
 4727  贵州茅台  600519  2021-06-11  2239.00  2178.81  2244.00  2178.81   33971   7513797120.00   2.91  -2.67  -59.67   0.27
 4728  贵州茅台  600519  2021-06-15  2195.10  2186.60  2208.88  2148.00   19079   4157285376.00   2.79   0.36    7.79   0.15
->>> # 获取多只给股票历史行情（日 k）
+>>> # 获取多只股票历史行情（日 k）
 >>> ef.stock.get_quote_history(['600519','300750'])
 {'300750':      股票名称    股票代码          日期      开盘      收盘      最高      最低     成交量            成交额     振幅    涨跌幅    涨跌额   换手率
 0    宁德时代  300750  2018-06-11   29.81   35.84   35.84   29.81     788     2845471.00  24.33  44.63  11.06  0.04
@@ -63,6 +77,7 @@ pip install efinance
 ```
 
 - 沪深全市场股票最新状况
+
 ```python
 >>> import efinance as ef
 >>> ef.stock.get_realtime_quotes()
@@ -80,9 +95,11 @@ pip install efinance
 4518  301008    0    C宏昌  -15.37   66.0 -11.17   44060  276517344.0  72.67   4100000021  1025000021
 [4519 rows x 11 columns]
 ```
+
 ### Fund
 
 - 获取基金历史净值信息
+
 ```python
 >>> import efinance as ef
 >>> ef.fund.get_quote_history('161725')
@@ -101,10 +118,10 @@ pip install efinance
 [1474 rows x 4 columns]
 ```
 
-
 ### Futures
 
 - 获取四大交易所期货基本信息
+
 ```python
 >>> import efinance as ef
 >>> ef.futures.get_futures_base_info()
@@ -124,6 +141,7 @@ pip install efinance
 ```
 
 - 获取期货历史行情
+
 ```python
 >>> import efinance as ef
 >>> # 指定单个期货的 secid
@@ -172,10 +190,13 @@ pip install efinance
 182  2021-06-15  847.0  849.2  853.6  830.0  140166  11827207168.0  2.88   3.79   31.0  0.00
 [183 rows x 11 columns]}
 ```
+
 ## Docs
-更多使用例子详见文档 [efinance-docs](https://micro-sheep.github.io/efinance)
+
+更多使用例子详见文档 [![docs](https://img.shields.io/badge/efinance-docs-blue)](https://micro-sheep.github.io/efinance/efinance.html)
 
 ## Contact
 
-[![zhihu](https://img.shields.io/badge/-知乎-blue)](https://www.zhihu.com/people/la-ge-lang-ri-96-69)
-
+[![zhihu](https://img.shields.io/badge/知乎-blue)](https://www.zhihu.com/people/la-ge-lang-ri-96-69)
+[![Github](https://img.shields.io/badge/Github-blue?style=social&logo=github)](https://github.com/Micro-sheep)
+[![Email](https://img.shields.io/badge/Email-blue)](mailto:micro-sheep@qq.com)

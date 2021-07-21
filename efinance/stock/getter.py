@@ -8,6 +8,7 @@ from tqdm import tqdm
 from .utils import (gen_secid,
                     get_stock_market_type,
                     update_local_market_stocks_info)
+from ..utils import to_numeric
 from .config import (EastmoneyKlines,
                      EastmoneyHeaders,
                      EastmoneyBills,
@@ -16,7 +17,7 @@ from .config import (EastmoneyKlines,
 
 signal.signal(signal.SIGINT, multitasking.killall)
 
-
+@to_numeric
 def get_base_info_single(stock_code: str) -> pd.Series:
     """
     获取单股票基本信息
@@ -81,7 +82,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
     df = pd.DataFrame(ss)
     return df
 
-
+@to_numeric
 def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
     """
     Parameters
@@ -135,7 +136,7 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
         return get_base_info_muliti(stock_codes)
     raise TypeError(f'所给的 {stock_codes} 不符合参数要求')
 
-
+@to_numeric
 def get_quote_history_single(stock_code: str,
                              beg: str = '19000101',
                              end: str = '20500101',
@@ -361,7 +362,7 @@ def get_quote_history(stock_codes: str,
             '股票代码类型数据输入不正确！'
         )
 
-
+@to_numeric
 def get_realtime_quotes() -> pd.DataFrame:
     """
     获取沪深市场最新行情总体情况
@@ -415,7 +416,7 @@ def get_realtime_quotes() -> pd.DataFrame:
           [columns])
     return df
 
-
+@to_numeric
 def get_history_bill(stock_code: str) -> pd.DataFrame:
     """
     获取单只股票历史单子流入流出数据
@@ -474,7 +475,7 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
 
     return df
 
-
+@to_numeric
 def get_today_bill(stock_code: str) -> pd.DataFrame:
     """
     获取最新交易日单只股票最新交易日单子流入流出数据
@@ -528,7 +529,7 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     df.insert(0, '股票代码', [stock_code for _ in range(len(df))])
     return df
 
-
+@to_numeric
 def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
     """
     获取沪深市场多只股票的实时涨幅情况
@@ -588,7 +589,7 @@ def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
     df = pd.DataFrame(diff)[columns.keys()].rename(columns=columns)
     return df
 
-
+@to_numeric
 def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
     """
     获取沪深市场指定股票前十大股东信息

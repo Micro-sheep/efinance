@@ -18,7 +18,7 @@ def gen_secid(stock_code: str) -> str:
     """
 
     _type = get_stock_market_type(stock_code, update=False)
-    return f'{_type}.{stock_code}'
+    return f'{int(_type)}.{stock_code}'
 
 
 def update_local_market_stocks_info(path: str = None) -> pd.DataFrame:
@@ -86,6 +86,7 @@ def get_stock_market_type(stock_code: str, update=True) -> int:
     df.index = df['股票代码']
     if stock_code in df.index:
         return df.loc[stock_code, '沪/深']
+    update_local_market_stocks_info()
     raise KeyError(
         f'股票代码 {stock_code} 可能有误 '
     )
