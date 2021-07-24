@@ -17,6 +17,7 @@ from .config import (EastmoneyKlines,
 
 signal.signal(signal.SIGINT, multitasking.killall)
 
+
 @to_numeric
 def get_base_info_single(stock_code: str) -> pd.Series:
     """
@@ -67,7 +68,6 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
 
     ss = []
 
-    
     @multitasking.task
     @retry(tries=3, delay=1)
     def start(stock_code: str):
@@ -81,6 +81,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
     multitasking.wait_for_tasks()
     df = pd.DataFrame(ss)
     return df
+
 
 @to_numeric
 def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
@@ -135,6 +136,7 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
     elif hasattr(stock_codes, '__iter__'):
         return get_base_info_muliti(stock_codes)
     raise TypeError(f'所给的 {stock_codes} 不符合参数要求')
+
 
 @to_numeric
 def get_quote_history_single(stock_code: str,
@@ -246,9 +248,8 @@ def get_quote_history_multi(stock_codes: List[str],
     if total != 0:
         update_local_market_stocks_info()
 
-    
     @multitasking.task
-    @retry(tries=3,delay = 1)
+    @retry(tries=3, delay=1)
     def start(stock_code: str):
         _df = get_quote_history_single(
             stock_code, beg=beg, end=end, klt=klt, fqt=fqt)
@@ -264,7 +265,7 @@ def get_quote_history_multi(stock_codes: List[str],
     return dfs
 
 
-def get_quote_history(stock_codes: str,
+def get_quote_history(stock_codes: Union[str, List[str]],
                       beg: str = '19000101',
                       end: str = '20500101',
                       klt: int = 101,
@@ -274,7 +275,7 @@ def get_quote_history(stock_codes: str,
 
     Parameters
     ----------
-    stock_codes : str
+    stock_codes : Union[str,List[str]]
         6 位股票代码 或者 6 位股票代码构成的列表
     beg : str, optional
         开始日期 例如 20200101
@@ -362,6 +363,7 @@ def get_quote_history(stock_codes: str,
             '股票代码类型数据输入不正确！'
         )
 
+
 @to_numeric
 def get_realtime_quotes() -> pd.DataFrame:
     """
@@ -415,6 +417,7 @@ def get_realtime_quotes() -> pd.DataFrame:
           .rename(columns=EastmoneyQuotes)
           [columns])
     return df
+
 
 @to_numeric
 def get_history_bill(stock_code: str) -> pd.DataFrame:
@@ -475,6 +478,7 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
 
     return df
 
+
 @to_numeric
 def get_today_bill(stock_code: str) -> pd.DataFrame:
     """
@@ -528,6 +532,7 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     df = pd.DataFrame(rows, columns=columns)
     df.insert(0, '股票代码', [stock_code for _ in range(len(df))])
     return df
+
 
 @to_numeric
 def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
@@ -588,6 +593,7 @@ def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
     diff = data['diff']
     df = pd.DataFrame(diff)[columns.keys()].rename(columns=columns)
     return df
+
 
 @to_numeric
 def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:

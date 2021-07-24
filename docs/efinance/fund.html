@@ -40,7 +40,7 @@
                     <a class="function" href="#get_realtime_increase_rate">get_realtime_increase_rate</a>
             </li>
             <li>
-                    <a class="function" href="#get_inverst_postion">get_inverst_postion</a>
+                    <a class="function" href="#get_inverst_position">get_inverst_position</a>
             </li>
             <li>
                     <a class="function" href="#get_types_persentage">get_types_persentage</a>
@@ -77,7 +77,7 @@
             <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.getter</span> <span class="kn">import</span> <span class="p">(</span><span class="n">get_base_info</span><span class="p">,</span>
                      <span class="n">get_fund_codes</span><span class="p">,</span>
                      <span class="n">get_realtime_increase_rate</span><span class="p">,</span>
-                     <span class="n">get_inverst_postion</span><span class="p">,</span>
+                     <span class="n">get_inverst_position</span><span class="p">,</span>
                      <span class="n">get_types_persentage</span><span class="p">,</span>
                      <span class="n">get_period_change</span><span class="p">,</span>
                      <span class="n">get_public_dates</span><span class="p">,</span>
@@ -87,7 +87,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_base_info&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_fund_codes&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_realtime_increase_rate&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;get_inverst_postion&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;get_inverst_position&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_types_persentage&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_period_change&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_public_dates&#39;</span><span class="p">,</span>
@@ -344,14 +344,16 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
                 <section id="get_realtime_increase_rate">
                             <div class="attr function"><a class="headerlink" href="#get_realtime_increase_rate">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_realtime_increase_rate</span><span class="signature">(fund_codes: Union[List[str], str]) -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_realtime_increase_rate</span><span class="p">(</span><span class="n">fund_codes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_realtime_increase_rate</span><span class="p">(</span><span class="n">fund_codes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取基金实时估算涨跌幅度</span>
 
@@ -444,12 +446,13 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 
 
                 </section>
-                <section id="get_inverst_postion">
-                            <div class="attr function"><a class="headerlink" href="#get_inverst_postion">#&nbsp;&nbsp</a>
+                <section id="get_inverst_position">
+                            <div class="attr function"><a class="headerlink" href="#get_inverst_position">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
-            <span class="name">get_inverst_postion</span><span class="signature">(
+            <span class="name">get_inverst_position</span><span class="signature">(
     fund_code: str,
     dates: Union[str, List[str]] = None
 ) -&gt; pandas.core.frame.DataFrame</span>:
@@ -457,7 +460,8 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_inverst_postion</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dates</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_inverst_position</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dates</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取基金持仓占比信息</span>
 
@@ -479,18 +483,18 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import efinance as ef</span>
 <span class="sd">    &gt;&gt;&gt; # 获取最新公开的持仓数据</span>
-<span class="sd">    &gt;&gt;&gt; ef.fund.get_inverst_postion(&#39;002542&#39;)</span>
-<span class="sd">         基金代码    股票代码  股票简称  持仓占比  较上期变化  公开日期</span>
-<span class="sd">    0  002542  603208  江山欧派  8.15    3.1  None</span>
-<span class="sd">    1  002542  600519  贵州茅台   6.5   1.71  None</span>
-<span class="sd">    2  002542  300572  安车检测  5.87  -0.01  None</span>
-<span class="sd">    3  002542  002706  良信股份  4.99  -2.36  None</span>
-<span class="sd">    4  002542  300696   爱乐达  4.97  -0.27  None</span>
-<span class="sd">    5  002542  002541  鸿路钢构  4.79   -3.1  None</span>
-<span class="sd">    6  002542  002791  坚朗五金   4.7   0.56  None</span>
-<span class="sd">    7  002542  601888  中国中免  4.46   4.46  None</span>
-<span class="sd">    8  002542  600809  山西汾酒  4.04   4.04  None</span>
-<span class="sd">    9  002542  688598  金博股份  3.01   3.01  None</span>
+<span class="sd">    &gt;&gt;&gt; ef.fund.get_inverst_position(&#39;161725&#39;)</span>
+<span class="sd">     基金代码    股票代码  股票简称   持仓占比  较上期变化        公开日期</span>
+<span class="sd">    0  161725  000858   五粮液  14.88   1.45  2021-06-30</span>
+<span class="sd">    1  161725  600519  贵州茅台  14.16  -0.86  2021-06-30</span>
+<span class="sd">    2  161725  600809  山西汾酒  14.03  -0.83  2021-06-30</span>
+<span class="sd">    3  161725  000568  泸州老窖  13.02  -2.96  2021-06-30</span>
+<span class="sd">    4  161725  002304  洋河股份  12.72   1.31  2021-06-30</span>
+<span class="sd">    5  161725  000799   酒鬼酒   5.77   1.34  2021-06-30</span>
+<span class="sd">    6  161725  603369   今世缘   3.46  -0.48  2021-06-30</span>
+<span class="sd">    7  161725  000596  古井贡酒   2.81  -0.29  2021-06-30</span>
+<span class="sd">    8  161725  600779   水井坊   2.52   2.52  2021-06-30</span>
+<span class="sd">    9  161725  603589   口子窖   2.48  -0.38  2021-06-30</span>
 <span class="sd">    &gt;&gt;&gt; # 获取近 2 个公开持仓日数据</span>
 <span class="sd">    &gt;&gt;&gt; public_dates = ef.fund.get_public_dates(&#39;161725&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; ef.fund.get_inverst_postion(&#39;161725&#39;,public_dates[:2])</span>
@@ -526,21 +530,18 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
         <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">dates</span><span class="p">]</span>
-
+    <span class="k">if</span> <span class="n">dates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">(</span><span class="s1">&#39;FCODE&#39;</span><span class="p">,</span> <span class="n">fund_code</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;MobileKey&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;OSVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;14.3&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;appType&#39;</span><span class="p">,</span> <span class="s1">&#39;ttjj&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;appVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.2.8&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;deviceid&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;passportid&#39;</span><span class="p">,</span> <span class="s1">&#39;3061335960830820&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;plat&#39;</span><span class="p">,</span> <span class="s1">&#39;Iphone&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;product&#39;</span><span class="p">,</span> <span class="s1">&#39;EFund&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;serverVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.2.8&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;uToken&#39;</span><span class="p">,</span> <span class="s1">&#39;6cfr1qdanf8nfhd6uc6u-hdj86f1f8kfe9f8k108.6&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">,</span> <span class="s1">&#39;f8d95b2330d84d9e804e7f28a802d809&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;6.2.8&#39;</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -552,7 +553,7 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 
         <span class="k">if</span> <span class="n">stocks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">stocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">continue</span>
-
+        <span class="n">date</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;Expansion&#39;</span><span class="p">]</span>
         <span class="n">_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">stocks</span><span class="p">)</span>
         <span class="n">_df</span> <span class="o">=</span> <span class="n">_df</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
         <span class="n">_df</span><span class="p">[</span><span class="s1">&#39;公开日期&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">date</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">_df</span><span class="p">))]</span>
@@ -587,18 +588,18 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取最新公开的持仓数据</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">fund</span><span class="o">.</span><span class="n">get_inverst_postion</span><span class="p">(</span><span class="s1">&#39;002542&#39;</span><span class="p">)</span>
-<span class="go">     基金代码    股票代码  股票简称  持仓占比  较上期变化  公开日期</span>
-<span class="go">0  002542  603208  江山欧派  8.15    3.1  None</span>
-<span class="go">1  002542  600519  贵州茅台   6.5   1.71  None</span>
-<span class="go">2  002542  300572  安车检测  5.87  -0.01  None</span>
-<span class="go">3  002542  002706  良信股份  4.99  -2.36  None</span>
-<span class="go">4  002542  300696   爱乐达  4.97  -0.27  None</span>
-<span class="go">5  002542  002541  鸿路钢构  4.79   -3.1  None</span>
-<span class="go">6  002542  002791  坚朗五金   4.7   0.56  None</span>
-<span class="go">7  002542  601888  中国中免  4.46   4.46  None</span>
-<span class="go">8  002542  600809  山西汾酒  4.04   4.04  None</span>
-<span class="go">9  002542  688598  金博股份  3.01   3.01  None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">fund</span><span class="o">.</span><span class="n">get_inverst_position</span><span class="p">(</span><span class="s1">&#39;161725&#39;</span><span class="p">)</span>
+<span class="go"> 基金代码    股票代码  股票简称   持仓占比  较上期变化        公开日期</span>
+<span class="go">0  161725  000858   五粮液  14.88   1.45  2021-06-30</span>
+<span class="go">1  161725  600519  贵州茅台  14.16  -0.86  2021-06-30</span>
+<span class="go">2  161725  600809  山西汾酒  14.03  -0.83  2021-06-30</span>
+<span class="go">3  161725  000568  泸州老窖  13.02  -2.96  2021-06-30</span>
+<span class="go">4  161725  002304  洋河股份  12.72   1.31  2021-06-30</span>
+<span class="go">5  161725  000799   酒鬼酒   5.77   1.34  2021-06-30</span>
+<span class="go">6  161725  603369   今世缘   3.46  -0.48  2021-06-30</span>
+<span class="go">7  161725  000596  古井贡酒   2.81  -0.29  2021-06-30</span>
+<span class="go">8  161725  600779   水井坊   2.52   2.52  2021-06-30</span>
+<span class="go">9  161725  603589   口子窖   2.48  -0.38  2021-06-30</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取近 2 个公开持仓日数据</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">public_dates</span> <span class="o">=</span> <span class="n">ef</span><span class="o">.</span><span class="n">fund</span><span class="o">.</span><span class="n">get_public_dates</span><span class="p">(</span><span class="s1">&#39;161725&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">fund</span><span class="o">.</span><span class="n">get_inverst_postion</span><span class="p">(</span><span class="s1">&#39;161725&#39;</span><span class="p">,</span><span class="n">public_dates</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
@@ -631,7 +632,8 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
                 <section id="get_types_persentage">
                             <div class="attr function"><a class="headerlink" href="#get_types_persentage">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_types_persentage</span><span class="signature">(
     fund_code: str,
@@ -641,7 +643,9 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_types_persentage</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dates</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_types_persentage</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                         <span class="n">dates</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取指定基金不同类型占比信息</span>
 
@@ -650,7 +654,8 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 <span class="sd">    fund_code : str</span>
 <span class="sd">        6 位基金代码</span>
 <span class="sd">    dates : Union[List[str], str, None]</span>
-<span class="sd">        可选值类型示例如下</span>
+<span class="sd">        可选值类型示例如下(后面有获取 dates 的例子)</span>
+
 <span class="sd">            None : 最新公开持仓数据的日期</span>
 
 <span class="sd">            &#39;2020-09-30&#39; 指定日期数据</span>
@@ -684,20 +689,17 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
         <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">dates</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">dates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">(</span><span class="s1">&#39;FCODE&#39;</span><span class="p">,</span> <span class="n">fund_code</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;MobileKey&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;OSVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;14.3&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;appVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;cToken&#39;</span><span class="p">,</span> <span class="s1">&#39;a6hdhrfejje88ruaeduau1rdufna1e--.6&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;deviceid&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;passportid&#39;</span><span class="p">,</span> <span class="s1">&#39;3061335960830820&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;deviceid&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F21-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;plat&#39;</span><span class="p">,</span> <span class="s1">&#39;Iphone&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;product&#39;</span><span class="p">,</span> <span class="s1">&#39;EFund&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;serverVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.6&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;uToken&#39;</span><span class="p">,</span> <span class="s1">&#39;a166hhqnrajucnfcjkfkeducanekj1dd1cc2a-e9.6&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">,</span> <span class="s1">&#39;f8d95b2330d84d9e804e7f28a802d809&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -725,8 +727,9 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 <li><strong>fund_code</strong> (str):
 6 位基金代码</li>
 <li><p><strong>dates</strong> (Union[List[str], str, None]):
-可选值类型示例如下
-   None : 最新公开持仓数据的日期</p>
+可选值类型示例如下(后面有获取 dates 的例子)</p>
+
+<p>None : 最新公开持仓数据的日期</p>
 
 <p>'2020-09-30' 指定日期数据</p></li>
 </ul>
@@ -756,14 +759,16 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
                 <section id="get_period_change">
                             <div class="attr function"><a class="headerlink" href="#get_period_change">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_period_change</span><span class="signature">(fund_code: str) -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_period_change</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_period_change</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取基金阶段涨跌幅度</span>
 
@@ -907,17 +912,12 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 
     <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s1">&#39;FCODE&#39;</span><span class="p">,</span> <span class="n">fund_code</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;MobileKey&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;OSVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;14.3&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;appVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;cToken&#39;</span><span class="p">,</span> <span class="s1">&#39;a6hdhrfejje88ruaeduau1rdufna1e--.6&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;deviceid&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;passportid&#39;</span><span class="p">,</span> <span class="s1">&#39;3061335960830820&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;plat&#39;</span><span class="p">,</span> <span class="s1">&#39;Iphone&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;product&#39;</span><span class="p">,</span> <span class="s1">&#39;EFund&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;serverVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.6&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;uToken&#39;</span><span class="p">,</span> <span class="s1">&#39;a166hhqnrajucnfcjkfkeducanekj1dd1cc2a-e9.6&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">,</span> <span class="s1">&#39;f8d95b2330d84d9e804e7f28a802d809&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
     <span class="p">)</span>
 
@@ -960,7 +960,8 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
                 <section id="get_industry_distribution">
                             <div class="attr function"><a class="headerlink" href="#get_industry_distribution">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_industry_distribution</span><span class="signature">(
     fund_code: str,
@@ -970,7 +971,8 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_industry_distribution</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dates</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_industry_distribution</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dates</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取指定基金行业分布信息</span>
 
@@ -1030,22 +1032,19 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">dates</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">dates</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">:</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="p">[</span>
 
             <span class="p">(</span><span class="s1">&#39;FCODE&#39;</span><span class="p">,</span> <span class="n">fund_code</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;MobileKey&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;OSVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;14.4&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;appVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;cToken&#39;</span><span class="p">,</span> <span class="s1">&#39;1fnc-1nne8cjcrdqud6rhrqqjee8fn-j.6&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;deviceid&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;passportid&#39;</span><span class="p">,</span> <span class="s1">&#39;3061335960830820&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;plat&#39;</span><span class="p">,</span> <span class="s1">&#39;Iphone&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;product&#39;</span><span class="p">,</span> <span class="s1">&#39;EFund&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;serverVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.6&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;uToken&#39;</span><span class="p">,</span> <span class="s1">&#39;nnukrkhk-aake6k1ehj-d-c86fua-ck-1fx6j882.6&#39;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">,</span> <span class="s1">&#39;f8d95b2330d84d9e804e7f28a802d809&#39;</span><span class="p">),</span>
             <span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1054,6 +1053,7 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation&#39;</span><span class="p">,</span>
                                 <span class="n">headers</span><span class="o">=</span><span class="n">EastmoneyFundHeaders</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
         <span class="n">datas</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;Datas&#39;</span><span class="p">]</span>
+
         <span class="n">_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
         <span class="n">_df</span> <span class="o">=</span> <span class="n">_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -1122,14 +1122,16 @@ DataFrane : 包含多只股票基本信息(当 fund_codes 是字符串列表时)
                 <section id="get_quote_history">
                             <div class="attr function"><a class="headerlink" href="#get_quote_history">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_quote_history</span><span class="signature">(fund_code: str, pz: int = 40000) -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_quote_history</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pz</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_quote_history</span><span class="p">(</span><span class="n">fund_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pz</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    根据基金代码和要获取的页码抓取基金净值信息</span>
 

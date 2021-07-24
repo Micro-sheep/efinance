@@ -88,14 +88,16 @@
                 <section id="get_history_bill">
                             <div class="attr function"><a class="headerlink" href="#get_history_bill">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_history_bill</span><span class="signature">(stock_code: str) -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_history_bill</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_history_bill</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取单只股票历史单子流入流出数据</span>
 
@@ -196,14 +198,16 @@
                 <section id="get_today_bill">
                             <div class="attr function"><a class="headerlink" href="#get_today_bill">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_today_bill</span><span class="signature">(stock_code: str) -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_today_bill</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_today_bill</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取最新交易日单只股票最新交易日单子流入流出数据</span>
 
@@ -299,14 +303,16 @@
                 <section id="get_latest_stock_info">
                             <div class="attr function"><a class="headerlink" href="#get_latest_stock_info">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_latest_stock_info</span><span class="signature">(stock_codes: List[str]) -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_latest_stock_info</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_latest_stock_info</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取沪深市场多只股票的实时涨幅情况</span>
 
@@ -401,7 +407,7 @@
         
             <span class="def">def</span>
             <span class="name">get_quote_history</span><span class="signature">(
-    stock_codes: str,
+    stock_codes: Union[str, List[str]],
     beg: str = &#39;19000101&#39;,
     end: str = &#39;20500101&#39;,
     klt: int = 101,
@@ -411,7 +417,7 @@
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_quote_history</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_quote_history</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
                       <span class="n">beg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;19000101&#39;</span><span class="p">,</span>
                       <span class="n">end</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;20500101&#39;</span><span class="p">,</span>
                       <span class="n">klt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
@@ -421,7 +427,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    stock_codes : str</span>
+<span class="sd">    stock_codes : Union[str,List[str]]</span>
 <span class="sd">        6 位股票代码 或者 6 位股票代码构成的列表</span>
 <span class="sd">    beg : str, optional</span>
 <span class="sd">        开始日期 例如 20200101</span>
@@ -517,7 +523,7 @@
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>stock_codes</strong> (str):
+<li><strong>stock_codes</strong> (Union[str,List[str]]):
 6 位股票代码 或者 6 位股票代码构成的列表</li>
 <li><strong>beg</strong> (str, optional):
 开始日期 例如 20200101</li>
@@ -595,14 +601,16 @@ k线间距 默认为 101 即日k
                 <section id="get_realtime_quotes">
                             <div class="attr function"><a class="headerlink" href="#get_realtime_quotes">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_realtime_quotes</span><span class="signature">() -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_realtime_quotes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_realtime_quotes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取沪深市场最新行情总体情况</span>
 
@@ -691,14 +699,16 @@ k线间距 默认为 101 即日k
                 <section id="get_top10_stock_holder_info">
                             <div class="attr function"><a class="headerlink" href="#get_top10_stock_holder_info">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_top10_stock_holder_info</span><span class="signature">(stock_code: str, top: int = 4) -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_top10_stock_holder_info</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_top10_stock_holder_info</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取沪深市场指定股票前十大股东信息</span>
 
@@ -885,7 +895,8 @@ k线间距 默认为 101 即日k
                 <section id="get_base_info">
                             <div class="attr function"><a class="headerlink" href="#get_base_info">#&nbsp;&nbsp</a>
 
-        
+                <div class="decorator">@to_numeric</div>
+
             <span class="def">def</span>
             <span class="name">get_base_info</span><span class="signature">(
     stock_codes: Union[str, List[str]]
@@ -894,7 +905,8 @@ k线间距 默认为 101 即日k
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_base_info</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
+<span class="k">def</span> <span class="nf">get_base_info</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

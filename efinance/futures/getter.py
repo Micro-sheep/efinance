@@ -70,6 +70,7 @@ def get_futures_base_info() -> pd.DataFrame:
     df = pd.DataFrame(rows, columns=columns)
     return df
 
+
 @to_numeric
 def get_quote_history_single(secid: str,
                              beg: str = '19000101',

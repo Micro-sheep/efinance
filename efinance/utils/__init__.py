@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from typing import Union, Callable
-
+from functools import wraps
 
 def to_numeric(func: Callable):
     """
@@ -12,8 +12,9 @@ def to_numeric(func: Callable):
     func : object
         返回结果为 DataFrame 或者 Series 的函数
     """
+    
     ignore = ['股票代码', '基金代码', '代码', '沪/深']
-
+    @wraps(func)
     def run(*args, **kwargs):
         values = func(*args, **kwargs)
         if isinstance(values, pd.DataFrame):

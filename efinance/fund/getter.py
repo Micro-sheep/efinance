@@ -11,7 +11,7 @@ from .config import EastmoneyFundHeaders
 from ..utils import to_numeric
 signal.signal(signal.SIGINT, multitasking.killall)
 
-
+@to_numeric
 def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     """
     根据基金代码和要获取的页码抓取基金净值信息
@@ -226,7 +226,7 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
 
 
 @to_numeric
-def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
+def get_inverst_position(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
     """
     获取基金持仓占比信息
 
@@ -248,18 +248,18 @@ def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> 
     --------
     >>> import efinance as ef
     >>> # 获取最新公开的持仓数据
-    >>> ef.fund.get_inverst_postion('002542')
-         基金代码    股票代码  股票简称  持仓占比  较上期变化  公开日期
-    0  002542  603208  江山欧派  8.15    3.1  None
-    1  002542  600519  贵州茅台   6.5   1.71  None
-    2  002542  300572  安车检测  5.87  -0.01  None
-    3  002542  002706  良信股份  4.99  -2.36  None
-    4  002542  300696   爱乐达  4.97  -0.27  None
-    5  002542  002541  鸿路钢构  4.79   -3.1  None
-    6  002542  002791  坚朗五金   4.7   0.56  None
-    7  002542  601888  中国中免  4.46   4.46  None
-    8  002542  600809  山西汾酒  4.04   4.04  None
-    9  002542  688598  金博股份  3.01   3.01  None
+    >>> ef.fund.get_inverst_position('161725')
+     基金代码    股票代码  股票简称   持仓占比  较上期变化        公开日期
+    0  161725  000858   五粮液  14.88   1.45  2021-06-30
+    1  161725  600519  贵州茅台  14.16  -0.86  2021-06-30
+    2  161725  600809  山西汾酒  14.03  -0.83  2021-06-30
+    3  161725  000568  泸州老窖  13.02  -2.96  2021-06-30
+    4  161725  002304  洋河股份  12.72   1.31  2021-06-30
+    5  161725  000799   酒鬼酒   5.77   1.34  2021-06-30
+    6  161725  603369   今世缘   3.46  -0.48  2021-06-30
+    7  161725  000596  古井贡酒   2.81  -0.29  2021-06-30
+    8  161725  600779   水井坊   2.52   2.52  2021-06-30
+    9  161725  603589   口子窖   2.48  -0.38  2021-06-30
     >>> # 获取近 2 个公开持仓日数据
     >>> public_dates = ef.fund.get_public_dates('161725')
     >>> ef.fund.get_inverst_postion('161725',public_dates[:2])
@@ -295,21 +295,18 @@ def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> 
     df = pd.DataFrame(columns=columns.values())
     if not isinstance(dates, List):
         dates = [dates]
-
+    if dates is None:
+        dates = [None]
     for date in dates:
         params = [
             ('FCODE', fund_code),
-            ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
             ('OSVersion', '14.3'),
             ('appType', 'ttjj'),
             ('appVersion', '6.2.8'),
             ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-            ('passportid', '3061335960830820'),
             ('plat', 'Iphone'),
             ('product', 'EFund'),
             ('serverVersion', '6.2.8'),
-            ('uToken', '6cfr1qdanf8nfhd6uc6u-hdj86f1f8kfe9f8k108.6'),
-            ('userId', 'f8d95b2330d84d9e804e7f28a802d809'),
             ('version', '6.2.8'),
         ]
         if date is not None:
@@ -321,7 +318,7 @@ def get_inverst_postion(fund_code: str, dates: Union[str, List[str]] = None) -> 
 
         if stocks is None or len(stocks) == 0:
             continue
-
+        date = response.json()['Expansion']
         _df = pd.DataFrame(stocks)
         _df = _df[list(columns.keys())].rename(columns=columns)
         _df['公开日期'] = [date for _ in range(len(_df))]
@@ -404,7 +401,7 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
     return df
 
 
-@to_numeric
+
 def get_public_dates(fund_code: str) -> List[str]:
     """
     获取历史上更新持仓情况的日期列表
@@ -429,17 +426,12 @@ def get_public_dates(fund_code: str) -> List[str]:
 
     params = (
         ('FCODE', fund_code),
-        ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
         ('OSVersion', '14.3'),
         ('appVersion', '6.3.8'),
-        ('cToken', 'a6hdhrfejje88ruaeduau1rdufna1e--.6'),
         ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-        ('passportid', '3061335960830820'),
         ('plat', 'Iphone'),
         ('product', 'EFund'),
         ('serverVersion', '6.3.6'),
-        ('uToken', 'a166hhqnrajucnfcjkfkeducanekj1dd1cc2a-e9.6'),
-        ('userId', 'f8d95b2330d84d9e804e7f28a802d809'),
         ('version', '6.3.8'),
     )
 
@@ -451,7 +443,8 @@ def get_public_dates(fund_code: str) -> List[str]:
 
 
 @to_numeric
-def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = None) -> pd.DataFrame:
+def get_types_persentage(fund_code: str,
+                         dates: Union[List[str], str, None] = None) -> pd.DataFrame:
     """
     获取指定基金不同类型占比信息
 
@@ -460,7 +453,8 @@ def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = No
     fund_code : str
         6 位基金代码
     dates : Union[List[str], str, None]
-        可选值类型示例如下
+        可选值类型示例如下(后面有获取 dates 的例子)
+
             None : 最新公开持仓数据的日期
 
             '2020-09-30' 指定日期数据
@@ -494,20 +488,17 @@ def get_types_persentage(fund_code: str, dates: Union[List[str], str, None] = No
     df = pd.DataFrame(columns=columns.values())
     if not isinstance(dates, List):
         dates = [dates]
+    elif dates is None:
+        dates = [None]
     for date in dates:
         params = [
             ('FCODE', fund_code),
-            ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
             ('OSVersion', '14.3'),
             ('appVersion', '6.3.8'),
-            ('cToken', 'a6hdhrfejje88ruaeduau1rdufna1e--.6'),
-            ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-            ('passportid', '3061335960830820'),
+            ('deviceid', '3EA024C2-7F21-408B-95E4-383D38160FB3'),
             ('plat', 'Iphone'),
             ('product', 'EFund'),
             ('serverVersion', '6.3.6'),
-            ('uToken', 'a166hhqnrajucnfcjkfkeducanekj1dd1cc2a-e9.6'),
-            ('userId', 'f8d95b2330d84d9e804e7f28a802d809'),
             ('version', '6.3.8'),
         ]
         if date is not None:
@@ -543,16 +534,10 @@ def get_base_info_single(fund_code: str) -> pd.Series:
 
     params = (
         ('FCODE', fund_code),
-        ('utoken', 'a166hhqnrajucnfcjkfkeducanekj1dd1cc2a-e9.6'),
-        ('userid', 'f8d95b2330d84d9e804e7f28a802d809'),
-        ('passportutoken', 'FobyicMgeV4hdZSOHFSgW9W8PVUCQvTszyG6Mi16M0wZoNP96cXx1I25vT8UuLzqdUKtL93LFEHUMqjK4fmOO3DfE3Uogsm8IVjbgp1UNXnzfSM6mQwLCZO6PDQpA9Ak3c9Ow81EfCAT4qgkLz7tgls17FJPTeWx8tHo0pSrXj1ijjoVxUh1MTqvGnmXjIOS6FPNY72T7n388PNiH4HWw_fwR_n2MPgoSjLzPqayO0WPY79cEaXCVkxdNYHpRAJyUVDBhDvQ6BGGyd1Ftl-eWiYb18kvVDr6q4AFHOlj-Uyx-IfMpYpZkir7F02jyqpB'),
         ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-        ('ctoken', 'a6hdhrfejje88ruaeduau1rdufna1e--.6'),
         ('plat', 'Iphone'),
-        ('passportctoken', 'F5khCNKSAVOwvKQt3M-8HrFIpXuyk1NcGXSRQHyWQkneJuQJT25-QDvb4GiMk5O03mAPhMcU4SE9aWKEWW5mkRwTfg38mCkfSspZH2eXQnrewIBtqV-VhsMHKXT_1ILhqgPcCaNxkxF9t51IXVOlVn4kj2r3ogDcLoL2bo-2fJg'),
         ('product', 'EFund'),
         ('version', '6.3.8'),
-        ('GTOKEN', '98B423068C1F4DEF9842F82ADF08C5db'),
     )
 
     json_response = requests.get(
@@ -717,22 +702,19 @@ def get_industry_distribution(fund_code: str, dates: Union[str, List[str]] = Non
     df = pd.DataFrame(columns=columns.values())
     if isinstance(dates, str):
         dates = [dates]
+    elif dates is None:
+        dates = [None]
     for date in dates:
 
         params = [
 
             ('FCODE', fund_code),
-            ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
             ('OSVersion', '14.4'),
             ('appVersion', '6.3.8'),
-            ('cToken', '1fnc-1nne8cjcrdqud6rhrqqjee8fn-j.6'),
             ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-            ('passportid', '3061335960830820'),
             ('plat', 'Iphone'),
             ('product', 'EFund'),
             ('serverVersion', '6.3.6'),
-            ('uToken', 'nnukrkhk-aake6k1ehj-d-c86fua-ck-1fx6j882.6'),
-            ('userId', 'f8d95b2330d84d9e804e7f28a802d809'),
             ('version', '6.3.8'),
         ]
         if date is not None:
@@ -741,6 +723,7 @@ def get_industry_distribution(fund_code: str, dates: Union[str, List[str]] = Non
         response = requests.get('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation',
                                 headers=EastmoneyFundHeaders, params=params)
         datas = response.json()['Datas']
+
         _df = pd.DataFrame(datas)
         _df = _df.rename(columns=columns)
         df = pd.concat([df, _df], axis=0)
