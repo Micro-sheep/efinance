@@ -11,6 +11,7 @@ from .config import EastmoneyFundHeaders
 from ..utils import to_numeric
 signal.signal(signal.SIGINT, multitasking.killall)
 
+
 @to_numeric
 def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     """
@@ -399,7 +400,6 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
     df['时间段'] = titles.values()
     df.insert(0, '基金代码', [fund_code for _ in range(len(df))])
     return df
-
 
 
 def get_public_dates(fund_code: str) -> List[str]:

@@ -3,6 +3,7 @@ import re
 from typing import Union, Callable
 from functools import wraps
 
+
 def to_numeric(func: Callable):
     """
     将 DataFrame 或者 Series 尽可能地转为数字的装饰器
@@ -12,8 +13,9 @@ def to_numeric(func: Callable):
     func : object
         返回结果为 DataFrame 或者 Series 的函数
     """
-    
-    ignore = ['股票代码', '基金代码', '代码', '沪/深']
+
+    ignore = ['股票代码', '基金代码', '代码', '市场类型']
+
     @wraps(func)
     def run(*args, **kwargs):
         values = func(*args, **kwargs)

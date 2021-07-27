@@ -623,19 +623,19 @@ k线间距 默认为 101 即日k
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import efinance as ef</span>
 <span class="sd">    &gt;&gt;&gt; ef.stock.get_realtime_quotes()</span>
-<span class="sd">        股票代码  沪/深  股票名称     涨跌幅    最新价    涨跌额    换手率    动态市盈率     成交量          成交额   昨日收盘          总市值        流通市值</span>
-<span class="sd">    0     301026    0   N浩通  482.25  120.0  86.95   22.6    41.88   54650  589243856.0  18.03  11897733403  2538239824</span>
-<span class="sd">    1     688501    1   N青达  171.05   30.8  18.08   15.6  1738.65   33557   95991961.0  10.57   2712295500   616379337</span>
-<span class="sd">    2     688590    1  新致软件   13.88  24.58   2.92   9.44    99.18   36513   85568664.0  21.04   4361253829   926767050</span>
-<span class="sd">    3     300141    0  和顺电气   12.77  12.78   1.36   7.85    457.5  130063  156199019.0  10.65   3049154046  1988740932</span>
-<span class="sd">    4     300061    0  旗天科技   12.27   9.87   1.06   5.33   -99.24  290239  276575712.0   8.64   6411158983  5278000424</span>
-<span class="sd">    ...      ...  ...   ...     ...    ...    ...    ...      ...     ...          ...    ...          ...         ...</span>
-<span class="sd">    4565  603518    1  锦泓集团   -9.98  21.74  -2.41   0.09    16.39    2600    5652400.0  24.15   6205243743  6152967370</span>
-<span class="sd">    4566  002847    0  盐津铺子   -10.0  77.48  -8.61   0.09    30.55     969    7507812.0  86.09  10022812800  8778099854</span>
-<span class="sd">    4567  002647    0  仁东控股  -10.03   8.52  -0.95   0.35  -128.89   19789   16860228.0   9.47   4770660258  4770660258</span>
-<span class="sd">    4568  300719    0  安达维尔  -11.36   14.0  -1.67   2.36  -592.87   42761   56988503.0   14.7   3310001128  2360073500</span>
-<span class="sd">    4569  301027    0   C华蓝  -14.23  28.88  -4.18  11.05    35.78   38584  101747921.0  29.38   3704400000   879549275</span>
-<span class="sd">    [4570 rows x 13 columns]</span>
+<span class="sd">        股票代码 市场类型  股票名称     涨跌幅     最新价    涨跌额    换手率    动态市盈率        成交量           成交额    昨日收盘            总市值           流通市值      行情ID</span>
+<span class="sd">    0     688296   沪市   N和达  161.72   39.95  20.15  71.02  -151.18   173365.0   596007008.0   12.46   3502090948.0    796076690.0  1.688296</span>
+<span class="sd">    1     300903   深市  科翔股份   20.01   34.12   5.69  32.42   103.19   139743.0   465833504.0   28.43   5880162119.0   1470572000.0  0.300903</span>
+<span class="sd">    2     300629   深市   新劲刚   20.01   26.87   4.48  16.19    42.89   144339.0   358959936.0   22.39   3750054935.0   2395403885.0  0.300629</span>
+<span class="sd">    3     300706   深市   阿石创   20.01   36.29   6.05  20.71  1101.24   168989.0   591087184.0   30.24   5121244800.0   2961769520.0  0.300706</span>
+<span class="sd">    4     300852   深市  四会富仕    20.0   51.95   8.66  28.12    31.71   100095.0   508311520.0   43.29   5295302982.0   1849182017.0  0.300852</span>
+<span class="sd">    ...      ...  ...   ...     ...     ...    ...    ...      ...        ...           ...     ...            ...            ...       ...</span>
+<span class="sd">    4577  300477   深市  合纵科技   -13.8   11.98  -1.61   19.1   125.02  1152009.0  1273697936.0   11.67  10891642162.0   6066220320.0  0.300477</span>
+<span class="sd">    4578  300763   深市  锦浪科技  -14.23   277.0 -39.14    6.3   137.69    67654.0  1743101888.0  275.09  58416559044.0  25329968900.0  0.300763</span>
+<span class="sd">    4579  688087   沪市  英科再生  -14.46  109.31 -15.88   9.11    72.94    24663.0   250819652.0   109.8  12494411743.0   2542432245.0  1.688087</span>
+<span class="sd">    4580  300588   深市  熙菱信息   -18.0   18.73  -3.49  29.79    32.12   312661.0   522321600.0   19.39   2594530200.0   1668784103.0  0.300588</span>
+<span class="sd">    4581  300350   深市   华鹏飞  -19.97   13.82   -2.6   20.6    15.23   671626.0   758069392.0   13.02   5856167947.0   3397289191.0  0.300350</span>
+<span class="sd">    [4582 rows x 14 columns]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">EastmoneyQuotes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -655,12 +655,15 @@ k线间距 默认为 101 即日k
     <span class="p">)</span>
 
     <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s1">&#39;http://76.push2.eastmoney.com/api/qt/clist/get&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;http://3.push2.eastmoney.com/api/qt/clist/get&#39;</span><span class="p">,</span>
         <span class="n">headers</span><span class="o">=</span><span class="n">EastmoneyHeaders</span><span class="p">,</span>
         <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;diff&#39;</span><span class="p">])</span>
           <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">EastmoneyQuotes</span><span class="p">)</span>
           <span class="p">[</span><span class="n">columns</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;行情ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场类型&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;.&#39;</span><span class="o">+</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;股票代码&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场类型&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场类型&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;沪市&#39;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="s1">&#39;深市&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -678,19 +681,19 @@ k线间距 默认为 101 即日k
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_realtime_quotes</span><span class="p">()</span>
-<span class="go">    股票代码  沪/深  股票名称     涨跌幅    最新价    涨跌额    换手率    动态市盈率     成交量          成交额   昨日收盘          总市值        流通市值</span>
-<span class="go">0     301026    0   N浩通  482.25  120.0  86.95   22.6    41.88   54650  589243856.0  18.03  11897733403  2538239824</span>
-<span class="go">1     688501    1   N青达  171.05   30.8  18.08   15.6  1738.65   33557   95991961.0  10.57   2712295500   616379337</span>
-<span class="go">2     688590    1  新致软件   13.88  24.58   2.92   9.44    99.18   36513   85568664.0  21.04   4361253829   926767050</span>
-<span class="go">3     300141    0  和顺电气   12.77  12.78   1.36   7.85    457.5  130063  156199019.0  10.65   3049154046  1988740932</span>
-<span class="go">4     300061    0  旗天科技   12.27   9.87   1.06   5.33   -99.24  290239  276575712.0   8.64   6411158983  5278000424</span>
-<span class="gp">... </span>     <span class="o">...</span>  <span class="o">...</span>   <span class="o">...</span>     <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>      <span class="o">...</span>     <span class="o">...</span>          <span class="o">...</span>    <span class="o">...</span>          <span class="o">...</span>         <span class="o">...</span>
-<span class="go">4565  603518    1  锦泓集团   -9.98  21.74  -2.41   0.09    16.39    2600    5652400.0  24.15   6205243743  6152967370</span>
-<span class="go">4566  002847    0  盐津铺子   -10.0  77.48  -8.61   0.09    30.55     969    7507812.0  86.09  10022812800  8778099854</span>
-<span class="go">4567  002647    0  仁东控股  -10.03   8.52  -0.95   0.35  -128.89   19789   16860228.0   9.47   4770660258  4770660258</span>
-<span class="go">4568  300719    0  安达维尔  -11.36   14.0  -1.67   2.36  -592.87   42761   56988503.0   14.7   3310001128  2360073500</span>
-<span class="go">4569  301027    0   C华蓝  -14.23  28.88  -4.18  11.05    35.78   38584  101747921.0  29.38   3704400000   879549275</span>
-<span class="go">[4570 rows x 13 columns]</span>
+<span class="go">    股票代码 市场类型  股票名称     涨跌幅     最新价    涨跌额    换手率    动态市盈率        成交量           成交额    昨日收盘            总市值           流通市值      行情ID</span>
+<span class="go">0     688296   沪市   N和达  161.72   39.95  20.15  71.02  -151.18   173365.0   596007008.0   12.46   3502090948.0    796076690.0  1.688296</span>
+<span class="go">1     300903   深市  科翔股份   20.01   34.12   5.69  32.42   103.19   139743.0   465833504.0   28.43   5880162119.0   1470572000.0  0.300903</span>
+<span class="go">2     300629   深市   新劲刚   20.01   26.87   4.48  16.19    42.89   144339.0   358959936.0   22.39   3750054935.0   2395403885.0  0.300629</span>
+<span class="go">3     300706   深市   阿石创   20.01   36.29   6.05  20.71  1101.24   168989.0   591087184.0   30.24   5121244800.0   2961769520.0  0.300706</span>
+<span class="go">4     300852   深市  四会富仕    20.0   51.95   8.66  28.12    31.71   100095.0   508311520.0   43.29   5295302982.0   1849182017.0  0.300852</span>
+<span class="gp">... </span>     <span class="o">...</span>  <span class="o">...</span>   <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>      <span class="o">...</span>        <span class="o">...</span>           <span class="o">...</span>     <span class="o">...</span>            <span class="o">...</span>            <span class="o">...</span>       <span class="o">...</span>
+<span class="go">4577  300477   深市  合纵科技   -13.8   11.98  -1.61   19.1   125.02  1152009.0  1273697936.0   11.67  10891642162.0   6066220320.0  0.300477</span>
+<span class="go">4578  300763   深市  锦浪科技  -14.23   277.0 -39.14    6.3   137.69    67654.0  1743101888.0  275.09  58416559044.0  25329968900.0  0.300763</span>
+<span class="go">4579  688087   沪市  英科再生  -14.46  109.31 -15.88   9.11    72.94    24663.0   250819652.0   109.8  12494411743.0   2542432245.0  1.688087</span>
+<span class="go">4580  300588   深市  熙菱信息   -18.0   18.73  -3.49  29.79    32.12   312661.0   522321600.0   19.39   2594530200.0   1668784103.0  0.300588</span>
+<span class="go">4581  300350   深市   华鹏飞  -19.97   13.82   -2.6   20.6    15.23   671626.0   758069392.0   13.02   5856167947.0   3397289191.0  0.300350</span>
+<span class="go">[4582 rows x 14 columns]</span>
 </code></pre></div>
 </div>
 
@@ -757,7 +760,7 @@ k线间距 默认为 101 即日k
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># 沪市指数</span>
-        <span class="n">_type</span> <span class="o">=</span> <span class="n">get_stock_market_type</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
+        <span class="n">_type</span> <span class="o">=</span> <span class="n">gen_secid</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_type</span><span class="p">)</span>
         <span class="c1"># 深市</span>
         <span class="k">if</span> <span class="n">_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -934,7 +937,7 @@ k线间距 默认为 101 即日k
 <span class="sd">    股票代码                  600519</span>
 <span class="sd">    股票名称                    贵州茅台</span>
 <span class="sd">    市盈率(动)                 48.94</span>
-<span class="sd">    市盈率                    15.59</span>
+<span class="sd">    市净率                    15.59</span>
 <span class="sd">    所处行业                    酿酒行业</span>
 <span class="sd">    总市值          2731853355660.0</span>
 <span class="sd">    流通市值         2731853355660.0</span>
@@ -946,7 +949,7 @@ k线间距 默认为 101 即日k
 <span class="sd">    dtype: object</span>
 <span class="sd">    &gt;&gt;&gt; # 获取多只股票信息</span>
 <span class="sd">    &gt;&gt;&gt; ef.stock.get_base_info([&#39;600519&#39;,&#39;300715&#39;])</span>
-<span class="sd">    股票代码  股票名称  市盈率(动)    市盈率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率</span>
+<span class="sd">    股票代码  股票名称  市盈率(动)    市净率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率</span>
 <span class="sd">    0  600519  贵州茅台   49.20  15.67  酿酒行业  2.745986e+12  2.745986e+12  BK0477  8.29  54.1678  1.395446e+10  91.6763</span>
 <span class="sd">    1  300715  凯伦股份   34.34   5.35  水泥建材  7.437957e+09  6.594918e+09  BK0424  3.97  12.1659  5.415488e+07  32.8765</span>
 
@@ -992,7 +995,7 @@ DataFrane
 <span class="go">股票代码                  600519</span>
 <span class="go">股票名称                    贵州茅台</span>
 <span class="go">市盈率(动)                 48.94</span>
-<span class="go">市盈率                    15.59</span>
+<span class="go">市净率                    15.59</span>
 <span class="go">所处行业                    酿酒行业</span>
 <span class="go">总市值          2731853355660.0</span>
 <span class="go">流通市值         2731853355660.0</span>
@@ -1004,7 +1007,7 @@ DataFrane
 <span class="go">dtype: object</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取多只股票信息</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_base_info</span><span class="p">([</span><span class="s1">&#39;600519&#39;</span><span class="p">,</span><span class="s1">&#39;300715&#39;</span><span class="p">])</span>
-<span class="go">股票代码  股票名称  市盈率(动)    市盈率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率</span>
+<span class="go">股票代码  股票名称  市盈率(动)    市净率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率</span>
 <span class="go">0  600519  贵州茅台   49.20  15.67  酿酒行业  2.745986e+12  2.745986e+12  BK0477  8.29  54.1678  1.395446e+10  91.6763</span>
 <span class="go">1  300715  凯伦股份   34.34   5.35  水泥建材  7.437957e+09  6.594918e+09  BK0424  3.97  12.1659  5.415488e+07  32.8765</span>
 </code></pre></div>

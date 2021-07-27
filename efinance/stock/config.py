@@ -1,6 +1,5 @@
 from pathlib import Path
 HERE = Path(__file__).parent
-QUOTES_SAVE_PATH = HERE/'stock_quotes.csv'
 
 EastmoneyKlines = {
     'f51': '日期',
@@ -20,7 +19,7 @@ EastmoneyKlines = {
 
 EastmoneyQuotes = {
     'f12': '股票代码',
-    'f13': '沪/深',
+    'f13': '市场类型',
     'f14': '股票名称',
     'f3': '涨跌幅',
     'f15': '最新价',

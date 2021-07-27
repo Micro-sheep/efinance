@@ -126,7 +126,6 @@ def get_quote_history_single(secid: str,
     url = base_url+'?'+urlencode(params)
     json_response = requests.get(
         url, headers=EastmoneyHeaders).json()
-
     data = json_response['data']
     if data is None:
         print(secid, '无数据')
