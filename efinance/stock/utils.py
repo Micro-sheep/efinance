@@ -1,15 +1,19 @@
-from typing import Union
+from typing import List, Union
 import requests
+from collections import namedtuple
+# 存储证券代码的实体
+Quote = namedtuple('Quote', ['code', 'name', 'pinyin', 'id', 'jys', 'classify', 'market_type',
+                   'security_typeName', 'security_type', 'mkt_num', 'type_us', 'quote_id', 'unified_code', 'inner_code'])
 
 
-def gen_secid(stock_code: str) -> str:
+def get_quote_id(stock_code: str) -> str:
     """
-    生成东方财富股票专用的 secid
+    生成东方财富股票专用的行情ID
 
     Parameters
     ----------
     stock_code : str
-        6 位股票代码
+        证券代码或者证券名称
 
     Returns
     -------
@@ -17,38 +21,41 @@ def gen_secid(stock_code: str) -> str:
         东方财富股票专用的 secid
     """
     if len(str(stock_code).strip()) == 0:
-        raise Exception('股票代码应为 6 位数')
+        raise Exception('证券代码应为长度不应为 0')
+    quote = search_quote(stock_code)
+    if isinstance(quote, Quote):
+        return quote.quote_id
+    if quote is None:
+        raise Exception(f'证券代码 {stock_code} 可能有误')
 
-    seicd = gen_secid_plus(stock_code)
-    if seicd is None:
-        raise Exception(f'股票代码 {stock_code} 可能有误')
-    return seicd
 
-
-def gen_secid_plus(code: str) -> Union[str, None]:
+def search_quote(keyword: str, count: int = 1) -> Union[Quote, None, List[Quote]]:
     """
-    调用接口生成 secid
+    根据关键词搜索以获取证券信息
 
     Parameters
     ----------
-    code : str
-        股票代码、债券代码、ETF 代码
+    keyword : str
+        搜索词(股票代码、债券代码甚至证券名称都可以)
+    count : int, optional
+        最多搜索结果数, by default 1
 
     Returns
     -------
-    Union[str,None]
-        str : 第一个建议的 secid
+    Union[Quote, None, List[Quote]]
 
-        None : 当搜索不到结果时
     """
     url = 'https://searchapi.eastmoney.com/api/suggest/get'
     params = (
-        ('input', f'{code}'),
+        ('input', f'{keyword}'),
         ('type', '14'),
         ('token', 'D43BF722C8E33BDC906FB84D85E326E8'),
-        ('count', '1'))
+        ('count', f'{count}'))
     json_response = requests.get(url, params=params).json()
     items = json_response['QuotationCodeTable']['Data']
     if items is not None:
-        return items[0]['QuoteID']
+        if count == 1:
+            return Quote(*items[0].values())
+        else:
+            return [Quote(*item.values()) for item in items]
     return None

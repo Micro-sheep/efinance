@@ -5,13 +5,15 @@ import requests
 import multitasking
 import signal
 from tqdm import tqdm
-from .utils import gen_secid
+from .utils import get_quote_id
 from ..utils import to_numeric
+from ..config import MARET_NUMBER_DICT
 from .config import (EastmoneyKlines,
                      EastmoneyHeaders,
                      EastmoneyBills,
                      EastmoneyQuotes,
-                     EastmoneyStockBaseInfo)
+                     EastmoneyStockBaseInfo,
+                     EastmoneyLatestQuote)
 
 signal.signal(signal.SIGINT, multitasking.killall)
 
@@ -24,7 +26,7 @@ def get_base_info_single(stock_code: str) -> pd.Series:
     Parameters
     ----------
     stock_code : str
-        6 位股票代码
+        股票代码
 
     Returns
     -------
@@ -37,11 +39,11 @@ def get_base_info_single(stock_code: str) -> pd.Series:
         ('invt', '2'),
         ('fltt', '2'),
         ('fields', fields),
-        ('secid', gen_secid(stock_code)),
+        ('secid', get_quote_id(stock_code)),
 
     )
-
-    json_response = requests.get('http://push2.eastmoney.com/api/qt/stock/get',
+    url = 'http://push2.eastmoney.com/api/qt/stock/get'
+    json_response = requests.get(url,
                                  headers=EastmoneyHeaders,
                                  params=params).json()
 
@@ -56,7 +58,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
     Parameters
     ----------
     stock_codes : List[str]
-        6 位股票代码列表
+        股票代码列表
 
     Returns
     -------
@@ -64,20 +66,19 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
         包含多只股票基本信息
     """
 
-    ss = []
-
     @multitasking.task
     @retry(tries=3, delay=1)
     def start(stock_code: str):
         s = get_base_info_single(stock_code)
-        ss.append(s)
-        bar.update()
-        bar.set_description(f'processing {stock_code}')
-    bar = tqdm(total=len(stock_codes))
+        dfs.append(s)
+        pbar.update()
+        pbar.set_description(f'Processing {stock_code}')
+    dfs: List[pd.DataFrame] = []
+    pbar = tqdm(total=len(stock_codes))
     for stock_code in stock_codes:
         start(stock_code)
     multitasking.wait_for_tasks()
-    df = pd.DataFrame(ss)
+    df = pd.DataFrame(dfs)
     return df
 
 
@@ -87,7 +88,7 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
     Parameters
     ----------
     stock_codes : Union[str, List[str]]
-        6 位股票代码 或 6 位股票代码构成的列表
+        股票代码或股票代码构成的列表
 
     Returns
     -------
@@ -140,14 +141,15 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
 def get_quote_history_single(stock_code: str,
                              beg: str = '19000101',
                              end: str = '20500101',
-                             klt: int = 101, fqt: int = 1) -> pd.DataFrame:
+                             klt: int = 101,
+                             fqt: int = 1) -> pd.DataFrame:
     """
     获取单只股票k线数据
 
     Parameters
     ----------
     stock_code : str
-        6 位股票代码
+        股票代码
     beg : str, optional
         开始日期 例如 20200101
     end : str, optional
@@ -173,14 +175,14 @@ def get_quote_history_single(stock_code: str,
     fields = list(EastmoneyKlines.keys())
     columns = list(EastmoneyKlines.values())
     fields2 = ",".join(fields)
-    secid = gen_secid(stock_code)
+    quote_id = get_quote_id(stock_code)
     params = (
         ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
         ('fields2', fields2),
         ('beg', beg),
         ('end', end),
         ('rtntype', '6'),
-        ('secid', secid),
+        ('secid', quote_id),
         ('klt', f'{klt}'),
         ('fqt', f'{fqt}'),
     )
@@ -192,11 +194,12 @@ def get_quote_history_single(stock_code: str,
 
     data = json_response.get('data')
     if data is None:
+        columns.extend(['股票名称', '股票代码'])
         return pd.DataFrame(columns=columns)
-    # 股票名称
-    stock_name = data['name']
     klines: List[str] = data['klines']
     rows = [kline.split(',') for kline in klines]
+    stock_name = data['name']
+    stock_code = quote_id.split('.')[-1]
     df = pd.DataFrame(rows, columns=columns)
     df.insert(0, '股票代码', [stock_code] * len(df))
     df.insert(0, '股票名称', [stock_name] * len(df))
@@ -245,10 +248,14 @@ def get_quote_history_multi(stock_codes: List[str],
     total = len(stock_codes)
 
     @multitasking.task
-    @retry(tries=3, delay=1)
+    @retry(tries=tries, delay=1)
     def start(stock_code: str):
         _df = get_quote_history_single(
-            stock_code, beg=beg, end=end, klt=klt, fqt=fqt)
+            stock_code,
+            beg=beg,
+            end=end,
+            klt=klt,
+            fqt=fqt)
         dfs[stock_code] = _df
         pbar.update(1)
         pbar.set_description_str(f'Processing: {stock_code}')
@@ -267,12 +274,12 @@ def get_quote_history(stock_codes: Union[str, List[str]],
                       klt: int = 101,
                       fqt: int = 1) -> pd.DataFrame:
     """
-    获取k线数据
+    获取股票、ETF、债券的 K 线数据
 
     Parameters
     ----------
     stock_codes : Union[str,List[str]]
-        6 位股票代码 或者 6 位股票代码构成的列表
+        股票、ETF、债券代码 或者 代码构成的列表
     beg : str, optional
         开始日期 例如 20200101
     end : str, optional
@@ -299,46 +306,47 @@ def get_quote_history(stock_codes: Union[str, List[str]],
     >>> import efinance as ef
     >>> # 获取单只给股票历史行情（日 k）
     >>> ef.stock.get_quote_history('600519')
-        股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量             成交额     振幅    涨跌幅     涨跌额    换手率
-    0     贵州茅台  600519  2001-08-27   -70.44   -70.24   -69.79   -70.77  406318   1410347000.00  -1.38   1.15    0.82  56.83
-    1     贵州茅台  600519  2001-08-28   -70.35   -69.97   -69.95   -70.42  129647    463463000.00  -0.67   0.38    0.27  18.13
-    2     贵州茅台  600519  2001-08-29   -69.95   -70.07   -69.95   -70.13   53252    194689000.00  -0.26  -0.14   -0.10   7.45
-    3     贵州茅台  600519  2001-08-30   -70.09   -69.93   -69.85   -70.15   48013    177558000.00  -0.43   0.20    0.14   6.72
-    4     贵州茅台  600519  2001-08-31   -69.92   -69.94   -69.82   -69.99   23231     86231000.00  -0.24  -0.01   -0.01   3.25
-    ...    ...     ...         ...      ...      ...      ...      ...     ...             ...    ...    ...     ...    ...
-    4724  贵州茅台  600519  2021-06-08  2260.00  2191.00  2279.99  2161.15   47314  10479943168.00   5.23  -3.52  -80.00   0.38
-    4725  贵州茅台  600519  2021-06-09  2192.00  2199.50  2214.00  2160.11   25502   5591378944.00   2.46   0.39    8.50   0.20
-    4726  贵州茅台  600519  2021-06-10  2195.00  2238.48  2251.37  2190.08   25567   5707338496.00   2.79   1.77   38.98   0.20
-    4727  贵州茅台  600519  2021-06-11  2239.00  2178.81  2244.00  2178.81   33971   7513797120.00   2.91  -2.67  -59.67   0.27
-    4728  贵州茅台  600519  2021-06-15  2195.10  2186.60  2208.88  2148.00   19079   4157285376.00   2.79   0.36    7.79   0.15
-    >>> # 获取多只给股票历史行情（日 k）
+      股票名称    股票代码          日期       开盘       收盘       最高       最低       成交量           成交额    振幅   涨跌幅    涨跌额    换手率
+    0     贵州茅台  600519  2001-08-27   -89.74   -89.53   -89.08   -90.07  406318.0  1.410347e+09 -1.10  0.92   0.83  56.83
+    1     贵州茅台  600519  2001-08-28   -89.64   -89.27   -89.24   -89.72  129647.0  4.634630e+08 -0.54  0.29   0.26  18.13
+    2     贵州茅台  600519  2001-08-29   -89.24   -89.36   -89.24   -89.42   53252.0  1.946890e+08 -0.20 -0.10  -0.09   7.45
+    3     贵州茅台  600519  2001-08-30   -89.38   -89.22   -89.14   -89.44   48013.0  1.775580e+08 -0.34  0.16   0.14   6.72
+    4     贵州茅台  600519  2001-08-31   -89.21   -89.24   -89.12   -89.28   23231.0  8.623100e+07 -0.18 -0.02  -0.02   3.25
+    ...    ...     ...         ...      ...      ...      ...      ...       ...           ...   ...   ...    ...    ...
+    4755  贵州茅台  600519  2021-07-22  1960.00  1940.01  1973.90  1938.96   39090.0  7.619077e+09  1.77 -1.47 -28.99   0.31
+    4756  贵州茅台  600519  2021-07-23  1937.82  1900.00  1937.82  1895.09   47585.0  9.057762e+09  2.20 -2.06 -40.01   0.38
+    4757  贵州茅台  600519  2021-07-26  1879.00  1804.11  1879.00  1780.00   98619.0  1.789436e+10  5.21 -5.05 -95.89   0.79
+    4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577.0  1.523081e+10  5.93 -5.06 -91.22   0.69
+    4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369.0  1.479247e+10  6.19  3.27  56.01   0.68
+    [4760 rows x 13 columns]
+    >>> # 获取多只股票历史行情
     >>> ef.stock.get_quote_history(['600519','300750'])
-    {'300750':      股票名称    股票代码          日期      开盘      收盘      最高      最低     成交量            成交额     振幅    涨跌幅    涨跌额   换手率
-    0    宁德时代  300750  2018-06-11   29.81   35.84   35.84   29.81     788     2845471.00  24.33  44.63  11.06  0.04
-    1    宁德时代  300750  2018-06-12   39.46   39.46   39.46   39.46     266     1058375.00   0.00  10.10   3.62  0.01
-    2    宁德时代  300750  2018-06-13   43.44   43.44   43.44   43.44     450     1972314.00   0.00  10.09   3.98  0.02
-    3    宁德时代  300750  2018-06-14   47.82   47.82   47.82   47.82     743     3578184.00   0.00  10.08   4.38  0.03
-    4    宁德时代  300750  2018-06-15   52.64   52.64   52.64   52.64    2565    13595030.00   0.00  10.08   4.82  0.12
-    ..    ...     ...         ...     ...     ...     ...     ...     ...            ...    ...    ...    ...   ...
-    727  宁德时代  300750  2021-06-08  404.00  409.59  424.85  404.00  166317  6887633920.00   5.12   0.51   2.09  1.23
-    728  宁德时代  300750  2021-06-09  409.00  409.37  416.00  403.00   93582  3829137536.00   3.17  -0.05  -0.22  0.69
-    729  宁德时代  300750  2021-06-10  410.09  434.63  444.66  410.09  193502  8400201728.00   8.44   6.17  25.26  1.43
-    730  宁德时代  300750  2021-06-11  443.00  451.98  457.84  430.06  197961  8816469248.00   6.39   3.99  17.35  0.86
-    731  宁德时代  300750  2021-06-15  453.00  445.31  455.90  435.50   62061  2761012304.00   4.51  -1.48  -6.67  0.27
-    [732 rows x 13 columns],
-    '600519':       股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量             成交额     振幅    涨跌幅     涨跌额    换手率
-    0     贵州茅台  600519  2001-08-27   -70.44   -70.24   -69.79   -70.77  406318   1410347000.00  -1.38   1.15    0.82  56.83
-    1     贵州茅台  600519  2001-08-28   -70.35   -69.97   -69.95   -70.42  129647    463463000.00  -0.67   0.38    0.27  18.13
-    2     贵州茅台  600519  2001-08-29   -69.95   -70.07   -69.95   -70.13   53252    194689000.00  -0.26  -0.14   -0.10   7.45
-    3     贵州茅台  600519  2001-08-30   -70.09   -69.93   -69.85   -70.15   48013    177558000.00  -0.43   0.20    0.14   6.72
-    4     贵州茅台  600519  2001-08-31   -69.92   -69.94   -69.82   -69.99   23231     86231000.00  -0.24  -0.01   -0.01   3.25
-    ...    ...     ...         ...      ...      ...      ...      ...     ...             ...    ...    ...     ...    ...
-    4724  贵州茅台  600519  2021-06-08  2260.00  2191.00  2279.99  2161.15   47314  10479943168.00   5.23  -3.52  -80.00   0.38
-    4725  贵州茅台  600519  2021-06-09  2192.00  2199.50  2214.00  2160.11   25502   5591378944.00   2.46   0.39    8.50   0.20
-    4726  贵州茅台  600519  2021-06-10  2195.00  2238.48  2251.37  2190.08   25567   5707338496.00   2.79   1.77   38.98   0.20
-    4727  贵州茅台  600519  2021-06-11  2239.00  2178.81  2244.00  2178.81   33971   7513797120.00   2.91  -2.67  -59.67   0.27
-    4728  贵州茅台  600519  2021-06-15  2195.10  2192.15  2208.88  2148.00   19325   4211086880.00   2.79   0.61   13.34   0.15
-    [4729 rows x 13 columns]}
+    {'300750':      股票名称    股票代码          日期      开盘      收盘      最高      最低       成交量           成交额     振幅    涨跌幅    涨跌额   换手率
+    0    宁德时代  300750  2018-06-11   29.57   35.60   35.60   29.57     788.0  2.845471e+06  24.57  45.07  11.06  0.04
+    1    宁德时代  300750  2018-06-12   39.22   39.22   39.22   39.22     266.0  1.058375e+06   0.00  10.17   3.62  0.01
+    2    宁德时代  300750  2018-06-13   43.20   43.20   43.20   43.20     450.0  1.972314e+06   0.00  10.15   3.98  0.02
+    3    宁德时代  300750  2018-06-14   47.58   47.58   47.58   47.58     743.0  3.578184e+06   0.00  10.14   4.38  0.03
+    4    宁德时代  300750  2018-06-15   52.40   52.40   52.40   52.40    2565.0  1.359503e+07   0.00  10.13   4.82  0.12
+    ..    ...     ...         ...     ...     ...     ...     ...       ...           ...    ...    ...    ...   ...
+    758  宁德时代  300750  2021-07-22  556.60  557.08  563.69  545.69  108836.0  6.027459e+09   3.24   0.23   1.30  0.54
+    759  宁德时代  300750  2021-07-23  555.00  547.01  563.99  546.00   93329.0  5.157402e+09   3.23  -1.81 -10.07  0.46
+    760  宁德时代  300750  2021-07-26  544.00  539.78  552.93  522.50  127290.0  6.852322e+09   5.56  -1.32  -7.23  0.63
+    761  宁德时代  300750  2021-07-27  543.02  495.00  559.19  495.00  178460.0  9.419313e+09  11.89  -8.30 -44.78  0.88
+    762  宁德时代  300750  2021-07-28  496.00  525.05  533.30  496.00  217247.0  1.122167e+10   7.54   6.07  30.05  1.07
+    [763 rows x 13 columns],
+    '600519':       股票名称    股票代码          日期       开盘       收盘       最高       最低       成交量           成交额    振幅   涨跌幅    涨跌额    换手率
+    0     贵州茅台  600519  2001-08-27   -89.74   -89.53   -89.08   -90.07  406318.0  1.410347e+09 -1.10  0.92   0.83  56.83
+    1     贵州茅台  600519  2001-08-28   -89.64   -89.27   -89.24   -89.72  129647.0  4.634630e+08 -0.54  0.29   0.26  18.13
+    2     贵州茅台  600519  2001-08-29   -89.24   -89.36   -89.24   -89.42   53252.0  1.946890e+08 -0.20 -0.10  -0.09   7.45
+    3     贵州茅台  600519  2001-08-30   -89.38   -89.22   -89.14   -89.44   48013.0  1.775580e+08 -0.34  0.16   0.14   6.72
+    4     贵州茅台  600519  2001-08-31   -89.21   -89.24   -89.12   -89.28   23231.0  8.623100e+07 -0.18 -0.02  -0.02   3.25
+    ...    ...     ...         ...      ...      ...      ...      ...       ...           ...   ...   ...    ...    ...
+    4755  贵州茅台  600519  2021-07-22  1960.00  1940.01  1973.90  1938.96   39090.0  7.619077e+09  1.77 -1.47 -28.99   0.31
+    4756  贵州茅台  600519  2021-07-23  1937.82  1900.00  1937.82  1895.09   47585.0  9.057762e+09  2.20 -2.06 -40.01   0.38
+    4757  贵州茅台  600519  2021-07-26  1879.00  1804.11  1879.00  1780.00   98619.0  1.789436e+10  5.21 -5.05 -95.89   0.79
+    4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577.0  1.523081e+10  5.93 -5.06 -91.22   0.69
+    4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369.0  1.479247e+10  6.19  3.27  56.01   0.68
+    [4760 rows x 13 columns]}
     """
 
     if isinstance(stock_codes, str):
@@ -368,31 +376,30 @@ def get_realtime_quotes() -> pd.DataFrame:
     Returns
     -------
     DataFrame
-        包含沪深全市场上市公司的最新行情信息（涨跌幅、换手率等信息）
+        包含沪深全市场A股上市公司的最新行情信息（涨跌幅、换手率等信息）
 
     Examples
     --------
     >>> import efinance as ef
     >>> ef.stock.get_realtime_quotes()
-        股票代码 市场类型  股票名称     涨跌幅     最新价    涨跌额    换手率    动态市盈率        成交量           成交额    昨日收盘            总市值           流通市值      行情ID
-    0     688296   沪市   N和达  161.72   39.95  20.15  71.02  -151.18   173365.0   596007008.0   12.46   3502090948.0    796076690.0  1.688296
-    1     300903   深市  科翔股份   20.01   34.12   5.69  32.42   103.19   139743.0   465833504.0   28.43   5880162119.0   1470572000.0  0.300903
-    2     300629   深市   新劲刚   20.01   26.87   4.48  16.19    42.89   144339.0   358959936.0   22.39   3750054935.0   2395403885.0  0.300629
-    3     300706   深市   阿石创   20.01   36.29   6.05  20.71  1101.24   168989.0   591087184.0   30.24   5121244800.0   2961769520.0  0.300706
-    4     300852   深市  四会富仕    20.0   51.95   8.66  28.12    31.71   100095.0   508311520.0   43.29   5295302982.0   1849182017.0  0.300852
-    ...      ...  ...   ...     ...     ...    ...    ...      ...        ...           ...     ...            ...            ...       ...
-    4577  300477   深市  合纵科技   -13.8   11.98  -1.61   19.1   125.02  1152009.0  1273697936.0   11.67  10891642162.0   6066220320.0  0.300477
-    4578  300763   深市  锦浪科技  -14.23   277.0 -39.14    6.3   137.69    67654.0  1743101888.0  275.09  58416559044.0  25329968900.0  0.300763
-    4579  688087   沪市  英科再生  -14.46  109.31 -15.88   9.11    72.94    24663.0   250819652.0   109.8  12494411743.0   2542432245.0  1.688087
-    4580  300588   深市  熙菱信息   -18.0   18.73  -3.49  29.79    32.12   312661.0   522321600.0   19.39   2594530200.0   1668784103.0  0.300588
-    4581  300350   深市   华鹏飞  -19.97   13.82   -2.6   20.6    15.23   671626.0   758069392.0   13.02   5856167947.0   3397289191.0  0.300350
-    [4582 rows x 14 columns]
+        股票代码  股票名称     涨跌幅    最新价    涨跌额    换手率   动态市盈率        成交量           成交额   昨日收盘            总市值          流通市值      行情ID 市场类型
+    0     688718  N唯赛勃  586.84  46.18  34.33   89.6  103.41   316228.0  1249689424.0   5.85   6981451350.0  1418121760.0  1.688718   沪A
+    1     301035   N润丰   73.59   52.0  16.22  56.82   27.48   372147.0  1495134688.0  22.04  10566646800.0  2505672078.0  0.301035   深A
+    2     301024   N霍普   49.05  100.0   23.8  49.48   83.63    52448.0   422392992.0  48.52   3065644800.0   766592000.0  0.301024   深A
+    3     300252   金信诺   20.05  10.48   1.75   9.61  445.01   395553.0   399645072.0   8.73   6051978180.0  4311519663.0  0.300252   深A
+    4     300570   太辰光   20.02  20.08   3.35  16.91   52.37   324360.0   616786960.0  16.73   4618335744.0  3852378441.0  0.300570   深A
+    ...      ...   ...     ...    ...    ...    ...     ...        ...           ...    ...            ...           ...       ...  ...
+    4579  300617  安靠智电  -12.26   48.2  -6.03   6.64   32.86    43011.0   192835444.0   49.2   7258892435.0  2794735359.0  0.300617   深A
+    4580  300311   任子行  -14.61  11.18  -1.67  28.13  -73.55  1435910.0  1434059584.0  11.43   6574630264.0  4981700313.0  0.300311   深A
+    4581  300561  汇金科技  -15.83   11.0  -1.96   8.56   137.6   149574.0   156322773.0  12.38   3419696943.0  1821138651.0  0.300561   深A
+    4582  688100  威胜信息  -16.05  26.67  -4.28   2.98   52.69    49039.0   117508031.0  26.67  11195000000.0  3682099692.0  1.688100   沪A
+    4583  688296  和达科技  -19.32   29.0   -6.3  38.14 -121.97    93098.0   249574905.0  32.61   2825514040.0   642280825.0  1.688296   沪A
+    [4584 rows x 14 columns]
     """
 
     fields = ",".join(EastmoneyQuotes.keys())
     columns = list(EastmoneyQuotes.values())
     params = (
-
         ('pn', '1'),
         ('pz', '1000000'),
         ('po', '1'),
@@ -401,20 +408,20 @@ def get_realtime_quotes() -> pd.DataFrame:
         ('invt', '2'),
         ('fid', 'f3'),
         ('fs', 'm:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23'),
-        ('fields', fields),
-
+        ('fields', fields)
     )
-
-    json_response = requests.get(
-        'http://3.push2.eastmoney.com/api/qt/clist/get',
-        headers=EastmoneyHeaders,
-        params=params).json()
+    # TODO 修改该接口，使得实时性更佳
+    url = 'http://push2.eastmoney.com/api/qt/clist/get'
+    json_response = requests.get(url,
+                                 headers=EastmoneyHeaders,
+                                 params=params).json()
     df = (pd.DataFrame(json_response['data']['diff'])
           .rename(columns=EastmoneyQuotes)
           [columns])
-    df['行情ID'] = df['市场类型'].astype(str)+'.'+df['股票代码'].astype(str)
-    df['市场类型'] = df['市场类型'].astype(str).apply(
-        lambda x: '沪市' if x == '1' else '深市')
+    df['行情ID'] = df['市场编号'].astype(str)+'.'+df['股票代码'].astype(str)
+    df['市场类型'] = df['市场编号'].astype(str).apply(
+        lambda x: MARET_NUMBER_DICT.get(str(x)))
+    del df['市场编号']
     return df
 
 
@@ -455,7 +462,7 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
     fields = list(EastmoneyBills.keys())
     columns = list(EastmoneyBills.values())
     fields2 = ",".join(fields)
-    secid = gen_secid(stock_code)
+    secid = get_quote_id(stock_code)
     params = (
         ('lmt', '100000'),
         ('klt', '101'),
@@ -464,9 +471,10 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
         ('fields2', fields2),
 
     )
-
-    json_response = requests.get('http://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get',
-                                 headers=EastmoneyHeaders, params=params).json()
+    url = 'http://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get'
+    json_response = requests.get(url,
+                                 headers=EastmoneyHeaders,
+                                 params=params).json()
 
     data = json_response.get('data')
     if data is None:
@@ -486,7 +494,7 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     Parameters
     ----------
     stock_code : str
-        6 位股票代码
+        股票代码
 
     Returns
     -------
@@ -510,31 +518,30 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     95  600519  2021-06-15 11:06  -4913204.0  -813197.0  5726403.0  126258794.0  -131171998.0
     [96 rows x 7 columns]
     """
-
+    quote_id = get_quote_id(stock_code)
     params = (
         ('lmt', '0'),
         ('klt', '1'),
-        ('secid', gen_secid(stock_code)),
+        ('secid', quote_id),
         ('fields1', 'f1,f2,f3,f7'),
         ('fields2', 'f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63'),
-        ('ut', 'b2884a393a59ad64002292a3e90d46a5'),
     )
-
-    json_response = requests.get('http://push2.eastmoney.com/api/qt/stock/fflow/kline/get',
-                                 headers=EastmoneyHeaders, params=params).json()
+    url = 'http://push2.eastmoney.com/api/qt/stock/fflow/kline/get'
+    json_response = requests.get(url,
+                                 headers=EastmoneyHeaders,
+                                 params=params).json()
     data = json_response['data']
-
     klines = data['klines']
     columns = ['时间', '主力净流入', '小单净流入', '中单净流入', '大单净流入', '超大单净流入']
     klines: List[str] = data['klines']
     rows = [kline.split(',') for kline in klines]
     df = pd.DataFrame(rows, columns=columns)
-    df.insert(0, '股票代码', [stock_code for _ in range(len(df))])
+    df.insert(0, '股票代码', [quote_id.split('.')[-1] for _ in range(len(df))])
     return df
 
 
 @to_numeric
-def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
+def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
     """
     获取沪深市场多只股票的实时涨幅情况
 
@@ -551,43 +558,35 @@ def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
     Examples
     --------
     >>> import efinance as ef
-    >>> ef.stock.get_latest_stock_info(['600519','300750'])
-        最新价  最新涨跌幅    股票代码  股票简称
-    0  2192.00   0.61  600519  贵州茅台
-    1   443.03  -1.98  300750  宁德时代
+    >>> ef.stock.get_latest_quote(['600519','300750'])
+     股票代码  股票名称            日期            开盘            收盘            最高            最低           成交量        成交额            振幅        涨跌幅           涨跌额        换手率
+    0  600519  贵州茅台  1.858496e+11  1.597864e+10  5.296600e+09  3.272842e+10  3.232885e+10  3.995697e+08  15.207088  1.752743e+11  81.440261  1.374964e+09   1.094545
+    1  300750  宁德时代  1.206223e+11  2.076009e+10  2.527780e+09  1.019879e+11  6.687712e+10  3.511077e+10  58.840670  6.564424e+10  37.872642  4.138079e+10  17.767560
     """
+    if isinstance(stock_codes, str):
+        stock_codes = [stock_codes]
 
-    secids = ",".join([gen_secid(code) for code in stock_codes])
+    secids = ",".join([get_quote_id(code) for code in stock_codes])
+    columns = EastmoneyLatestQuote
+    fields = ",".join(columns.keys())
     params = (
-        ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
         ('OSVersion', '14.3'),
         ('appVersion', '6.3.8'),
-        ('cToken', 'a6hdhrfejje88ruaeduau1rdufna1e--.6'),
-        ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-        ('fields', 'f1,f2,f3,f4,f12,f13,f14,f292'),
+        ('fields', fields),
         ('fltt', '2'),
-        ('passportid', '3061335960830820'),
         ('plat', 'Iphone'),
         ('product', 'EFund'),
         ('secids', secids),
         ('serverVersion', '6.3.6'),
-        ('uToken', 'a166hhqnrajucnfcjkfkeducanekj1dd1cc2a-e9.6'),
-        ('userId', 'f8d95b2330d84d9e804e7f28a802d809'),
-        ('ut', '94dd9fba6f4581ffc558a7b1a7c2b8a3'),
         ('version', '6.3.8'),
     )
+    url = 'https://push2.eastmoney.com/api/qt/ulist.np/get'
+    response = requests.get(url,
+                            headers=EastmoneyHeaders,
+                            params=params)
 
-    response = requests.get(
-        'https://push2.eastmoney.com/api/qt/ulist.np/get', headers=EastmoneyHeaders, params=params)
-    columns = {
-        'f2': '最新价',
-        'f3': '最新涨跌幅',
-        'f12': '股票代码',
-        'f14': '股票简称'
-    }
     data = response.json()['data']
     if data is None:
-
         return pd.DataFrame(columns=columns.values())
     diff = data['diff']
     df = pd.DataFrame(diff)[columns.keys()].rename(columns=columns)
@@ -595,14 +594,15 @@ def get_latest_stock_info(stock_codes: List[str]) -> pd.DataFrame:
 
 
 @to_numeric
-def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
+def get_top10_stock_holder_info(stock_code: str,
+                                top: int = 4) -> pd.DataFrame:
     """
     获取沪深市场指定股票前十大股东信息
 
     Parameters
     ----------
     stock_code : str
-        6 位股票代码
+        股票代码
     top : int, optional
         最新 top 个前 10 大流通股东公开信息, 默认为 4
 
@@ -628,14 +628,13 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
     9  600519  2021-03-31  78083830      珠海市瑞丰汇邦资产管理有限公司-瑞丰汇邦三号私募证券投资基金  416.1万   0.33%       不变      --
     """
 
-    def gen_fc(stock_code: str) -> str:
+    def gen_fc(quote_id: str) -> str:
         """
-        生成东方财富专用的东西
 
         Parameters
         ----------
-        stock_code : str
-            6 位股票代码
+        quote_id : str
+            行情ID
 
         Returns
         -------
@@ -643,8 +642,7 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
             指定格式的字符串
         """
 
-        # 沪市指数
-        _type = gen_secid(stock_code)[0]
+        _type = quote_id.split('.')[0]
         _type = int(_type)
         # 深市
         if _type == 0:
@@ -652,14 +650,15 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
         # 沪市
         return f'{stock_code}01'
 
-    def get_public_dates(stock_code: str, top: int = 4) -> List[str]:
+    def get_public_dates(stock_code: str,
+                         top: int = 4) -> List[str]:
         """
         获取指定股票公开股东信息的日期
 
         Parameters
         ----------
         stock_code : str
-            6 位 A 股股票代码
+            股票代码
         top : int, optional
             最新的 top 个日期, 默认为 4
 
@@ -676,17 +675,17 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
             'Origin': 'null',
             'Cache-Control': 'public',
         }
+        quote_id = get_quote_id(stock_code)
+        stock_code = quote_id.split('.')[-1]
         fc = gen_fc(stock_code)
         data = {"fc": fc}
-        response = requests.post(
-            'https://emh5.eastmoney.com/api/GuBenGuDong/GetFirstRequest2Data', headers=headers, json=data)
-        items: list[dict] = response.json()[
-            'Result']['SDLTGDBGQ']
+        url = 'https://emh5.eastmoney.com/api/GuBenGuDong/GetFirstRequest2Data'
+        json_response = requests.post(
+            url, headers=headers, json=data).json()
+        items: list[dict] = json_response['Result']['SDLTGDBGQ']
         items = items.get('ShiDaLiuTongGuDongBaoGaoQiList')
-
         if items is None:
             return []
-
         df = pd.DataFrame(items)
         if 'BaoGaoQi' not in df:
             return []
@@ -713,12 +712,11 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
     dates = get_public_dates(stock_code)
     dfs: List[pd.DataFrame] = []
     for date in dates[:top]:
-
         data = {"fc": fc, "BaoGaoQi": date}
-        response = requests.post(
-            'https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong',
-            headers=headers,
-            json=data)
+        url = 'https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong'
+        response = requests.post(url,
+                                 headers=headers,
+                                 json=data)
         response.encoding = 'utf-8'
 
         try:

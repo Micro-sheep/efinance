@@ -2,16 +2,22 @@ import pandas as pd
 import re
 from typing import Union, Callable
 from functools import wraps
+import pandas as pd
 
 
-def to_numeric(func: Callable):
+def to_numeric(func: Callable) -> Union[pd.DataFrame, pd.Series]:
     """
     将 DataFrame 或者 Series 尽可能地转为数字的装饰器
 
     Parameters
     ----------
-    func : object
+    func : Callable
         返回结果为 DataFrame 或者 Series 的函数
+
+    Returns
+    -------
+    Union[pd.DataFrame, pd.Series]
+
     """
 
     ignore = ['股票代码', '基金代码', '代码', '市场类型']

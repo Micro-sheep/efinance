@@ -1,4 +1,3 @@
-
 ## Introduction
 
 [![python](https://img.shields.io/badge/python-3.6+-blue.svg?style=flat)](https://pypi.python.org/pypi/efinance)
@@ -10,7 +9,7 @@
 
 ## Installation
 
-- 通过 ``pip`` 安装
+- 通过 `pip` 安装
 
 ```bash
 pip install efinance

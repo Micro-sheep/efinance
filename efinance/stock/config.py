@@ -2,6 +2,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 
 EastmoneyKlines = {
+
     'f51': '日期',
     'f52': '开盘',
     'f53': '收盘',
@@ -16,11 +17,27 @@ EastmoneyKlines = {
 
 
 }
+EastmoneyLatestQuote = {
+    'f12': '股票代码',
+    'f14': '股票名称',
+    'f51': '日期',
+    'f52': '开盘',
+    'f53': '收盘',
+    'f54': '最高',
+    'f55': '最低',
+    'f56': '成交量',
+    'f57': '成交额',
+    'f58': '振幅',
+    'f59': '涨跌幅',
+    'f60': '涨跌额',
+    'f61': '换手率',
 
+
+}
 EastmoneyQuotes = {
     'f12': '股票代码',
-    'f13': '市场类型',
     'f14': '股票名称',
+    'f13': '市场编号',
     'f3': '涨跌幅',
     'f15': '最新价',
     'f4': '涨跌额',
@@ -49,7 +66,6 @@ EastmoneyBills = {
 
 }
 EastmoneyHeaders = {
-    'Host': '19.push2.eastmoney.com',
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko',
     'Accept': '*/*',
     'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
