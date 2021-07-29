@@ -1,8 +1,7 @@
 from pathlib import Path
 HERE = Path(__file__).parent
-
-EastmoneyKlines = {
-
+# K 线表头
+EASTMONEY_KLINE_FIELDS = {
     'f51': '日期',
     'f52': '开盘',
     'f53': '收盘',
@@ -17,7 +16,8 @@ EastmoneyKlines = {
 
 
 }
-EastmoneyLatestQuote = {
+# 最新个股行情表头
+EASTMONEY_LATEST_QUOTE_FIELDS = {
     'f12': '股票代码',
     'f14': '股票名称',
     'f51': '日期',
@@ -34,7 +34,9 @@ EastmoneyLatestQuote = {
 
 
 }
-EastmoneyQuotes = {
+
+# 全部沪深A股榜单表头
+EASTMONEY_QUOTE_FIELDS = {
     'f12': '股票代码',
     'f14': '股票名称',
     'f13': '市场编号',
@@ -49,7 +51,8 @@ EastmoneyQuotes = {
     'f20': '总市值',
     'f21': '流通市值'
 }
-EastmoneyBills = {
+# 历史大单数据表头
+EASTMONEY_HISTORY_BILL_FIELDS = {
     'f51': '日期',
     'f52': '主力净流入',
     'f53': '小单净流入',
@@ -65,14 +68,15 @@ EastmoneyBills = {
     'f63': '涨跌幅'
 
 }
-EastmoneyHeaders = {
+# 请求头
+EASTMONEY_REQUEST_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko',
     'Accept': '*/*',
     'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
     'Referer': 'http://quote.eastmoney.com/center/gridlist.html',
 }
-
-EastmoneyStockBaseInfo = {
+# 股票基本信息表头
+EASTMONEY_STOCK_BASE_INFO_FIELDS = {
     'f57': '股票代码',
     'f58': '股票名称',
     'f162': '市盈率(动)',

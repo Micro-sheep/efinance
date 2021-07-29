@@ -82,19 +82,19 @@
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import efinance as ef</span>
 <span class="sd">    &gt;&gt;&gt; ef.futures.get_futures_base_info()</span>
-<span class="sd">        期货代码      期货名称       secid 归属交易所</span>
-<span class="sd">    0       ZCM     动力煤主力     115.ZCM   郑商所</span>
-<span class="sd">    1     ZC109    动力煤109   115.ZC109   郑商所</span>
-<span class="sd">    2       bum    石油沥青主力     113.bum   上期所</span>
-<span class="sd">    3    bu2109  石油沥青2109  113.bu2109   上期所</span>
-<span class="sd">    4    bu2203  石油沥青2203  113.bu2203   上期所</span>
-<span class="sd">    ..      ...       ...         ...   ...</span>
-<span class="sd">    781   p2204   棕榈油2204   114.p2204   大商所</span>
-<span class="sd">    782   p2203   棕榈油2203   114.p2203   大商所</span>
-<span class="sd">    783   p2110   棕榈油2110   114.p2110   大商所</span>
-<span class="sd">    784      pm     棕榈油主力      114.pm   大商所</span>
-<span class="sd">    785   p2109   棕榈油2109   114.p2109   大商所</span>
-<span class="sd">    [786 rows x 4 columns]</span>
+<span class="sd">        期货代码     期货名称       secid 归属交易所</span>
+<span class="sd">    0       jmm     焦煤主力     114.jmm   大商所</span>
+<span class="sd">    1    jm2109   焦煤2109  114.jm2109   大商所</span>
+<span class="sd">    2    ss2204  不锈钢2204  113.ss2204   上期所</span>
+<span class="sd">    3    jm2110   焦煤2110  114.jm2110   大商所</span>
+<span class="sd">    4    jm2108   焦煤2108  114.jm2108   大商所</span>
+<span class="sd">    ..      ...      ...         ...   ...</span>
+<span class="sd">    782   i2204  铁矿石2204   114.i2204   大商所</span>
+<span class="sd">    783   i2112  铁矿石2112   114.i2112   大商所</span>
+<span class="sd">    784   i2203  铁矿石2203   114.i2203   大商所</span>
+<span class="sd">    785      im    铁矿石主力      114.im   大商所</span>
+<span class="sd">    786   i2109  铁矿石2109   114.i2109   大商所</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
@@ -117,7 +117,7 @@
         <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;中金所&#39;</span>
     <span class="p">}</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s1">&#39;https://push2.eastmoney.com/api/qt/clist/get&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">EastmoneyHeaders</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="s1">&#39;https://push2.eastmoney.com/api/qt/clist/get&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;diff&#39;</span><span class="p">]:</span>
         <span class="n">code</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;f12&#39;</span><span class="p">]</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;f14&#39;</span><span class="p">]</span>
@@ -144,19 +144,18 @@
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">get_futures_base_info</span><span class="p">()</span>
-<span class="go">    期货代码      期货名称       secid 归属交易所</span>
-<span class="go">0       ZCM     动力煤主力     115.ZCM   郑商所</span>
-<span class="go">1     ZC109    动力煤109   115.ZC109   郑商所</span>
-<span class="go">2       bum    石油沥青主力     113.bum   上期所</span>
-<span class="go">3    bu2109  石油沥青2109  113.bu2109   上期所</span>
-<span class="go">4    bu2203  石油沥青2203  113.bu2203   上期所</span>
-<span class="go">..      ...       ...         ...   ...</span>
-<span class="go">781   p2204   棕榈油2204   114.p2204   大商所</span>
-<span class="go">782   p2203   棕榈油2203   114.p2203   大商所</span>
-<span class="go">783   p2110   棕榈油2110   114.p2110   大商所</span>
-<span class="go">784      pm     棕榈油主力      114.pm   大商所</span>
-<span class="go">785   p2109   棕榈油2109   114.p2109   大商所</span>
-<span class="go">[786 rows x 4 columns]</span>
+<span class="go">    期货代码     期货名称       secid 归属交易所</span>
+<span class="go">0       jmm     焦煤主力     114.jmm   大商所</span>
+<span class="go">1    jm2109   焦煤2109  114.jm2109   大商所</span>
+<span class="go">2    ss2204  不锈钢2204  113.ss2204   上期所</span>
+<span class="go">3    jm2110   焦煤2110  114.jm2110   大商所</span>
+<span class="go">4    jm2108   焦煤2108  114.jm2108   大商所</span>
+<span class="go">..      ...      ...         ...   ...</span>
+<span class="go">782   i2204  铁矿石2204   114.i2204   大商所</span>
+<span class="go">783   i2112  铁矿石2112   114.i2112   大商所</span>
+<span class="go">784   i2203  铁矿石2203   114.i2203   大商所</span>
+<span class="go">785      im    铁矿石主力      114.im   大商所</span>
+<span class="go">786   i2109  铁矿石2109   114.i2109   大商所</span>
 </code></pre></div>
 </div>
 
@@ -241,36 +240,27 @@
 <span class="sd">    1477  2021-06-10  818.0  803.4  828.4  801.2  168933  13805204736.0  3.30  -2.41  -19.8  0.00</span>
 <span class="sd">    1478  2021-06-11  807.0  827.2  833.0  805.8  207762  16999086848.0  3.33   1.22   10.0  0.00</span>
 <span class="sd">    1479  2021-06-15  847.0  849.2  853.6  830.0  140166  11827207168.0  2.88   3.79   31.0  0.00</span>
-<span class="sd">    [1480 rows x 11 columns]</span>
+
 <span class="sd">    &gt;&gt;&gt; # 指定多个期货的 secid</span>
 <span class="sd">    &gt;&gt;&gt; secids = [&#39;115.ZCM&#39;,&#39;115.ZC109&#39;]</span>
-<span class="sd">    &gt;&gt;&gt; ef.futures.get_quote_history(secids)</span>
-<span class="sd">    {&#39;115.ZCM&#39;:               日期     开盘     收盘     最高     最低     成交量            成交额    振幅    涨跌幅    涨跌额   换手率</span>
-<span class="sd">    0     2015-05-18  440.0  437.6  440.2  437.6      64      2806300.0  0.00   0.00    0.0  0.00</span>
-<span class="sd">    1     2015-05-19  436.0  437.0  437.6  436.0       6       262100.0  0.36  -0.32   -1.4  0.00</span>
-<span class="sd">    2     2015-05-20  436.8  435.8  437.0  434.8       8       348750.0  0.50  -0.23   -1.0  0.00</span>
-<span class="sd">    3     2015-05-21  438.0  443.2  446.8  437.8      37      1631850.0  2.06   1.65    7.2  0.00</span>
-<span class="sd">    4     2015-05-22  439.2  441.4  443.8  439.2      34      1502500.0  1.04   0.09    0.4  0.00</span>
-<span class="sd">    ...          ...    ...    ...    ...    ...     ...            ...   ...    ...    ...   ...</span>
-<span class="sd">    1475  2021-06-08  800.2  819.2  821.0  791.0  201763  16270168320.0  3.72   1.56   12.6  0.00</span>
-<span class="sd">    1476  2021-06-09  822.4  818.2  832.2  816.0  193464  15925956608.0  2.01   1.46   11.8  0.00</span>
-<span class="sd">    1477  2021-06-10  818.0  803.4  828.4  801.2  168933  13805204736.0  3.30  -2.41  -19.8  0.00</span>
-<span class="sd">    1478  2021-06-11  807.0  827.2  833.0  805.8  207762  16999086848.0  3.33   1.22   10.0  0.00</span>
-<span class="sd">    1479  2021-06-15  847.0  849.2  853.6  830.0  140166  11827207168.0  2.88   3.79   31.0  0.00</span>
-<span class="sd">    [1480 rows x 11 columns],</span>
-<span class="sd">    &#39;115.ZC109&#39;:              日期     开盘     收盘     最高     最低     成交量            成交额    振幅    涨跌幅    涨跌额   换手率</span>
-<span class="sd">    0    2020-09-09  551.2  551.2  551.2  551.2       2       110240.0  0.00   0.00    0.0  0.00</span>
-<span class="sd">    1    2020-09-10  548.6  545.0  549.8  545.0       6       328920.0  0.87  -1.12   -6.2  0.00</span>
-<span class="sd">    2    2020-09-11  545.0  544.2  548.4  543.0       7       381500.0  0.99  -0.73   -4.0  0.00</span>
-<span class="sd">    3    2020-09-14  546.0  550.4  550.4  546.0       7       384300.0  0.81   0.99    5.4  0.00</span>
-<span class="sd">    4    2020-09-15  549.0  551.2  551.6  549.0      14       770560.0  0.47   0.40    2.2  0.00</span>
-<span class="sd">    ..          ...    ...    ...    ...    ...     ...            ...   ...    ...    ...   ...</span>
-<span class="sd">    178  2021-06-08  800.2  819.2  821.0  791.0  201763  16270168320.0  3.72   1.56   12.6  0.00</span>
-<span class="sd">    179  2021-06-09  822.4  818.2  832.2  816.0  193464  15925956608.0  2.01   1.46   11.8  0.00</span>
-<span class="sd">    180  2021-06-10  818.0  803.4  828.4  801.2  168933  13805204736.0  3.30  -2.41  -19.8  0.00</span>
-<span class="sd">    181  2021-06-11  807.0  827.2  833.0  805.8  207762  16999086848.0  3.33   1.22   10.0  0.00</span>
-<span class="sd">    182  2021-06-15  847.0  849.2  853.6  830.0  140166  11827207168.0  2.88   3.79   31.0  0.00</span>
-<span class="sd">    [183 rows x 11 columns]}</span>
+<span class="sd">    &gt;&gt;&gt; futures_df = ef.futures.get_quote_history(secids)</span>
+<span class="sd">    &gt;&gt;&gt; type(futures_df)</span>
+<span class="sd">    &lt;class &#39;dict&#39;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; futures_df.keys()</span>
+<span class="sd">    dict_keys([&#39;115.ZC109&#39;, &#39;115.ZCM&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; futures_df[&#39;115.ZC109&#39;]</span>
+<span class="sd">                日期     开盘     收盘     最高     最低     成交量           成交额    振幅   涨跌幅   涨跌额  换手率</span>
+<span class="sd">    0    2020-09-09  551.2  551.2  551.2  551.2       2  1.102400e+05  0.00  0.00   0.0  0.0</span>
+<span class="sd">    1    2020-09-10  548.6  545.0  549.8  545.0       6  3.289200e+05  0.87 -1.12  -6.2  0.0</span>
+<span class="sd">    2    2020-09-11  545.0  544.2  548.4  543.0       7  3.815000e+05  0.99 -0.73  -4.0  0.0</span>
+<span class="sd">    3    2020-09-14  546.0  550.4  550.4  546.0       7  3.843000e+05  0.81  0.99   5.4  0.0</span>
+<span class="sd">    4    2020-09-15  549.0  551.2  551.6  549.0      14  7.705600e+05  0.47  0.40   2.2  0.0</span>
+<span class="sd">    ..          ...    ...    ...    ...    ...     ...           ...   ...   ...   ...  ...</span>
+<span class="sd">    211  2021-07-26  905.2  897.0  909.8  885.0  142890  1.282009e+10  2.72 -1.45 -13.2  0.0</span>
+<span class="sd">    212  2021-07-27  897.0  892.4  915.8  888.0  109033  9.802067e+09  3.10 -0.53  -4.8  0.0</span>
+<span class="sd">    213  2021-07-28  892.4  902.4  909.6  890.4   89853  8.086770e+09  2.14  0.38   3.4  0.0</span>
+<span class="sd">    214  2021-07-29  902.6  918.6  919.0  900.4   83106  7.562646e+09  2.07  2.07  18.6  0.0</span>
+<span class="sd">    215  2021-07-30  918.6  931.8  937.2  906.2   47749  4.432062e+09  3.41  2.40  21.8  0.0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">secids</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -350,36 +340,28 @@
 <span class="go">1477  2021-06-10  818.0  803.4  828.4  801.2  168933  13805204736.0  3.30  -2.41  -19.8  0.00</span>
 <span class="go">1478  2021-06-11  807.0  827.2  833.0  805.8  207762  16999086848.0  3.33   1.22   10.0  0.00</span>
 <span class="go">1479  2021-06-15  847.0  849.2  853.6  830.0  140166  11827207168.0  2.88   3.79   31.0  0.00</span>
-<span class="go">[1480 rows x 11 columns]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 指定多个期货的 secid</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 指定多个期货的 secid</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">secids</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;115.ZCM&#39;</span><span class="p">,</span><span class="s1">&#39;115.ZC109&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">get_quote_history</span><span class="p">(</span><span class="n">secids</span><span class="p">)</span>
-<span class="go">{&#39;115.ZCM&#39;:               日期     开盘     收盘     最高     最低     成交量            成交额    振幅    涨跌幅    涨跌额   换手率</span>
-<span class="go">0     2015-05-18  440.0  437.6  440.2  437.6      64      2806300.0  0.00   0.00    0.0  0.00</span>
-<span class="go">1     2015-05-19  436.0  437.0  437.6  436.0       6       262100.0  0.36  -0.32   -1.4  0.00</span>
-<span class="go">2     2015-05-20  436.8  435.8  437.0  434.8       8       348750.0  0.50  -0.23   -1.0  0.00</span>
-<span class="go">3     2015-05-21  438.0  443.2  446.8  437.8      37      1631850.0  2.06   1.65    7.2  0.00</span>
-<span class="go">4     2015-05-22  439.2  441.4  443.8  439.2      34      1502500.0  1.04   0.09    0.4  0.00</span>
-<span class="gp">... </span>         <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>     <span class="o">...</span>            <span class="o">...</span>   <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>   <span class="o">...</span>
-<span class="go">1475  2021-06-08  800.2  819.2  821.0  791.0  201763  16270168320.0  3.72   1.56   12.6  0.00</span>
-<span class="go">1476  2021-06-09  822.4  818.2  832.2  816.0  193464  15925956608.0  2.01   1.46   11.8  0.00</span>
-<span class="go">1477  2021-06-10  818.0  803.4  828.4  801.2  168933  13805204736.0  3.30  -2.41  -19.8  0.00</span>
-<span class="go">1478  2021-06-11  807.0  827.2  833.0  805.8  207762  16999086848.0  3.33   1.22   10.0  0.00</span>
-<span class="go">1479  2021-06-15  847.0  849.2  853.6  830.0  140166  11827207168.0  2.88   3.79   31.0  0.00</span>
-<span class="go">[1480 rows x 11 columns],</span>
-<span class="go">&#39;115.ZC109&#39;:              日期     开盘     收盘     最高     最低     成交量            成交额    振幅    涨跌幅    涨跌额   换手率</span>
-<span class="go">0    2020-09-09  551.2  551.2  551.2  551.2       2       110240.0  0.00   0.00    0.0  0.00</span>
-<span class="go">1    2020-09-10  548.6  545.0  549.8  545.0       6       328920.0  0.87  -1.12   -6.2  0.00</span>
-<span class="go">2    2020-09-11  545.0  544.2  548.4  543.0       7       381500.0  0.99  -0.73   -4.0  0.00</span>
-<span class="go">3    2020-09-14  546.0  550.4  550.4  546.0       7       384300.0  0.81   0.99    5.4  0.00</span>
-<span class="go">4    2020-09-15  549.0  551.2  551.6  549.0      14       770560.0  0.47   0.40    2.2  0.00</span>
-<span class="go">..          ...    ...    ...    ...    ...     ...            ...   ...    ...    ...   ...</span>
-<span class="go">178  2021-06-08  800.2  819.2  821.0  791.0  201763  16270168320.0  3.72   1.56   12.6  0.00</span>
-<span class="go">179  2021-06-09  822.4  818.2  832.2  816.0  193464  15925956608.0  2.01   1.46   11.8  0.00</span>
-<span class="go">180  2021-06-10  818.0  803.4  828.4  801.2  168933  13805204736.0  3.30  -2.41  -19.8  0.00</span>
-<span class="go">181  2021-06-11  807.0  827.2  833.0  805.8  207762  16999086848.0  3.33   1.22   10.0  0.00</span>
-<span class="go">182  2021-06-15  847.0  849.2  853.6  830.0  140166  11827207168.0  2.88   3.79   31.0  0.00</span>
-<span class="go">[183 rows x 11 columns]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">futures_df</span> <span class="o">=</span> <span class="n">ef</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">get_quote_history</span><span class="p">(</span><span class="n">secids</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">futures_df</span><span class="p">)</span>
+<span class="go">&lt;class &#39;dict&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">futures_df</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="go">dict_keys([&#39;115.ZC109&#39;, &#39;115.ZCM&#39;])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">futures_df</span><span class="p">[</span><span class="s1">&#39;115.ZC109&#39;</span><span class="p">]</span>
+<span class="go">            日期     开盘     收盘     最高     最低     成交量           成交额    振幅   涨跌幅   涨跌额  换手率</span>
+<span class="go">0    2020-09-09  551.2  551.2  551.2  551.2       2  1.102400e+05  0.00  0.00   0.0  0.0</span>
+<span class="go">1    2020-09-10  548.6  545.0  549.8  545.0       6  3.289200e+05  0.87 -1.12  -6.2  0.0</span>
+<span class="go">2    2020-09-11  545.0  544.2  548.4  543.0       7  3.815000e+05  0.99 -0.73  -4.0  0.0</span>
+<span class="go">3    2020-09-14  546.0  550.4  550.4  546.0       7  3.843000e+05  0.81  0.99   5.4  0.0</span>
+<span class="go">4    2020-09-15  549.0  551.2  551.6  549.0      14  7.705600e+05  0.47  0.40   2.2  0.0</span>
+<span class="go">..          ...    ...    ...    ...    ...     ...           ...   ...   ...   ...  ...</span>
+<span class="go">211  2021-07-26  905.2  897.0  909.8  885.0  142890  1.282009e+10  2.72 -1.45 -13.2  0.0</span>
+<span class="go">212  2021-07-27  897.0  892.4  915.8  888.0  109033  9.802067e+09  3.10 -0.53  -4.8  0.0</span>
+<span class="go">213  2021-07-28  892.4  902.4  909.6  890.4   89853  8.086770e+09  2.14  0.38   3.4  0.0</span>
+<span class="go">214  2021-07-29  902.6  918.6  919.0  900.4   83106  7.562646e+09  2.07  2.07  18.6  0.0</span>
+<span class="go">215  2021-07-30  918.6  931.8  937.2  906.2   47749  4.432062e+09  3.41  2.40  21.8  0.0</span>
 </code></pre></div>
 </div>
 

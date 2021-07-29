@@ -45,7 +45,7 @@ def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     1471 2015-06-04  0.9970  0.9970      --
     1472 2015-05-29  0.9950  0.9950      --
     1473 2015-05-27  1.0000  1.0000      --
-    [1474 rows x 4 columns]
+    
     """
 
     data = {
@@ -631,7 +631,6 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
         基金代码            基金简称 FTYPE  ... FINSALES INVESTMENTIDEAR INVESTMENTIDEARIMG
     0  005827       易方达蓝筹精选混合   混合型  ...        0              --                 --
     1  161725  招商中证白酒指数(LOF)A  股票指数  ...        0              --                 --
-    [2 rows x 118 columns]
     """
 
     if isinstance(fund_codes, str):

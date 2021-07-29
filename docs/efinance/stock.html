@@ -37,7 +37,7 @@
                     <a class="function" href="#get_today_bill">get_today_bill</a>
             </li>
             <li>
-                    <a class="function" href="#get_latest_stock_info">get_latest_stock_info</a>
+                    <a class="function" href="#get_latest_quote">get_latest_quote</a>
             </li>
             <li>
                     <a class="function" href="#get_quote_history">get_quote_history</a>
@@ -68,14 +68,14 @@
             <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.getter</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_history_bill</span><span class="p">,</span>
     <span class="n">get_today_bill</span><span class="p">,</span>
-    <span class="n">get_latest_stock_info</span><span class="p">,</span>
+    <span class="n">get_latest_quote</span><span class="p">,</span>
     <span class="n">get_quote_history</span><span class="p">,</span>
     <span class="n">get_realtime_quotes</span><span class="p">,</span>
     <span class="n">get_top10_stock_holder_info</span><span class="p">,</span>
     <span class="n">get_base_info</span><span class="p">)</span>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_history_bill&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_today_bill&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;get_latest_stock_info&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;get_latest_quote&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_quote_history&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_realtime_quotes&#39;</span><span class="p">,</span>
            <span class="s1">&#39;get_top10_stock_holder_info&#39;</span><span class="p">,</span>
@@ -115,25 +115,25 @@
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import efinance as ef</span>
 <span class="sd">    &gt;&gt;&gt; ef.stock.get_history_bill(&#39;600519&#39;)</span>
-<span class="sd">        日期       主力净流入       小单净流入       中单净流入         大单净流入         超大单净流入 主力净流入占比 小单流入净占比 中单流入净占比 大单流入净占比 超大单流入净占比      收盘价    涨跌幅</span>
-<span class="sd">    0    2021-01-11   2533120.0  -6824244.0   4291064.0  -472681984.0    475215104.0    0.02   -0.06    0.04   -4.39     4.41  2099.73   0.47</span>
-<span class="sd">    1    2021-01-12   6585120.0  -3120619.0  -3464550.0  -630365696.0    636950816.0    0.07   -0.04   -0.04   -7.16     7.24  2160.90   2.91</span>
-<span class="sd">    2    2021-01-13  -2533248.0   -937719.0   3471030.0   475560016.0   -478093264.0   -0.03   -0.01    0.05    6.41    -6.44  2164.00   0.14</span>
-<span class="sd">    3    2021-01-14  -4768592.0  -2050142.0   6818709.0   740699392.0   -745467984.0   -0.06   -0.03    0.09    9.59    -9.65  2134.00  -1.39</span>
-<span class="sd">    4    2021-01-15  -8642048.0  -4172436.0  12814373.0   132030464.0   -140672512.0   -0.07   -0.03    0.10    1.07    -1.14  2082.00  -2.44</span>
-<span class="sd">    ..          ...         ...         ...         ...           ...            ...     ...     ...     ...     ...      ...      ...    ...</span>
-<span class="sd">    96   2021-06-07  -5206912.0    356385.0   4850539.0   -86535248.0     81328336.0   -0.09    0.01    0.08   -1.50     1.41  2271.00   0.87</span>
-<span class="sd">    97   2021-06-08  -6469056.0  -9567962.0  16036913.0  1060995328.0  -1067464384.0   -0.06   -0.09    0.15   10.12   -10.19  2191.00  -3.52</span>
-<span class="sd">    98   2021-06-09   3725968.0     88891.0  -3814859.0   280492656.0   -276766688.0    0.07    0.00   -0.07    5.02    -4.95  2199.50   0.39</span>
-<span class="sd">    99   2021-06-10   3726096.0   1530221.0  -5256314.0   136356048.0   -132629952.0    0.07    0.03   -0.09    2.39    -2.32  2238.48   1.77</span>
-<span class="sd">    100  2021-06-11   7634576.0   -770025.0  -6864556.0  -176945392.0    184579968.0    0.10   -0.01   -0.09   -2.35     2.46  2178.81  -2.67</span>
-<span class="sd">    [101 rows x 13 columns]</span>
+<span class="sd">                日期         主力净流入       小单净流入         中单净流入         大单净流入        超大单净流入  主力净流入占比  小单流入净占比  中单流入净占比  大单流入净占比  超大单流入净占比      收盘价   涨跌幅</span>
+<span class="sd">    0    2021-03-03  1.273400e+07   -283810.0 -1.245021e+07 -6.085768e+08  6.213108e+08     0.11    -0.00    -0.11    -5.35      5.47  2120.71  4.02</span>
+<span class="sd">    1    2021-03-04 -3.670272e+06  -2282056.0  5.952143e+06  1.461528e+09 -1.465199e+09    -0.03    -0.02     0.04    10.99    -11.02  2013.71 -5.05</span>
+<span class="sd">    2    2021-03-05 -1.514880e+07  -1319066.0  1.646793e+07 -2.528896e+07  1.014016e+07    -0.12    -0.01     0.13    -0.19      0.08  2040.82  1.35</span>
+<span class="sd">    3    2021-03-08 -8.001702e+08   -877074.0  8.010473e+08  5.670671e+08 -1.367237e+09    -6.29    -0.01     6.30     4.46    -10.75  1940.71 -4.91</span>
+<span class="sd">    4    2021-03-09 -2.237770e+08  -6391767.0  2.301686e+08 -1.795013e+08 -4.427571e+07    -1.39    -0.04     1.43    -1.11     -0.27  1917.70 -1.19</span>
+<span class="sd">    ..          ...           ...         ...           ...           ...           ...      ...      ...      ...      ...       ...      ...   ...</span>
+<span class="sd">    97   2021-07-23 -4.748689e+08   1443137.0  4.734257e+08 -2.773973e+08 -1.974716e+08    -5.24     0.02     5.23    -3.06     -2.18  1900.00 -2.06</span>
+<span class="sd">    98   2021-07-26 -1.564233e+09  13142211.0  1.551091e+09 -1.270400e+08 -1.437193e+09    -8.74     0.07     8.67    -0.71     -8.03  1804.11 -5.05</span>
+<span class="sd">    99   2021-07-27 -7.803296e+08 -10424715.0  7.907544e+08  6.725104e+07 -8.475807e+08    -5.12    -0.07     5.19     0.44     -5.56  1712.89 -5.06</span>
+<span class="sd">    100  2021-07-28  3.997645e+08   2603511.0 -4.023677e+08  2.315648e+08  1.681997e+08     2.70     0.02    -2.72     1.57      1.14  1768.90  3.27</span>
+<span class="sd">    101  2021-07-29 -9.209842e+08  -2312235.0  9.232964e+08 -3.959741e+08 -5.250101e+08    -8.15    -0.02     8.17    -3.50     -4.65  1749.79 -1.08</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">EastmoneyBills</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">EastmoneyBills</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">EASTMONEY_HISTORY_BILL_FIELDS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">EASTMONEY_HISTORY_BILL_FIELDS</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">fields2</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
-    <span class="n">secid</span> <span class="o">=</span> <span class="n">gen_secid</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
+    <span class="n">secid</span> <span class="o">=</span> <span class="n">get_quote_id</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s1">&#39;lmt&#39;</span><span class="p">,</span> <span class="s1">&#39;100000&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;klt&#39;</span><span class="p">,</span> <span class="s1">&#39;101&#39;</span><span class="p">),</span>
@@ -142,9 +142,10 @@
         <span class="p">(</span><span class="s1">&#39;fields2&#39;</span><span class="p">,</span> <span class="n">fields2</span><span class="p">),</span>
 
     <span class="p">)</span>
-
-    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get&#39;</span><span class="p">,</span>
-                                 <span class="n">headers</span><span class="o">=</span><span class="n">EastmoneyHeaders</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get&#39;</span>
+    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
+                                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="n">json_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -177,19 +178,18 @@
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_history_bill</span><span class="p">(</span><span class="s1">&#39;600519&#39;</span><span class="p">)</span>
-<span class="go">    日期       主力净流入       小单净流入       中单净流入         大单净流入         超大单净流入 主力净流入占比 小单流入净占比 中单流入净占比 大单流入净占比 超大单流入净占比      收盘价    涨跌幅</span>
-<span class="go">0    2021-01-11   2533120.0  -6824244.0   4291064.0  -472681984.0    475215104.0    0.02   -0.06    0.04   -4.39     4.41  2099.73   0.47</span>
-<span class="go">1    2021-01-12   6585120.0  -3120619.0  -3464550.0  -630365696.0    636950816.0    0.07   -0.04   -0.04   -7.16     7.24  2160.90   2.91</span>
-<span class="go">2    2021-01-13  -2533248.0   -937719.0   3471030.0   475560016.0   -478093264.0   -0.03   -0.01    0.05    6.41    -6.44  2164.00   0.14</span>
-<span class="go">3    2021-01-14  -4768592.0  -2050142.0   6818709.0   740699392.0   -745467984.0   -0.06   -0.03    0.09    9.59    -9.65  2134.00  -1.39</span>
-<span class="go">4    2021-01-15  -8642048.0  -4172436.0  12814373.0   132030464.0   -140672512.0   -0.07   -0.03    0.10    1.07    -1.14  2082.00  -2.44</span>
-<span class="go">..          ...         ...         ...         ...           ...            ...     ...     ...     ...     ...      ...      ...    ...</span>
-<span class="go">96   2021-06-07  -5206912.0    356385.0   4850539.0   -86535248.0     81328336.0   -0.09    0.01    0.08   -1.50     1.41  2271.00   0.87</span>
-<span class="go">97   2021-06-08  -6469056.0  -9567962.0  16036913.0  1060995328.0  -1067464384.0   -0.06   -0.09    0.15   10.12   -10.19  2191.00  -3.52</span>
-<span class="go">98   2021-06-09   3725968.0     88891.0  -3814859.0   280492656.0   -276766688.0    0.07    0.00   -0.07    5.02    -4.95  2199.50   0.39</span>
-<span class="go">99   2021-06-10   3726096.0   1530221.0  -5256314.0   136356048.0   -132629952.0    0.07    0.03   -0.09    2.39    -2.32  2238.48   1.77</span>
-<span class="go">100  2021-06-11   7634576.0   -770025.0  -6864556.0  -176945392.0    184579968.0    0.10   -0.01   -0.09   -2.35     2.46  2178.81  -2.67</span>
-<span class="go">[101 rows x 13 columns]</span>
+<span class="go">            日期         主力净流入       小单净流入         中单净流入         大单净流入        超大单净流入  主力净流入占比  小单流入净占比  中单流入净占比  大单流入净占比  超大单流入净占比      收盘价   涨跌幅</span>
+<span class="go">0    2021-03-03  1.273400e+07   -283810.0 -1.245021e+07 -6.085768e+08  6.213108e+08     0.11    -0.00    -0.11    -5.35      5.47  2120.71  4.02</span>
+<span class="go">1    2021-03-04 -3.670272e+06  -2282056.0  5.952143e+06  1.461528e+09 -1.465199e+09    -0.03    -0.02     0.04    10.99    -11.02  2013.71 -5.05</span>
+<span class="go">2    2021-03-05 -1.514880e+07  -1319066.0  1.646793e+07 -2.528896e+07  1.014016e+07    -0.12    -0.01     0.13    -0.19      0.08  2040.82  1.35</span>
+<span class="go">3    2021-03-08 -8.001702e+08   -877074.0  8.010473e+08  5.670671e+08 -1.367237e+09    -6.29    -0.01     6.30     4.46    -10.75  1940.71 -4.91</span>
+<span class="go">4    2021-03-09 -2.237770e+08  -6391767.0  2.301686e+08 -1.795013e+08 -4.427571e+07    -1.39    -0.04     1.43    -1.11     -0.27  1917.70 -1.19</span>
+<span class="go">..          ...           ...         ...           ...           ...           ...      ...      ...      ...      ...       ...      ...   ...</span>
+<span class="go">97   2021-07-23 -4.748689e+08   1443137.0  4.734257e+08 -2.773973e+08 -1.974716e+08    -5.24     0.02     5.23    -3.06     -2.18  1900.00 -2.06</span>
+<span class="go">98   2021-07-26 -1.564233e+09  13142211.0  1.551091e+09 -1.270400e+08 -1.437193e+09    -8.74     0.07     8.67    -0.71     -8.03  1804.11 -5.05</span>
+<span class="go">99   2021-07-27 -7.803296e+08 -10424715.0  7.907544e+08  6.725104e+07 -8.475807e+08    -5.12    -0.07     5.19     0.44     -5.56  1712.89 -5.06</span>
+<span class="go">100  2021-07-28  3.997645e+08   2603511.0 -4.023677e+08  2.315648e+08  1.681997e+08     2.70     0.02    -2.72     1.57      1.14  1768.90  3.27</span>
+<span class="go">101  2021-07-29 -9.209842e+08  -2312235.0  9.232964e+08 -3.959741e+08 -5.250101e+08    -8.15    -0.02     8.17    -3.50     -4.65  1749.79 -1.08</span>
 </code></pre></div>
 </div>
 
@@ -214,7 +214,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    stock_code : str</span>
-<span class="sd">        6 位股票代码</span>
+<span class="sd">        股票代码</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -224,40 +224,39 @@
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import efinance as ef</span>
 <span class="sd">    &gt;&gt;&gt; ef.stock.get_today_bill(&#39;600519&#39;)</span>
-<span class="sd">        股票代码                时间       主力净流入      小单净流入      中单净流入        大单净流入        超大单净流入</span>
-<span class="sd">    0   600519  2021-06-15 09:31   -308042.0        0.0   308043.0  -18484264.0    18176222.0</span>
-<span class="sd">    1   600519  2021-06-15 09:32  -1594317.0        0.0  1594317.0   -4394364.0     2800047.0</span>
-<span class="sd">    2   600519  2021-06-15 09:33  -1535051.0        0.0  1535050.0  -21109538.0    19574487.0</span>
-<span class="sd">    3   600519  2021-06-15 09:34  -1535051.0        0.0  1535050.0  -15839506.0    14304455.0</span>
-<span class="sd">    4   600519  2021-06-15 09:35  -1253496.0        0.0  1253495.0  -19738272.0    18484776.0</span>
-<span class="sd">    ..     ...               ...         ...        ...        ...          ...           ...</span>
-<span class="sd">    91  600519  2021-06-15 11:02  -5084126.0  -813197.0  5897325.0  143132755.0  -148216881.0</span>
-<span class="sd">    92  600519  2021-06-15 11:03  -4694051.0  -813197.0  5507250.0  134588811.0  -139282862.0</span>
-<span class="sd">    93  600519  2021-06-15 11:04  -4913204.0  -813197.0  5726403.0  130204858.0  -135118062.0</span>
-<span class="sd">    94  600519  2021-06-15 11:05  -4913204.0  -813197.0  5726403.0  128451226.0  -133364430.0</span>
-<span class="sd">    95  600519  2021-06-15 11:06  -4913204.0  -813197.0  5726403.0  126258794.0  -131171998.0</span>
-<span class="sd">    [96 rows x 7 columns]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        股票代码                时间        主力净流入      小单净流入        中单净流入        大单净流入       超大单净流入</span>
+<span class="sd">    0    600519  2021-07-29 09:31   -3261705.0  -389320.0    3651025.0  -12529658.0    9267953.0</span>
+<span class="sd">    1    600519  2021-07-29 09:32    6437999.0  -606994.0   -5831006.0  -42615994.0   49053993.0</span>
+<span class="sd">    2    600519  2021-07-29 09:33   13179707.0  -606994.0  -12572715.0  -85059118.0   98238825.0</span>
+<span class="sd">    3    600519  2021-07-29 09:34   15385244.0  -970615.0  -14414632.0  -86865209.0  102250453.0</span>
+<span class="sd">    4    600519  2021-07-29 09:35    7853716.0  -970615.0   -6883104.0  -75692436.0   83546152.0</span>
+<span class="sd">    ..      ...               ...          ...        ...          ...          ...          ...</span>
+<span class="sd">    235  600519  2021-07-29 14:56 -918956019.0 -1299630.0  920255661.0 -397127393.0 -521828626.0</span>
+<span class="sd">    236  600519  2021-07-29 14:57 -920977761.0 -2319213.0  923296987.0 -397014702.0 -523963059.0</span>
+<span class="sd">    237  600519  2021-07-29 14:58 -920984196.0 -2312233.0  923296442.0 -395974137.0 -525010059.0</span>
+<span class="sd">    238  600519  2021-07-29 14:59 -920984196.0 -2312233.0  923296442.0 -395974137.0 -525010059.0</span>
+<span class="sd">    239  600519  2021-07-29 15:00 -920984196.0 -2312233.0  923296442.0 -395974137.0 -525010059.0</span>
 
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">quote_id</span> <span class="o">=</span> <span class="n">get_quote_id</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s1">&#39;lmt&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;klt&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;secid&#39;</span><span class="p">,</span> <span class="n">gen_secid</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;secid&#39;</span><span class="p">,</span> <span class="n">quote_id</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;fields1&#39;</span><span class="p">,</span> <span class="s1">&#39;f1,f2,f3,f7&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;fields2&#39;</span><span class="p">,</span> <span class="s1">&#39;f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;ut&#39;</span><span class="p">,</span> <span class="s1">&#39;b2884a393a59ad64002292a3e90d46a5&#39;</span><span class="p">),</span>
     <span class="p">)</span>
-
-    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://push2.eastmoney.com/api/qt/stock/fflow/kline/get&#39;</span><span class="p">,</span>
-                                 <span class="n">headers</span><span class="o">=</span><span class="n">EastmoneyHeaders</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://push2.eastmoney.com/api/qt/stock/fflow/kline/get&#39;</span>
+    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
+                                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
-
     <span class="n">klines</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;klines&#39;</span><span class="p">]</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;时间&#39;</span><span class="p">,</span> <span class="s1">&#39;主力净流入&#39;</span><span class="p">,</span> <span class="s1">&#39;小单净流入&#39;</span><span class="p">,</span> <span class="s1">&#39;中单净流入&#39;</span><span class="p">,</span> <span class="s1">&#39;大单净流入&#39;</span><span class="p">,</span> <span class="s1">&#39;超大单净流入&#39;</span><span class="p">]</span>
     <span class="n">klines</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;klines&#39;</span><span class="p">]</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">kline</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">kline</span> <span class="ow">in</span> <span class="n">klines</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;股票代码&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">stock_code</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))])</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;股票代码&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">quote_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))])</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -269,7 +268,7 @@
 
 <ul>
 <li><strong>stock_code</strong> (str):
-6 位股票代码</li>
+股票代码</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -282,37 +281,36 @@
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_today_bill</span><span class="p">(</span><span class="s1">&#39;600519&#39;</span><span class="p">)</span>
-<span class="go">    股票代码                时间       主力净流入      小单净流入      中单净流入        大单净流入        超大单净流入</span>
-<span class="go">0   600519  2021-06-15 09:31   -308042.0        0.0   308043.0  -18484264.0    18176222.0</span>
-<span class="go">1   600519  2021-06-15 09:32  -1594317.0        0.0  1594317.0   -4394364.0     2800047.0</span>
-<span class="go">2   600519  2021-06-15 09:33  -1535051.0        0.0  1535050.0  -21109538.0    19574487.0</span>
-<span class="go">3   600519  2021-06-15 09:34  -1535051.0        0.0  1535050.0  -15839506.0    14304455.0</span>
-<span class="go">4   600519  2021-06-15 09:35  -1253496.0        0.0  1253495.0  -19738272.0    18484776.0</span>
-<span class="go">..     ...               ...         ...        ...        ...          ...           ...</span>
-<span class="go">91  600519  2021-06-15 11:02  -5084126.0  -813197.0  5897325.0  143132755.0  -148216881.0</span>
-<span class="go">92  600519  2021-06-15 11:03  -4694051.0  -813197.0  5507250.0  134588811.0  -139282862.0</span>
-<span class="go">93  600519  2021-06-15 11:04  -4913204.0  -813197.0  5726403.0  130204858.0  -135118062.0</span>
-<span class="go">94  600519  2021-06-15 11:05  -4913204.0  -813197.0  5726403.0  128451226.0  -133364430.0</span>
-<span class="go">95  600519  2021-06-15 11:06  -4913204.0  -813197.0  5726403.0  126258794.0  -131171998.0</span>
-<span class="go">[96 rows x 7 columns]</span>
+<span class="go">    股票代码                时间        主力净流入      小单净流入        中单净流入        大单净流入       超大单净流入</span>
+<span class="go">0    600519  2021-07-29 09:31   -3261705.0  -389320.0    3651025.0  -12529658.0    9267953.0</span>
+<span class="go">1    600519  2021-07-29 09:32    6437999.0  -606994.0   -5831006.0  -42615994.0   49053993.0</span>
+<span class="go">2    600519  2021-07-29 09:33   13179707.0  -606994.0  -12572715.0  -85059118.0   98238825.0</span>
+<span class="go">3    600519  2021-07-29 09:34   15385244.0  -970615.0  -14414632.0  -86865209.0  102250453.0</span>
+<span class="go">4    600519  2021-07-29 09:35    7853716.0  -970615.0   -6883104.0  -75692436.0   83546152.0</span>
+<span class="go">..      ...               ...          ...        ...          ...          ...          ...</span>
+<span class="go">235  600519  2021-07-29 14:56 -918956019.0 -1299630.0  920255661.0 -397127393.0 -521828626.0</span>
+<span class="go">236  600519  2021-07-29 14:57 -920977761.0 -2319213.0  923296987.0 -397014702.0 -523963059.0</span>
+<span class="go">237  600519  2021-07-29 14:58 -920984196.0 -2312233.0  923296442.0 -395974137.0 -525010059.0</span>
+<span class="go">238  600519  2021-07-29 14:59 -920984196.0 -2312233.0  923296442.0 -395974137.0 -525010059.0</span>
+<span class="go">239  600519  2021-07-29 15:00 -920984196.0 -2312233.0  923296442.0 -395974137.0 -525010059.0</span>
 </code></pre></div>
 </div>
 
 
                 </section>
-                <section id="get_latest_stock_info">
-                            <div class="attr function"><a class="headerlink" href="#get_latest_stock_info">#&nbsp;&nbsp</a>
+                <section id="get_latest_quote">
+                            <div class="attr function"><a class="headerlink" href="#get_latest_quote">#&nbsp;&nbsp</a>
 
                 <div class="decorator">@to_numeric</div>
 
             <span class="def">def</span>
-            <span class="name">get_latest_stock_info</span><span class="signature">(stock_codes: List[str]) -&gt; pandas.core.frame.DataFrame</span>:
+            <span class="name">get_latest_quote</span><span class="signature">(stock_codes: List[str]) -&gt; pandas.core.frame.DataFrame</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
-<span class="k">def</span> <span class="nf">get_latest_stock_info</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_latest_quote</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取沪深市场多只股票的实时涨幅情况</span>
 
@@ -329,43 +327,35 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import efinance as ef</span>
-<span class="sd">    &gt;&gt;&gt; ef.stock.get_latest_stock_info([&#39;600519&#39;,&#39;300750&#39;])</span>
-<span class="sd">        最新价  最新涨跌幅    股票代码  股票简称</span>
-<span class="sd">    0  2192.00   0.61  600519  贵州茅台</span>
-<span class="sd">    1   443.03  -1.98  300750  宁德时代</span>
+<span class="sd">    &gt;&gt;&gt; ef.stock.get_latest_quote([&#39;600519&#39;,&#39;300750&#39;])</span>
+<span class="sd">        股票代码  股票名称            日期            开盘            收盘            最高            最低           成交量        成交额            振幅        涨跌幅           涨跌额        换手率</span>
+<span class="sd">    0  600519  贵州茅台  1.858496e+11  1.597864e+10  5.296600e+09  3.272842e+10  3.232885e+10  3.995697e+08  15.207088  1.752743e+11  81.440261  1.374964e+09   1.094545</span>
+<span class="sd">    1  300750  宁德时代  1.206223e+11  2.076009e+10  2.527780e+09  1.019879e+11  6.687712e+10  3.511077e+10  58.840670  6.564424e+10  37.872642  4.138079e+10  17.767560</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">stock_codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">stock_codes</span><span class="p">]</span>
 
-    <span class="n">secids</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">gen_secid</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">stock_codes</span><span class="p">])</span>
+    <span class="n">secids</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">get_quote_id</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">stock_codes</span><span class="p">])</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">EASTMONEY_LATEST_QUOTE_FIELDS</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;MobileKey&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;OSVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;14.3&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;appVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;cToken&#39;</span><span class="p">,</span> <span class="s1">&#39;a6hdhrfejje88ruaeduau1rdufna1e--.6&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;deviceid&#39;</span><span class="p">,</span> <span class="s1">&#39;3EA024C2-7F22-408B-95E4-383D38160FB3&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="s1">&#39;f1,f2,f3,f4,f12,f13,f14,f292&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;fltt&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;passportid&#39;</span><span class="p">,</span> <span class="s1">&#39;3061335960830820&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;plat&#39;</span><span class="p">,</span> <span class="s1">&#39;Iphone&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;product&#39;</span><span class="p">,</span> <span class="s1">&#39;EFund&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;secids&#39;</span><span class="p">,</span> <span class="n">secids</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;serverVersion&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.6&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;uToken&#39;</span><span class="p">,</span> <span class="s1">&#39;a166hhqnrajucnfcjkfkeducanekj1dd1cc2a-e9.6&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">,</span> <span class="s1">&#39;f8d95b2330d84d9e804e7f28a802d809&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;ut&#39;</span><span class="p">,</span> <span class="s1">&#39;94dd9fba6f4581ffc558a7b1a7c2b8a3&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
     <span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://push2.eastmoney.com/api/qt/ulist.np/get&#39;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                            <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
+                            <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
-    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s1">&#39;https://push2.eastmoney.com/api/qt/ulist.np/get&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">EastmoneyHeaders</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;f2&#39;</span><span class="p">:</span> <span class="s1">&#39;最新价&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;f3&#39;</span><span class="p">:</span> <span class="s1">&#39;最新涨跌幅&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;f12&#39;</span><span class="p">:</span> <span class="s1">&#39;股票代码&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;f14&#39;</span><span class="p">:</span> <span class="s1">&#39;股票简称&#39;</span>
-    <span class="p">}</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">diff</span><span class="p">)[</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
@@ -392,10 +382,10 @@
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_latest_stock_info</span><span class="p">([</span><span class="s1">&#39;600519&#39;</span><span class="p">,</span><span class="s1">&#39;300750&#39;</span><span class="p">])</span>
-<span class="go">    最新价  最新涨跌幅    股票代码  股票简称</span>
-<span class="go">0  2192.00   0.61  600519  贵州茅台</span>
-<span class="go">1   443.03  -1.98  300750  宁德时代</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_latest_quote</span><span class="p">([</span><span class="s1">&#39;600519&#39;</span><span class="p">,</span><span class="s1">&#39;300750&#39;</span><span class="p">])</span>
+<span class="go">    股票代码  股票名称            日期            开盘            收盘            最高            最低           成交量        成交额            振幅        涨跌幅           涨跌额        换手率</span>
+<span class="go">0  600519  贵州茅台  1.858496e+11  1.597864e+10  5.296600e+09  3.272842e+10  3.232885e+10  3.995697e+08  15.207088  1.752743e+11  81.440261  1.374964e+09   1.094545</span>
+<span class="go">1  300750  宁德时代  1.206223e+11  2.076009e+10  2.527780e+09  1.019879e+11  6.687712e+10  3.511077e+10  58.840670  6.564424e+10  37.872642  4.138079e+10  17.767560</span>
 </code></pre></div>
 </div>
 
@@ -423,12 +413,12 @@
                       <span class="n">klt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
                       <span class="n">fqt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    获取k线数据</span>
+<span class="sd">    获取股票、ETF、债券的 K 线数据</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    stock_codes : Union[str,List[str]]</span>
-<span class="sd">        6 位股票代码 或者 6 位股票代码构成的列表</span>
+<span class="sd">        股票、ETF、债券代码 或者 代码构成的列表</span>
 <span class="sd">    beg : str, optional</span>
 <span class="sd">        开始日期 例如 20200101</span>
 <span class="sd">    end : str, optional</span>
@@ -453,48 +443,40 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import efinance as ef</span>
-<span class="sd">    &gt;&gt;&gt; # 获取单只给股票历史行情（日 k）</span>
+<span class="sd">    &gt;&gt;&gt; # 获取单只股票日 K 行情数据</span>
 <span class="sd">    &gt;&gt;&gt; ef.stock.get_quote_history(&#39;600519&#39;)</span>
-<span class="sd">        股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量             成交额     振幅    涨跌幅     涨跌额    换手率</span>
-<span class="sd">    0     贵州茅台  600519  2001-08-27   -70.44   -70.24   -69.79   -70.77  406318   1410347000.00  -1.38   1.15    0.82  56.83</span>
-<span class="sd">    1     贵州茅台  600519  2001-08-28   -70.35   -69.97   -69.95   -70.42  129647    463463000.00  -0.67   0.38    0.27  18.13</span>
-<span class="sd">    2     贵州茅台  600519  2001-08-29   -69.95   -70.07   -69.95   -70.13   53252    194689000.00  -0.26  -0.14   -0.10   7.45</span>
-<span class="sd">    3     贵州茅台  600519  2001-08-30   -70.09   -69.93   -69.85   -70.15   48013    177558000.00  -0.43   0.20    0.14   6.72</span>
-<span class="sd">    4     贵州茅台  600519  2001-08-31   -69.92   -69.94   -69.82   -69.99   23231     86231000.00  -0.24  -0.01   -0.01   3.25</span>
-<span class="sd">    ...    ...     ...         ...      ...      ...      ...      ...     ...             ...    ...    ...     ...    ...</span>
-<span class="sd">    4724  贵州茅台  600519  2021-06-08  2260.00  2191.00  2279.99  2161.15   47314  10479943168.00   5.23  -3.52  -80.00   0.38</span>
-<span class="sd">    4725  贵州茅台  600519  2021-06-09  2192.00  2199.50  2214.00  2160.11   25502   5591378944.00   2.46   0.39    8.50   0.20</span>
-<span class="sd">    4726  贵州茅台  600519  2021-06-10  2195.00  2238.48  2251.37  2190.08   25567   5707338496.00   2.79   1.77   38.98   0.20</span>
-<span class="sd">    4727  贵州茅台  600519  2021-06-11  2239.00  2178.81  2244.00  2178.81   33971   7513797120.00   2.91  -2.67  -59.67   0.27</span>
-<span class="sd">    4728  贵州茅台  600519  2021-06-15  2195.10  2186.60  2208.88  2148.00   19079   4157285376.00   2.79   0.36    7.79   0.15</span>
-<span class="sd">    &gt;&gt;&gt; # 获取多只给股票历史行情（日 k）</span>
-<span class="sd">    &gt;&gt;&gt; ef.stock.get_quote_history([&#39;600519&#39;,&#39;300750&#39;])</span>
-<span class="sd">    {&#39;300750&#39;:      股票名称    股票代码          日期      开盘      收盘      最高      最低     成交量            成交额     振幅    涨跌幅    涨跌额   换手率</span>
-<span class="sd">    0    宁德时代  300750  2018-06-11   29.81   35.84   35.84   29.81     788     2845471.00  24.33  44.63  11.06  0.04</span>
-<span class="sd">    1    宁德时代  300750  2018-06-12   39.46   39.46   39.46   39.46     266     1058375.00   0.00  10.10   3.62  0.01</span>
-<span class="sd">    2    宁德时代  300750  2018-06-13   43.44   43.44   43.44   43.44     450     1972314.00   0.00  10.09   3.98  0.02</span>
-<span class="sd">    3    宁德时代  300750  2018-06-14   47.82   47.82   47.82   47.82     743     3578184.00   0.00  10.08   4.38  0.03</span>
-<span class="sd">    4    宁德时代  300750  2018-06-15   52.64   52.64   52.64   52.64    2565    13595030.00   0.00  10.08   4.82  0.12</span>
-<span class="sd">    ..    ...     ...         ...     ...     ...     ...     ...     ...            ...    ...    ...    ...   ...</span>
-<span class="sd">    727  宁德时代  300750  2021-06-08  404.00  409.59  424.85  404.00  166317  6887633920.00   5.12   0.51   2.09  1.23</span>
-<span class="sd">    728  宁德时代  300750  2021-06-09  409.00  409.37  416.00  403.00   93582  3829137536.00   3.17  -0.05  -0.22  0.69</span>
-<span class="sd">    729  宁德时代  300750  2021-06-10  410.09  434.63  444.66  410.09  193502  8400201728.00   8.44   6.17  25.26  1.43</span>
-<span class="sd">    730  宁德时代  300750  2021-06-11  443.00  451.98  457.84  430.06  197961  8816469248.00   6.39   3.99  17.35  0.86</span>
-<span class="sd">    731  宁德时代  300750  2021-06-15  453.00  445.31  455.90  435.50   62061  2761012304.00   4.51  -1.48  -6.67  0.27</span>
-<span class="sd">    [732 rows x 13 columns],</span>
-<span class="sd">    &#39;600519&#39;:       股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量             成交额     振幅    涨跌幅     涨跌额    换手率</span>
-<span class="sd">    0     贵州茅台  600519  2001-08-27   -70.44   -70.24   -69.79   -70.77  406318   1410347000.00  -1.38   1.15    0.82  56.83</span>
-<span class="sd">    1     贵州茅台  600519  2001-08-28   -70.35   -69.97   -69.95   -70.42  129647    463463000.00  -0.67   0.38    0.27  18.13</span>
-<span class="sd">    2     贵州茅台  600519  2001-08-29   -69.95   -70.07   -69.95   -70.13   53252    194689000.00  -0.26  -0.14   -0.10   7.45</span>
-<span class="sd">    3     贵州茅台  600519  2001-08-30   -70.09   -69.93   -69.85   -70.15   48013    177558000.00  -0.43   0.20    0.14   6.72</span>
-<span class="sd">    4     贵州茅台  600519  2001-08-31   -69.92   -69.94   -69.82   -69.99   23231     86231000.00  -0.24  -0.01   -0.01   3.25</span>
-<span class="sd">    ...    ...     ...         ...      ...      ...      ...      ...     ...             ...    ...    ...     ...    ...</span>
-<span class="sd">    4724  贵州茅台  600519  2021-06-08  2260.00  2191.00  2279.99  2161.15   47314  10479943168.00   5.23  -3.52  -80.00   0.38</span>
-<span class="sd">    4725  贵州茅台  600519  2021-06-09  2192.00  2199.50  2214.00  2160.11   25502   5591378944.00   2.46   0.39    8.50   0.20</span>
-<span class="sd">    4726  贵州茅台  600519  2021-06-10  2195.00  2238.48  2251.37  2190.08   25567   5707338496.00   2.79   1.77   38.98   0.20</span>
-<span class="sd">    4727  贵州茅台  600519  2021-06-11  2239.00  2178.81  2244.00  2178.81   33971   7513797120.00   2.91  -2.67  -59.67   0.27</span>
-<span class="sd">    4728  贵州茅台  600519  2021-06-15  2195.10  2192.15  2208.88  2148.00   19325   4211086880.00   2.79   0.61   13.34   0.15</span>
-<span class="sd">    [4729 rows x 13 columns]}</span>
+<span class="sd">        股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量           成交额    振幅   涨跌幅    涨跌额    换手率</span>
+<span class="sd">    0     贵州茅台  600519  2001-08-27   -89.74   -89.53   -89.08   -90.07  406318  1.410347e+09 -1.10  0.92   0.83  56.83</span>
+<span class="sd">    1     贵州茅台  600519  2001-08-28   -89.64   -89.27   -89.24   -89.72  129647  4.634630e+08 -0.54  0.29   0.26  18.13</span>
+<span class="sd">    2     贵州茅台  600519  2001-08-29   -89.24   -89.36   -89.24   -89.42   53252  1.946890e+08 -0.20 -0.10  -0.09   7.45</span>
+<span class="sd">    3     贵州茅台  600519  2001-08-30   -89.38   -89.22   -89.14   -89.44   48013  1.775580e+08 -0.34  0.16   0.14   6.72</span>
+<span class="sd">    4     贵州茅台  600519  2001-08-31   -89.21   -89.24   -89.12   -89.28   23231  8.623100e+07 -0.18 -0.02  -0.02   3.25</span>
+<span class="sd">    ...    ...     ...         ...      ...      ...      ...      ...     ...           ...   ...   ...    ...    ...</span>
+<span class="sd">    4756  贵州茅台  600519  2021-07-23  1937.82  1900.00  1937.82  1895.09   47585  9.057762e+09  2.20 -2.06 -40.01   0.38</span>
+<span class="sd">    4757  贵州茅台  600519  2021-07-26  1879.00  1804.11  1879.00  1780.00   98619  1.789436e+10  5.21 -5.05 -95.89   0.79</span>
+<span class="sd">    4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577  1.523081e+10  5.93 -5.06 -91.22   0.69</span>
+<span class="sd">    4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68</span>
+<span class="sd">    4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51</span>
+
+<span class="sd">    &gt;&gt;&gt; # 获取多只股票历史行情</span>
+<span class="sd">    &gt;&gt;&gt; stock_df = ef.stock.get_quote_history([&#39;600519&#39;,&#39;300750&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; type(stock_df)</span>
+<span class="sd">    &lt;class &#39;dict&#39;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; stock_df.keys()</span>
+<span class="sd">    dict_keys([&#39;300750&#39;, &#39;600519&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; stock_df[&#39;600519&#39;]</span>
+<span class="sd">        股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量           成交额    振幅   涨跌幅    涨跌额    换手率</span>
+<span class="sd">    0     贵州茅台  600519  2001-08-27   -89.74   -89.53   -89.08   -90.07  406318  1.410347e+09 -1.10  0.92   0.83  56.83</span>
+<span class="sd">    1     贵州茅台  600519  2001-08-28   -89.64   -89.27   -89.24   -89.72  129647  4.634630e+08 -0.54  0.29   0.26  18.13</span>
+<span class="sd">    2     贵州茅台  600519  2001-08-29   -89.24   -89.36   -89.24   -89.42   53252  1.946890e+08 -0.20 -0.10  -0.09   7.45</span>
+<span class="sd">    3     贵州茅台  600519  2001-08-30   -89.38   -89.22   -89.14   -89.44   48013  1.775580e+08 -0.34  0.16   0.14   6.72</span>
+<span class="sd">    4     贵州茅台  600519  2001-08-31   -89.21   -89.24   -89.12   -89.28   23231  8.623100e+07 -0.18 -0.02  -0.02   3.25</span>
+<span class="sd">    ...    ...     ...         ...      ...      ...      ...      ...     ...           ...   ...   ...    ...    ...</span>
+<span class="sd">    4756  贵州茅台  600519  2021-07-23  1937.82  1900.00  1937.82  1895.09   47585  9.057762e+09  2.20 -2.06 -40.01   0.38</span>
+<span class="sd">    4757  贵州茅台  600519  2021-07-26  1879.00  1804.11  1879.00  1780.00   98619  1.789436e+10  5.21 -5.05 -95.89   0.79</span>
+<span class="sd">    4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577  1.523081e+10  5.93 -5.06 -91.22   0.69</span>
+<span class="sd">    4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68</span>
+<span class="sd">    4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stock_codes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -518,13 +500,13 @@
 
         </details>
 
-            <div class="docstring"><p>获取k线数据</p>
+            <div class="docstring"><p>获取股票、ETF、债券的 K 线数据</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>stock_codes</strong> (Union[str,List[str]]):
-6 位股票代码 或者 6 位股票代码构成的列表</li>
+股票、ETF、债券代码 或者 代码构成的列表</li>
 <li><strong>beg</strong> (str, optional):
 开始日期 例如 20200101</li>
 <li><strong>end</strong> (str, optional):
@@ -551,48 +533,41 @@ k线间距 默认为 101 即日k
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取单只给股票历史行情（日 k）</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取单只股票日 K 行情数据</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_quote_history</span><span class="p">(</span><span class="s1">&#39;600519&#39;</span><span class="p">)</span>
-<span class="go">    股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量             成交额     振幅    涨跌幅     涨跌额    换手率</span>
-<span class="go">0     贵州茅台  600519  2001-08-27   -70.44   -70.24   -69.79   -70.77  406318   1410347000.00  -1.38   1.15    0.82  56.83</span>
-<span class="go">1     贵州茅台  600519  2001-08-28   -70.35   -69.97   -69.95   -70.42  129647    463463000.00  -0.67   0.38    0.27  18.13</span>
-<span class="go">2     贵州茅台  600519  2001-08-29   -69.95   -70.07   -69.95   -70.13   53252    194689000.00  -0.26  -0.14   -0.10   7.45</span>
-<span class="go">3     贵州茅台  600519  2001-08-30   -70.09   -69.93   -69.85   -70.15   48013    177558000.00  -0.43   0.20    0.14   6.72</span>
-<span class="go">4     贵州茅台  600519  2001-08-31   -69.92   -69.94   -69.82   -69.99   23231     86231000.00  -0.24  -0.01   -0.01   3.25</span>
-<span class="gp">... </span>   <span class="o">...</span>     <span class="o">...</span>         <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>     <span class="o">...</span>             <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>     <span class="o">...</span>    <span class="o">...</span>
-<span class="go">4724  贵州茅台  600519  2021-06-08  2260.00  2191.00  2279.99  2161.15   47314  10479943168.00   5.23  -3.52  -80.00   0.38</span>
-<span class="go">4725  贵州茅台  600519  2021-06-09  2192.00  2199.50  2214.00  2160.11   25502   5591378944.00   2.46   0.39    8.50   0.20</span>
-<span class="go">4726  贵州茅台  600519  2021-06-10  2195.00  2238.48  2251.37  2190.08   25567   5707338496.00   2.79   1.77   38.98   0.20</span>
-<span class="go">4727  贵州茅台  600519  2021-06-11  2239.00  2178.81  2244.00  2178.81   33971   7513797120.00   2.91  -2.67  -59.67   0.27</span>
-<span class="go">4728  贵州茅台  600519  2021-06-15  2195.10  2186.60  2208.88  2148.00   19079   4157285376.00   2.79   0.36    7.79   0.15</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取多只给股票历史行情（日 k）</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_quote_history</span><span class="p">([</span><span class="s1">&#39;600519&#39;</span><span class="p">,</span><span class="s1">&#39;300750&#39;</span><span class="p">])</span>
-<span class="go">{&#39;300750&#39;:      股票名称    股票代码          日期      开盘      收盘      最高      最低     成交量            成交额     振幅    涨跌幅    涨跌额   换手率</span>
-<span class="go">0    宁德时代  300750  2018-06-11   29.81   35.84   35.84   29.81     788     2845471.00  24.33  44.63  11.06  0.04</span>
-<span class="go">1    宁德时代  300750  2018-06-12   39.46   39.46   39.46   39.46     266     1058375.00   0.00  10.10   3.62  0.01</span>
-<span class="go">2    宁德时代  300750  2018-06-13   43.44   43.44   43.44   43.44     450     1972314.00   0.00  10.09   3.98  0.02</span>
-<span class="go">3    宁德时代  300750  2018-06-14   47.82   47.82   47.82   47.82     743     3578184.00   0.00  10.08   4.38  0.03</span>
-<span class="go">4    宁德时代  300750  2018-06-15   52.64   52.64   52.64   52.64    2565    13595030.00   0.00  10.08   4.82  0.12</span>
-<span class="go">..    ...     ...         ...     ...     ...     ...     ...     ...            ...    ...    ...    ...   ...</span>
-<span class="go">727  宁德时代  300750  2021-06-08  404.00  409.59  424.85  404.00  166317  6887633920.00   5.12   0.51   2.09  1.23</span>
-<span class="go">728  宁德时代  300750  2021-06-09  409.00  409.37  416.00  403.00   93582  3829137536.00   3.17  -0.05  -0.22  0.69</span>
-<span class="go">729  宁德时代  300750  2021-06-10  410.09  434.63  444.66  410.09  193502  8400201728.00   8.44   6.17  25.26  1.43</span>
-<span class="go">730  宁德时代  300750  2021-06-11  443.00  451.98  457.84  430.06  197961  8816469248.00   6.39   3.99  17.35  0.86</span>
-<span class="go">731  宁德时代  300750  2021-06-15  453.00  445.31  455.90  435.50   62061  2761012304.00   4.51  -1.48  -6.67  0.27</span>
-<span class="go">[732 rows x 13 columns],</span>
-<span class="go">&#39;600519&#39;:       股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量             成交额     振幅    涨跌幅     涨跌额    换手率</span>
-<span class="go">0     贵州茅台  600519  2001-08-27   -70.44   -70.24   -69.79   -70.77  406318   1410347000.00  -1.38   1.15    0.82  56.83</span>
-<span class="go">1     贵州茅台  600519  2001-08-28   -70.35   -69.97   -69.95   -70.42  129647    463463000.00  -0.67   0.38    0.27  18.13</span>
-<span class="go">2     贵州茅台  600519  2001-08-29   -69.95   -70.07   -69.95   -70.13   53252    194689000.00  -0.26  -0.14   -0.10   7.45</span>
-<span class="go">3     贵州茅台  600519  2001-08-30   -70.09   -69.93   -69.85   -70.15   48013    177558000.00  -0.43   0.20    0.14   6.72</span>
-<span class="go">4     贵州茅台  600519  2001-08-31   -69.92   -69.94   -69.82   -69.99   23231     86231000.00  -0.24  -0.01   -0.01   3.25</span>
-<span class="gp">... </span>   <span class="o">...</span>     <span class="o">...</span>         <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>     <span class="o">...</span>             <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>     <span class="o">...</span>    <span class="o">...</span>
-<span class="go">4724  贵州茅台  600519  2021-06-08  2260.00  2191.00  2279.99  2161.15   47314  10479943168.00   5.23  -3.52  -80.00   0.38</span>
-<span class="go">4725  贵州茅台  600519  2021-06-09  2192.00  2199.50  2214.00  2160.11   25502   5591378944.00   2.46   0.39    8.50   0.20</span>
-<span class="go">4726  贵州茅台  600519  2021-06-10  2195.00  2238.48  2251.37  2190.08   25567   5707338496.00   2.79   1.77   38.98   0.20</span>
-<span class="go">4727  贵州茅台  600519  2021-06-11  2239.00  2178.81  2244.00  2178.81   33971   7513797120.00   2.91  -2.67  -59.67   0.27</span>
-<span class="go">4728  贵州茅台  600519  2021-06-15  2195.10  2192.15  2208.88  2148.00   19325   4211086880.00   2.79   0.61   13.34   0.15</span>
-<span class="go">[4729 rows x 13 columns]}</span>
+<span class="go">    股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量           成交额    振幅   涨跌幅    涨跌额    换手率</span>
+<span class="go">0     贵州茅台  600519  2001-08-27   -89.74   -89.53   -89.08   -90.07  406318  1.410347e+09 -1.10  0.92   0.83  56.83</span>
+<span class="go">1     贵州茅台  600519  2001-08-28   -89.64   -89.27   -89.24   -89.72  129647  4.634630e+08 -0.54  0.29   0.26  18.13</span>
+<span class="go">2     贵州茅台  600519  2001-08-29   -89.24   -89.36   -89.24   -89.42   53252  1.946890e+08 -0.20 -0.10  -0.09   7.45</span>
+<span class="go">3     贵州茅台  600519  2001-08-30   -89.38   -89.22   -89.14   -89.44   48013  1.775580e+08 -0.34  0.16   0.14   6.72</span>
+<span class="go">4     贵州茅台  600519  2001-08-31   -89.21   -89.24   -89.12   -89.28   23231  8.623100e+07 -0.18 -0.02  -0.02   3.25</span>
+<span class="gp">... </span>   <span class="o">...</span>     <span class="o">...</span>         <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>     <span class="o">...</span>           <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>
+<span class="go">4756  贵州茅台  600519  2021-07-23  1937.82  1900.00  1937.82  1895.09   47585  9.057762e+09  2.20 -2.06 -40.01   0.38</span>
+<span class="go">4757  贵州茅台  600519  2021-07-26  1879.00  1804.11  1879.00  1780.00   98619  1.789436e+10  5.21 -5.05 -95.89   0.79</span>
+<span class="go">4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577  1.523081e+10  5.93 -5.06 -91.22   0.69</span>
+<span class="go">4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68</span>
+<span class="go">4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取多只股票历史行情</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock_df</span> <span class="o">=</span> <span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_quote_history</span><span class="p">([</span><span class="s1">&#39;600519&#39;</span><span class="p">,</span><span class="s1">&#39;300750&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">stock_df</span><span class="p">)</span>
+<span class="go">&lt;class &#39;dict&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock_df</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="go">dict_keys([&#39;300750&#39;, &#39;600519&#39;])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stock_df</span><span class="p">[</span><span class="s1">&#39;600519&#39;</span><span class="p">]</span>
+<span class="go">    股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量           成交额    振幅   涨跌幅    涨跌额    换手率</span>
+<span class="go">0     贵州茅台  600519  2001-08-27   -89.74   -89.53   -89.08   -90.07  406318  1.410347e+09 -1.10  0.92   0.83  56.83</span>
+<span class="go">1     贵州茅台  600519  2001-08-28   -89.64   -89.27   -89.24   -89.72  129647  4.634630e+08 -0.54  0.29   0.26  18.13</span>
+<span class="go">2     贵州茅台  600519  2001-08-29   -89.24   -89.36   -89.24   -89.42   53252  1.946890e+08 -0.20 -0.10  -0.09   7.45</span>
+<span class="go">3     贵州茅台  600519  2001-08-30   -89.38   -89.22   -89.14   -89.44   48013  1.775580e+08 -0.34  0.16   0.14   6.72</span>
+<span class="go">4     贵州茅台  600519  2001-08-31   -89.21   -89.24   -89.12   -89.28   23231  8.623100e+07 -0.18 -0.02  -0.02   3.25</span>
+<span class="gp">... </span>   <span class="o">...</span>     <span class="o">...</span>         <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>     <span class="o">...</span>           <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>
+<span class="go">4756  贵州茅台  600519  2021-07-23  1937.82  1900.00  1937.82  1895.09   47585  9.057762e+09  2.20 -2.06 -40.01   0.38</span>
+<span class="go">4757  贵州茅台  600519  2021-07-26  1879.00  1804.11  1879.00  1780.00   98619  1.789436e+10  5.21 -5.05 -95.89   0.79</span>
+<span class="go">4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577  1.523081e+10  5.93 -5.06 -91.22   0.69</span>
+<span class="go">4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68</span>
+<span class="go">4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51</span>
 </code></pre></div>
 </div>
 
@@ -617,31 +592,29 @@ k线间距 默认为 101 即日k
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    DataFrame</span>
-<span class="sd">        包含沪深全市场上市公司的最新行情信息（涨跌幅、换手率等信息）</span>
+<span class="sd">        包含沪深全市场A股上市公司的最新行情信息（涨跌幅、换手率等信息）</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; import efinance as ef</span>
 <span class="sd">    &gt;&gt;&gt; ef.stock.get_realtime_quotes()</span>
-<span class="sd">        股票代码 市场类型  股票名称     涨跌幅     最新价    涨跌额    换手率    动态市盈率        成交量           成交额    昨日收盘            总市值           流通市值      行情ID</span>
-<span class="sd">    0     688296   沪市   N和达  161.72   39.95  20.15  71.02  -151.18   173365.0   596007008.0   12.46   3502090948.0    796076690.0  1.688296</span>
-<span class="sd">    1     300903   深市  科翔股份   20.01   34.12   5.69  32.42   103.19   139743.0   465833504.0   28.43   5880162119.0   1470572000.0  0.300903</span>
-<span class="sd">    2     300629   深市   新劲刚   20.01   26.87   4.48  16.19    42.89   144339.0   358959936.0   22.39   3750054935.0   2395403885.0  0.300629</span>
-<span class="sd">    3     300706   深市   阿石创   20.01   36.29   6.05  20.71  1101.24   168989.0   591087184.0   30.24   5121244800.0   2961769520.0  0.300706</span>
-<span class="sd">    4     300852   深市  四会富仕    20.0   51.95   8.66  28.12    31.71   100095.0   508311520.0   43.29   5295302982.0   1849182017.0  0.300852</span>
-<span class="sd">    ...      ...  ...   ...     ...     ...    ...    ...      ...        ...           ...     ...            ...            ...       ...</span>
-<span class="sd">    4577  300477   深市  合纵科技   -13.8   11.98  -1.61   19.1   125.02  1152009.0  1273697936.0   11.67  10891642162.0   6066220320.0  0.300477</span>
-<span class="sd">    4578  300763   深市  锦浪科技  -14.23   277.0 -39.14    6.3   137.69    67654.0  1743101888.0  275.09  58416559044.0  25329968900.0  0.300763</span>
-<span class="sd">    4579  688087   沪市  英科再生  -14.46  109.31 -15.88   9.11    72.94    24663.0   250819652.0   109.8  12494411743.0   2542432245.0  1.688087</span>
-<span class="sd">    4580  300588   深市  熙菱信息   -18.0   18.73  -3.49  29.79    32.12   312661.0   522321600.0   19.39   2594530200.0   1668784103.0  0.300588</span>
-<span class="sd">    4581  300350   深市   华鹏飞  -19.97   13.82   -2.6   20.6    15.23   671626.0   758069392.0   13.02   5856167947.0   3397289191.0  0.300350</span>
-<span class="sd">    [4582 rows x 14 columns]</span>
+<span class="sd">            股票代码  股票名称     涨跌幅     最新价    涨跌额    换手率   动态市盈率     成交量           成交额    昨日收盘           总市值          流通市值      行情ID 市场类型</span>
+<span class="sd">    0     688071   N华依  213.18    50.0  29.27  86.37 -223.37  128096   542717248.0   13.73    3132325282     637715370  1.688071   沪A</span>
+<span class="sd">    1     301036   N双乐  116.68   54.47  27.28  64.85   28.53  153762   737806128.0   23.38    5066000000    1201150930  0.301036   深A</span>
+<span class="sd">    2     001210   N金房   43.98   40.33  12.32   1.06     8.8    2416     9698603.0   28.01    3659869945     915087700  0.001210   深A</span>
+<span class="sd">    3     688296  和达科技   24.97   33.96   6.57  47.65 -152.43  116333   364964624.0   26.31    3531087101     802667941  1.688296   沪A</span>
+<span class="sd">    4     300506   名家汇   20.07    7.36   1.23  13.85   23.52  689062   486375616.0    6.13    4821136911    3662128367  0.300506   深A</span>
+<span class="sd">    ...      ...   ...     ...     ...    ...    ...     ...     ...           ...     ...           ...           ...       ...  ...</span>
+<span class="sd">    4582  002311  海大集团   -6.24    69.1  -4.26   1.35   34.71  224419  1454515184.0    68.3  106380754346  106155119205  0.002311   深A</span>
+<span class="sd">    4583  301035   C润丰    -6.3   36.66  -2.41  38.72   25.75  253566   897378480.0   38.26    9901053000    2347839623  0.301035   深A</span>
+<span class="sd">    4584  600702  舍得酒业   -6.39  221.96 -13.73    6.6   55.99  218947  4498078720.0  214.98   67619134625   66717802288  1.600702   沪A</span>
+<span class="sd">    4585  600260  凯乐科技   -9.91    5.09  -0.56   1.18    6.69  116999    59552491.0    5.65    5075652410    5063970035  1.600260   沪A</span>
+<span class="sd">    4586  301024   C霍普  -15.04   64.91 -10.88  39.29   71.05   41647   258630776.0   72.32    2604441600     651264000  0.301024   深A</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">EastmoneyQuotes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">EastmoneyQuotes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">EASTMONEY_QUOTE_FIELDS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">EASTMONEY_QUOTE_FIELDS</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">(</span>
-
         <span class="p">(</span><span class="s1">&#39;pn&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;pz&#39;</span><span class="p">,</span> <span class="s1">&#39;1000000&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;po&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">),</span>
@@ -650,20 +623,20 @@ k线间距 默认为 101 即日k
         <span class="p">(</span><span class="s1">&#39;invt&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;fid&#39;</span><span class="p">,</span> <span class="s1">&#39;f3&#39;</span><span class="p">),</span>
         <span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">,</span> <span class="s1">&#39;m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23&#39;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">),</span>
-
+        <span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
     <span class="p">)</span>
-
-    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s1">&#39;http://3.push2.eastmoney.com/api/qt/clist/get&#39;</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="n">EastmoneyHeaders</span><span class="p">,</span>
-        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="c1"># TODO 修改该接口，使得实时性更佳</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://12.push2.eastmoney.com/api/qt/clist/get&#39;</span>
+    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
+                                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;diff&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">EastmoneyQuotes</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">EASTMONEY_QUOTE_FIELDS</span><span class="p">)</span>
           <span class="p">[</span><span class="n">columns</span><span class="p">])</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;行情ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场类型&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;.&#39;</span><span class="o">+</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;股票代码&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场类型&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场类型&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;沪市&#39;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="s1">&#39;深市&#39;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;行情ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场编号&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;.&#39;</span><span class="o">+</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;股票代码&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场类型&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场编号&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">MARET_NUMBER_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+    <span class="k">del</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;市场编号&#39;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">df</span>
 </pre></div>
 
@@ -674,26 +647,25 @@ k线间距 默认为 101 即日k
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>DataFrame</strong>: 包含沪深全市场上市公司的最新行情信息（涨跌幅、换手率等信息）</li>
+<li><strong>DataFrame</strong>: 包含沪深全市场A股上市公司的最新行情信息（涨跌幅、换手率等信息）</li>
 </ul>
 
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">efinance</span> <span class="k">as</span> <span class="nn">ef</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_realtime_quotes</span><span class="p">()</span>
-<span class="go">    股票代码 市场类型  股票名称     涨跌幅     最新价    涨跌额    换手率    动态市盈率        成交量           成交额    昨日收盘            总市值           流通市值      行情ID</span>
-<span class="go">0     688296   沪市   N和达  161.72   39.95  20.15  71.02  -151.18   173365.0   596007008.0   12.46   3502090948.0    796076690.0  1.688296</span>
-<span class="go">1     300903   深市  科翔股份   20.01   34.12   5.69  32.42   103.19   139743.0   465833504.0   28.43   5880162119.0   1470572000.0  0.300903</span>
-<span class="go">2     300629   深市   新劲刚   20.01   26.87   4.48  16.19    42.89   144339.0   358959936.0   22.39   3750054935.0   2395403885.0  0.300629</span>
-<span class="go">3     300706   深市   阿石创   20.01   36.29   6.05  20.71  1101.24   168989.0   591087184.0   30.24   5121244800.0   2961769520.0  0.300706</span>
-<span class="go">4     300852   深市  四会富仕    20.0   51.95   8.66  28.12    31.71   100095.0   508311520.0   43.29   5295302982.0   1849182017.0  0.300852</span>
-<span class="gp">... </span>     <span class="o">...</span>  <span class="o">...</span>   <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>      <span class="o">...</span>        <span class="o">...</span>           <span class="o">...</span>     <span class="o">...</span>            <span class="o">...</span>            <span class="o">...</span>       <span class="o">...</span>
-<span class="go">4577  300477   深市  合纵科技   -13.8   11.98  -1.61   19.1   125.02  1152009.0  1273697936.0   11.67  10891642162.0   6066220320.0  0.300477</span>
-<span class="go">4578  300763   深市  锦浪科技  -14.23   277.0 -39.14    6.3   137.69    67654.0  1743101888.0  275.09  58416559044.0  25329968900.0  0.300763</span>
-<span class="go">4579  688087   沪市  英科再生  -14.46  109.31 -15.88   9.11    72.94    24663.0   250819652.0   109.8  12494411743.0   2542432245.0  1.688087</span>
-<span class="go">4580  300588   深市  熙菱信息   -18.0   18.73  -3.49  29.79    32.12   312661.0   522321600.0   19.39   2594530200.0   1668784103.0  0.300588</span>
-<span class="go">4581  300350   深市   华鹏飞  -19.97   13.82   -2.6   20.6    15.23   671626.0   758069392.0   13.02   5856167947.0   3397289191.0  0.300350</span>
-<span class="go">[4582 rows x 14 columns]</span>
+<span class="go">        股票代码  股票名称     涨跌幅     最新价    涨跌额    换手率   动态市盈率     成交量           成交额    昨日收盘           总市值          流通市值      行情ID 市场类型</span>
+<span class="go">0     688071   N华依  213.18    50.0  29.27  86.37 -223.37  128096   542717248.0   13.73    3132325282     637715370  1.688071   沪A</span>
+<span class="go">1     301036   N双乐  116.68   54.47  27.28  64.85   28.53  153762   737806128.0   23.38    5066000000    1201150930  0.301036   深A</span>
+<span class="go">2     001210   N金房   43.98   40.33  12.32   1.06     8.8    2416     9698603.0   28.01    3659869945     915087700  0.001210   深A</span>
+<span class="go">3     688296  和达科技   24.97   33.96   6.57  47.65 -152.43  116333   364964624.0   26.31    3531087101     802667941  1.688296   沪A</span>
+<span class="go">4     300506   名家汇   20.07    7.36   1.23  13.85   23.52  689062   486375616.0    6.13    4821136911    3662128367  0.300506   深A</span>
+<span class="gp">... </span>     <span class="o">...</span>   <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>           <span class="o">...</span>     <span class="o">...</span>           <span class="o">...</span>           <span class="o">...</span>       <span class="o">...</span>  <span class="o">...</span>
+<span class="go">4582  002311  海大集团   -6.24    69.1  -4.26   1.35   34.71  224419  1454515184.0    68.3  106380754346  106155119205  0.002311   深A</span>
+<span class="go">4583  301035   C润丰    -6.3   36.66  -2.41  38.72   25.75  253566   897378480.0   38.26    9901053000    2347839623  0.301035   深A</span>
+<span class="go">4584  600702  舍得酒业   -6.39  221.96 -13.73    6.6   55.99  218947  4498078720.0  214.98   67619134625   66717802288  1.600702   沪A</span>
+<span class="go">4585  600260  凯乐科技   -9.91    5.09  -0.56   1.18    6.69  116999    59552491.0    5.65    5075652410    5063970035  1.600260   沪A</span>
+<span class="go">4586  301024   C霍普  -15.04   64.91 -10.88  39.29   71.05   41647   258630776.0   72.32    2604441600     651264000  0.301024   深A</span>
 </code></pre></div>
 </div>
 
@@ -711,14 +683,15 @@ k线间距 默认为 101 即日k
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="nd">@to_numeric</span>
-<span class="k">def</span> <span class="nf">get_top10_stock_holder_info</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_top10_stock_holder_info</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                                <span class="n">top</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    获取沪深市场指定股票前十大股东信息</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    stock_code : str</span>
-<span class="sd">        6 位股票代码</span>
+<span class="sd">        股票代码</span>
 <span class="sd">    top : int, optional</span>
 <span class="sd">        最新 top 个前 10 大流通股东公开信息, 默认为 4</span>
 
@@ -744,14 +717,13 @@ k线间距 默认为 101 即日k
 <span class="sd">    9  600519  2021-03-31  78083830      珠海市瑞丰汇邦资产管理有限公司-瑞丰汇邦三号私募证券投资基金  416.1万   0.33%       不变      --</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">gen_fc</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">gen_fc</span><span class="p">(</span><span class="n">quote_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        生成东方财富专用的东西</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        stock_code : str</span>
-<span class="sd">            6 位股票代码</span>
+<span class="sd">        quote_id : str</span>
+<span class="sd">            行情ID</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -759,8 +731,7 @@ k线间距 默认为 101 即日k
 <span class="sd">            指定格式的字符串</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># 沪市指数</span>
-        <span class="n">_type</span> <span class="o">=</span> <span class="n">gen_secid</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">_type</span> <span class="o">=</span> <span class="n">quote_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_type</span><span class="p">)</span>
         <span class="c1"># 深市</span>
         <span class="k">if</span> <span class="n">_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -768,14 +739,15 @@ k线间距 默认为 101 即日k
         <span class="c1"># 沪市</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">stock_code</span><span class="si">}</span><span class="s1">01&#39;</span>
 
-    <span class="k">def</span> <span class="nf">get_public_dates</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_public_dates</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                         <span class="n">top</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        获取指定股票公开股东信息的日期</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        stock_code : str</span>
-<span class="sd">            6 位 A 股股票代码</span>
+<span class="sd">            股票代码</span>
 <span class="sd">        top : int, optional</span>
 <span class="sd">            最新的 top 个日期, 默认为 4</span>
 
@@ -792,17 +764,17 @@ k线间距 默认为 101 即日k
             <span class="s1">&#39;Origin&#39;</span><span class="p">:</span> <span class="s1">&#39;null&#39;</span><span class="p">,</span>
             <span class="s1">&#39;Cache-Control&#39;</span><span class="p">:</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span>
         <span class="p">}</span>
+        <span class="n">quote_id</span> <span class="o">=</span> <span class="n">get_quote_id</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
+        <span class="n">stock_code</span> <span class="o">=</span> <span class="n">quote_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">fc</span> <span class="o">=</span> <span class="n">gen_fc</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fc&quot;</span><span class="p">:</span> <span class="n">fc</span><span class="p">}</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s1">&#39;https://emh5.eastmoney.com/api/GuBenGuDong/GetFirstRequest2Data&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-        <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span>
-            <span class="s1">&#39;Result&#39;</span><span class="p">][</span><span class="s1">&#39;SDLTGDBGQ&#39;</span><span class="p">]</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://emh5.eastmoney.com/api/GuBenGuDong/GetFirstRequest2Data&#39;</span>
+        <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;Result&#39;</span><span class="p">][</span><span class="s1">&#39;SDLTGDBGQ&#39;</span><span class="p">]</span>
         <span class="n">items</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ShiDaLiuTongGuDongBaoGaoQiList&#39;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">items</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
-
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;BaoGaoQi&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -829,12 +801,11 @@ k线间距 默认为 101 即日k
     <span class="n">dates</span> <span class="o">=</span> <span class="n">get_public_dates</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
     <span class="n">dfs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">[:</span><span class="n">top</span><span class="p">]:</span>
-
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fc&quot;</span><span class="p">:</span> <span class="n">fc</span><span class="p">,</span> <span class="s2">&quot;BaoGaoQi&quot;</span><span class="p">:</span> <span class="n">date</span><span class="p">}</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s1">&#39;https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong&#39;</span><span class="p">,</span>
-            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-            <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="n">response</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="s1">&#39;utf-8&#39;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -864,7 +835,7 @@ k线间距 默认为 101 即日k
 
 <ul>
 <li><strong>stock_code</strong> (str):
-6 位股票代码</li>
+股票代码</li>
 <li><strong>top</strong> (int, optional):
 最新 top 个前 10 大流通股东公开信息, 默认为 4</li>
 </ul>
@@ -914,7 +885,7 @@ k线间距 默认为 101 即日k
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    stock_codes : Union[str, List[str]]</span>
-<span class="sd">        6 位股票代码 或 6 位股票代码构成的列表</span>
+<span class="sd">        股票代码或股票代码构成的列表</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -936,23 +907,23 @@ k线间距 默认为 101 即日k
 <span class="sd">    &gt;&gt;&gt; ef.stock.get_base_info(&#39;600519&#39;)</span>
 <span class="sd">    股票代码                  600519</span>
 <span class="sd">    股票名称                    贵州茅台</span>
-<span class="sd">    市盈率(动)                 48.94</span>
-<span class="sd">    市净率                    15.59</span>
+<span class="sd">    市盈率(动)                 39.38</span>
+<span class="sd">    市净率                    12.54</span>
 <span class="sd">    所处行业                    酿酒行业</span>
-<span class="sd">    总市值          2731853355660.0</span>
-<span class="sd">    流通市值         2731853355660.0</span>
+<span class="sd">    总市值          2198082348462.0</span>
+<span class="sd">    流通市值         2198082348462.0</span>
 <span class="sd">    板块编号                  BK0477</span>
 <span class="sd">    ROE                     8.29</span>
 <span class="sd">    净利率                  54.1678</span>
 <span class="sd">    净利润       13954462085.610001</span>
 <span class="sd">    毛利率                  91.6763</span>
 <span class="sd">    dtype: object</span>
+<span class="sd">    </span>
 <span class="sd">    &gt;&gt;&gt; # 获取多只股票信息</span>
 <span class="sd">    &gt;&gt;&gt; ef.stock.get_base_info([&#39;600519&#39;,&#39;300715&#39;])</span>
-<span class="sd">    股票代码  股票名称  市盈率(动)    市净率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率</span>
-<span class="sd">    0  600519  贵州茅台   49.20  15.67  酿酒行业  2.745986e+12  2.745986e+12  BK0477  8.29  54.1678  1.395446e+10  91.6763</span>
-<span class="sd">    1  300715  凯伦股份   34.34   5.35  水泥建材  7.437957e+09  6.594918e+09  BK0424  3.97  12.1659  5.415488e+07  32.8765</span>
-
+<span class="sd">        股票代码  股票名称  市盈率(动)    市净率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率</span>
+<span class="sd">    0  300715  凯伦股份   42.29   3.12  水泥建材  9.160864e+09  6.397043e+09  BK0424  3.97  12.1659  5.415488e+07  32.8765</span>
+<span class="sd">    1  600519  贵州茅台   39.38  12.54  酿酒行业  2.198082e+12  2.198082e+12  BK0477  8.29  54.1678  1.395446e+10  91.6763</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -969,7 +940,7 @@ k线间距 默认为 101 即日k
 
 <ul>
 <li><strong>stock_codes</strong> (Union[str, List[str]]):
-6 位股票代码 或 6 位股票代码构成的列表</li>
+股票代码或股票代码构成的列表</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -994,22 +965,24 @@ DataFrane
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_base_info</span><span class="p">(</span><span class="s1">&#39;600519&#39;</span><span class="p">)</span>
 <span class="go">股票代码                  600519</span>
 <span class="go">股票名称                    贵州茅台</span>
-<span class="go">市盈率(动)                 48.94</span>
-<span class="go">市净率                    15.59</span>
+<span class="go">市盈率(动)                 39.38</span>
+<span class="go">市净率                    12.54</span>
 <span class="go">所处行业                    酿酒行业</span>
-<span class="go">总市值          2731853355660.0</span>
-<span class="go">流通市值         2731853355660.0</span>
+<span class="go">总市值          2198082348462.0</span>
+<span class="go">流通市值         2198082348462.0</span>
 <span class="go">板块编号                  BK0477</span>
 <span class="go">ROE                     8.29</span>
 <span class="go">净利率                  54.1678</span>
 <span class="go">净利润       13954462085.610001</span>
 <span class="go">毛利率                  91.6763</span>
 <span class="go">dtype: object</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取多只股票信息</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="c1"># 获取多只股票信息</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ef</span><span class="o">.</span><span class="n">stock</span><span class="o">.</span><span class="n">get_base_info</span><span class="p">([</span><span class="s1">&#39;600519&#39;</span><span class="p">,</span><span class="s1">&#39;300715&#39;</span><span class="p">])</span>
-<span class="go">股票代码  股票名称  市盈率(动)    市净率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率</span>
-<span class="go">0  600519  贵州茅台   49.20  15.67  酿酒行业  2.745986e+12  2.745986e+12  BK0477  8.29  54.1678  1.395446e+10  91.6763</span>
-<span class="go">1  300715  凯伦股份   34.34   5.35  水泥建材  7.437957e+09  6.594918e+09  BK0424  3.97  12.1659  5.415488e+07  32.8765</span>
+<span class="go">    股票代码  股票名称  市盈率(动)    市净率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率</span>
+<span class="go">0  300715  凯伦股份   42.29   3.12  水泥建材  9.160864e+09  6.397043e+09  BK0424  3.97  12.1659  5.415488e+07  32.8765</span>
+<span class="go">1  600519  贵州茅台   39.38  12.54  酿酒行业  2.198082e+12  2.198082e+12  BK0477  8.29  54.1678  1.395446e+10  91.6763</span>
 </code></pre></div>
 </div>
 
