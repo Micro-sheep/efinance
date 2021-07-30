@@ -1,6 +1,8 @@
 from ..stock import get_quote_history
-from .getter import (get_bond_table,
+from .getter import (get_all_base_info,
+                     get_base_info,
                      get_realtime_quotes)
 __all__ = ['get_quote_history',
            'get_realtime_quotes',
-           'get_bond_table']
+           'get_all_base_info',
+           'get_base_info']
