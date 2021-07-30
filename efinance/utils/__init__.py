@@ -7,7 +7,7 @@ import pandas as pd
 from collections import namedtuple
 
 
-def to_numeric(func: Callable) -> Union[pd.DataFrame, pd.Series]:
+def to_numeric(func:Callable):
     """
     将 DataFrame 或者 Series 尽可能地转为数字的装饰器
 
