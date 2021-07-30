@@ -1,13 +1,13 @@
 import pandas as pd
 import re
 import requests
-from typing import Union, Callable, List
+from typing import Union, List
 from functools import wraps
 import pandas as pd
 from collections import namedtuple
 
 
-def to_numeric(func:Callable):
+def to_numeric(func):
     """
     将 DataFrame 或者 Series 尽可能地转为数字的装饰器
 
@@ -81,7 +81,8 @@ def get_quote_id(stock_code: str) -> str:
         raise Exception(f'证券代码 {stock_code} 可能有误')
 
 
-def search_quote(keyword: str, count: int = 1) -> Union[Quote, None, List[Quote]]:
+def search_quote(keyword: str,
+                 count: int = 1) -> Union[Quote, None, List[Quote]]:
     """
     根据关键词搜索以获取证券信息
 
