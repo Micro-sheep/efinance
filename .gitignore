@@ -5,6 +5,7 @@ build
 dist
 .vscode/
 .vs/
+data/
 # Files
 *.pyc
 *.csv

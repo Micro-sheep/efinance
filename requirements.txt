@@ -3,3 +3,4 @@ tqdm
 pandas
 retry
 multitasking
+jsonpath

@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 import re
 import requests
@@ -5,6 +6,9 @@ from typing import Union, List
 from functools import wraps
 import pandas as pd
 from collections import namedtuple
+from retry.api import retry
+from ..config import SEARCH_RESULT_CACHE_PATH
+from ..shared import SEARCH_RESULT_DICT
 
 
 def to_numeric(func):
@@ -18,7 +22,7 @@ def to_numeric(func):
 
     Returns
     -------
-    Union[pd.DataFrame, pd.Series]
+    Union[DataFrame, Series]
 
     """
 
@@ -58,6 +62,7 @@ Quote = namedtuple('Quote', ['code', 'name', 'pinyin', 'id', 'jys', 'classify', 
                    'security_typeName', 'security_type', 'mkt_num', 'type_us', 'quote_id', 'unified_code', 'inner_code'])
 
 
+@retry(tries=3, delay=1)
 def get_quote_id(stock_code: str) -> str:
     """
     生成东方财富股票专用的行情ID
@@ -98,6 +103,9 @@ def search_quote(keyword: str,
     Union[Quote, None, List[Quote]]
 
     """
+    quote = search_quote_locally(keyword)
+    if quote:
+        return quote
     url = 'https://searchapi.eastmoney.com/api/suggest/get'
     params = (
         ('input', f'{keyword}'),
@@ -107,11 +115,41 @@ def search_quote(keyword: str,
     json_response = requests.get(url, params=params).json()
     items = json_response['QuotationCodeTable']['Data']
     if items is not None:
+        quotes = [Quote(*item.values()) for item in items]
+        save_search_result(keyword, quotes)
         if count == 1:
-            return Quote(*items[0].values())
+            return quotes[0]
         else:
-            return [Quote(*item.values()) for item in items]
+            return quotes
     return None
+
+
+def search_quote_locally(keyword: str) -> Union[Quote, None]:
+    """
+    在本地里面使用搜索记录进行关键词搜索
+
+    Parameters
+    ----------
+    keyword : str
+        搜索词
+
+    Returns
+    -------
+    Union[Quote,None]
+
+    """
+    q = SEARCH_RESULT_DICT.get(keyword)
+    if q is None:
+        return None
+    quote = Quote(**q)
+    return quote
+
+
+def save_search_result(keyword: str, quotes: List[Quote]):
+    with open(SEARCH_RESULT_CACHE_PATH, 'w', encoding='utf-8') as f:
+        for quote in quotes:
+            SEARCH_RESULT_DICT[keyword] = quote._asdict()
+        json.dump(SEARCH_RESULT_DICT.copy(), f)
 
 
 __all__ = []

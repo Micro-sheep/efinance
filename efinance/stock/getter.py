@@ -1,4 +1,5 @@
 from typing import Dict, List, Union
+from jsonpath import jsonpath
 from retry import retry
 import pandas as pd
 import requests
@@ -11,8 +12,7 @@ from .config import (EASTMONEY_KLINE_FIELDS,
                      EASTMONEY_REQUEST_HEADERS,
                      EASTMONEY_HISTORY_BILL_FIELDS,
                      EASTMONEY_QUOTE_FIELDS,
-                     EASTMONEY_STOCK_BASE_INFO_FIELDS,
-                     EASTMONEY_LATEST_QUOTE_FIELDS)
+                     EASTMONEY_STOCK_BASE_INFO_FIELDS)
 
 signal.signal(signal.SIGINT, multitasking.killall)
 
@@ -121,7 +121,7 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
     净利润       13954462085.610001
     毛利率                  91.6763
     dtype: object
-    
+
     >>> # 获取多只股票信息
     >>> ef.stock.get_base_info(['600519','300715'])
         股票代码  股票名称  市盈率(动)    市净率  所处行业           总市值          流通市值    板块编号   ROE      净利率           净利润      毛利率
@@ -191,13 +191,12 @@ def get_quote_history_single(stock_code: str,
 
     json_response = requests.get(
         url, headers=EASTMONEY_REQUEST_HEADERS, params=params).json()
-    data = json_response.get('data')
-    if data is None:
+    klines: List[str] = jsonpath(json_response, '$..klines[:]')
+    if not klines:
         columns.extend(['股票名称', '股票代码'])
         return pd.DataFrame(columns=columns)
-    klines: List[str] = data['klines']
     rows = [kline.split(',') for kline in klines]
-    stock_name = data['name']
+    stock_name = json_response['data']['name']
     stock_code = quote_id.split('.')[-1]
     df = pd.DataFrame(rows, columns=columns)
     df.insert(0, '股票代码', [stock_code] * len(df))
@@ -372,18 +371,19 @@ def get_realtime_quotes() -> pd.DataFrame:
     --------
     >>> import efinance as ef
     >>> ef.stock.get_realtime_quotes()
-            股票代码  股票名称     涨跌幅     最新价    涨跌额    换手率   动态市盈率     成交量           成交额    昨日收盘           总市值          流通市值      行情ID 市场类型
-    0     688071   N华依  213.18    50.0  29.27  86.37 -223.37  128096   542717248.0   13.73    3132325282     637715370  1.688071   沪A
-    1     301036   N双乐  116.68   54.47  27.28  64.85   28.53  153762   737806128.0   23.38    5066000000    1201150930  0.301036   深A
-    2     001210   N金房   43.98   40.33  12.32   1.06     8.8    2416     9698603.0   28.01    3659869945     915087700  0.001210   深A
-    3     688296  和达科技   24.97   33.96   6.57  47.65 -152.43  116333   364964624.0   26.31    3531087101     802667941  1.688296   沪A
-    4     300506   名家汇   20.07    7.36   1.23  13.85   23.52  689062   486375616.0    6.13    4821136911    3662128367  0.300506   深A
-    ...      ...   ...     ...     ...    ...    ...     ...     ...           ...     ...           ...           ...       ...  ...
-    4582  002311  海大集团   -6.24    69.1  -4.26   1.35   34.71  224419  1454515184.0    68.3  106380754346  106155119205  0.002311   深A
-    4583  301035   C润丰    -6.3   36.66  -2.41  38.72   25.75  253566   897378480.0   38.26    9901053000    2347839623  0.301035   深A
-    4584  600702  舍得酒业   -6.39  221.96 -13.73    6.6   55.99  218947  4498078720.0  214.98   67619134625   66717802288  1.600702   沪A
-    4585  600260  凯乐科技   -9.91    5.09  -0.56   1.18    6.69  116999    59552491.0    5.65    5075652410    5063970035  1.600260   沪A
-    4586  301024   C霍普  -15.04   64.91 -10.88  39.29   71.05   41647   258630776.0   72.32    2604441600     651264000  0.301024   深A
+            股票代码    股票名称     涨跌幅     最新价      最高      最低    涨跌额    换手率   动态市盈率     成交量          成交额    昨日收盘          总市值         流通市值      行情ID 市场类型
+    0     301040     N中环  230.58   44.86    47.0   41.59  31.29  26.68   37.43   63249  270449440.0   13.57   4486000000   1063568738  0.301040   深A
+    1     300170    汉得信息   20.06    8.56    8.56    7.15   1.43   3.85  106.52  309143  248553089.0    7.13   7567296355   6870207362  0.300170   深A
+    2     300507    苏奥传感   20.02   11.51   11.51    10.5   1.92   3.96   59.52  107058  121818531.0    9.59   4935230130   3115078785  0.300507   深A
+    3     688316  青云科技-U    20.0   83.63   83.63    70.0  13.94   6.87  -16.13    7440   60252880.0   69.69   3969261695    906141587  1.688316   沪A
+    4     688682     霍莱沃    20.0  181.18  181.18  164.51   30.2   5.03  385.91    3781   67140458.0  150.98   6703660000   1361951077  1.688682   沪A
+    ...      ...     ...     ...     ...     ...     ...    ...    ...     ...     ...          ...     ...          ...          ...       ...  ...
+    4589  300529    健帆生物  -10.63   61.62   69.84   61.39  -7.33    1.3    40.0   66955  430949056.0   68.95  49605885008  31670304487  0.300529   深A
+    4590  300118    东方日升  -10.91   18.04   19.73   17.66  -2.21    4.2   72.72  377588  695986288.0   20.25  16260533336  16226004776  0.300118   深A
+    4591  688390     固德威  -11.15  501.99   545.0  485.55 -63.01    3.1  157.93    6494  333857920.0   565.0  44175120000  10514394398  1.688390   沪A
+    4592  300511    雪榕生物   -11.8    6.95    7.33     6.9  -0.93   4.39    7.57  138677   97532444.0    7.88   3071284730   2195664516  0.300511   深A
+    4593  300763    锦浪科技  -14.13  249.45   278.0  249.01 -41.04   2.97  129.67   31904  825647776.0  290.49  61758892365  26779236033  0.300763   深A
+    
     """
 
     fields = ",".join(EASTMONEY_QUOTE_FIELDS.keys())
@@ -400,7 +400,7 @@ def get_realtime_quotes() -> pd.DataFrame:
         ('fields', fields)
     )
     # TODO 修改该接口，使得实时性更佳
-    url = 'http://12.push2.eastmoney.com/api/qt/clist/get'
+    url = 'http://push2.eastmoney.com/api/qt/clist/get'
     json_response = requests.get(url,
                                  headers=EASTMONEY_REQUEST_HEADERS,
                                  params=params).json()
@@ -422,7 +422,7 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
     Parameters
     ----------
     stock_code : str
-        6 位股票代码
+        股票代码
 
     Returns
     -------
@@ -433,29 +433,29 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
     --------
     >>> import efinance as ef
     >>> ef.stock.get_history_bill('600519')
-                日期         主力净流入       小单净流入         中单净流入         大单净流入        超大单净流入  主力净流入占比  小单流入净占比  中单流入净占比  大单流入净占比  超大单流入净占比      收盘价   涨跌幅
-    0    2021-03-03  1.273400e+07   -283810.0 -1.245021e+07 -6.085768e+08  6.213108e+08     0.11    -0.00    -0.11    -5.35      5.47  2120.71  4.02
-    1    2021-03-04 -3.670272e+06  -2282056.0  5.952143e+06  1.461528e+09 -1.465199e+09    -0.03    -0.02     0.04    10.99    -11.02  2013.71 -5.05
-    2    2021-03-05 -1.514880e+07  -1319066.0  1.646793e+07 -2.528896e+07  1.014016e+07    -0.12    -0.01     0.13    -0.19      0.08  2040.82  1.35
-    3    2021-03-08 -8.001702e+08   -877074.0  8.010473e+08  5.670671e+08 -1.367237e+09    -6.29    -0.01     6.30     4.46    -10.75  1940.71 -4.91
-    4    2021-03-09 -2.237770e+08  -6391767.0  2.301686e+08 -1.795013e+08 -4.427571e+07    -1.39    -0.04     1.43    -1.11     -0.27  1917.70 -1.19
-    ..          ...           ...         ...           ...           ...           ...      ...      ...      ...      ...       ...      ...   ...
-    97   2021-07-23 -4.748689e+08   1443137.0  4.734257e+08 -2.773973e+08 -1.974716e+08    -5.24     0.02     5.23    -3.06     -2.18  1900.00 -2.06
-    98   2021-07-26 -1.564233e+09  13142211.0  1.551091e+09 -1.270400e+08 -1.437193e+09    -8.74     0.07     8.67    -0.71     -8.03  1804.11 -5.05
-    99   2021-07-27 -7.803296e+08 -10424715.0  7.907544e+08  6.725104e+07 -8.475807e+08    -5.12    -0.07     5.19     0.44     -5.56  1712.89 -5.06
-    100  2021-07-28  3.997645e+08   2603511.0 -4.023677e+08  2.315648e+08  1.681997e+08     2.70     0.02    -2.72     1.57      1.14  1768.90  3.27
-    101  2021-07-29 -9.209842e+08  -2312235.0  9.232964e+08 -3.959741e+08 -5.250101e+08    -8.15    -0.02     8.17    -3.50     -4.65  1749.79 -1.08
+        股票名称    股票代码          日期         主力净流入       小单净流入         中单净流入         大单净流入        超大单净流入  主力净流入占比  小单流入净占比  中单流入净占比  大单流入净占比  超大单流入净占比      收盘价   涨跌幅
+    0    贵州茅台  600519  2021-03-04 -3.670272e+06  -2282056.0  5.952143e+06  1.461528e+09 -1.465199e+09    -0.03    -0.02     0.04    10.99    -11.02  2013.71 -5.05
+    1    贵州茅台  600519  2021-03-05 -1.514880e+07  -1319066.0  1.646793e+07 -2.528896e+07  1.014016e+07    -0.12    -0.01     0.13    -0.19      0.08  2040.82  1.35
+    2    贵州茅台  600519  2021-03-08 -8.001702e+08   -877074.0  8.010473e+08  5.670671e+08 -1.367237e+09    -6.29    -0.01     6.30     4.46    -10.75  1940.71 -4.91
+    3    贵州茅台  600519  2021-03-09 -2.237770e+08  -6391767.0  2.301686e+08 -1.795013e+08 -4.427571e+07    -1.39    -0.04     1.43    -1.11     -0.27  1917.70 -1.19
+    4    贵州茅台  600519  2021-03-10 -2.044173e+08  -1551798.0  2.059690e+08 -2.378506e+08  3.343331e+07    -2.02    -0.02     2.03    -2.35      0.33  1950.72  1.72
+    ..    ...     ...         ...           ...         ...           ...           ...           ...      ...      ...      ...      ...       ...      ...   ...
+    97   贵州茅台  600519  2021-07-26 -1.564233e+09  13142211.0  1.551091e+09 -1.270400e+08 -1.437193e+09    -8.74     0.07     8.67    -0.71     -8.03  1804.11 -5.05
+    98   贵州茅台  600519  2021-07-27 -7.803296e+08 -10424715.0  7.907544e+08  6.725104e+07 -8.475807e+08    -5.12    -0.07     5.19     0.44     -5.56  1712.89 -5.06
+    99   贵州茅台  600519  2021-07-28  3.997645e+08   2603511.0 -4.023677e+08  2.315648e+08  1.681997e+08     2.70     0.02    -2.72     1.57      1.14  1768.90  3.27
+    100  贵州茅台  600519  2021-07-29 -9.209842e+08  -2312235.0  9.232964e+08 -3.959741e+08 -5.250101e+08    -8.15    -0.02     8.17    -3.50     -4.65  1749.79 -1.08
+    101  贵州茅台  600519  2021-07-30 -1.524740e+09  -6020099.0  1.530761e+09  1.147248e+08 -1.639465e+09   -11.63    -0.05    11.68     0.88    -12.51  1678.99 -4.05
 
     """
 
     fields = list(EASTMONEY_HISTORY_BILL_FIELDS.keys())
     columns = list(EASTMONEY_HISTORY_BILL_FIELDS.values())
     fields2 = ",".join(fields)
-    secid = get_quote_id(stock_code)
+    quote_id = get_quote_id(stock_code)
     params = (
         ('lmt', '100000'),
         ('klt', '101'),
-        ('secid', secid),
+        ('secid', quote_id),
         ('fields1', 'f1,f2,f3,f7'),
         ('fields2', fields2),
 
@@ -465,12 +465,17 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
                                  headers=EASTMONEY_REQUEST_HEADERS,
                                  params=params).json()
 
-    data = json_response.get('data')
-    if data is None:
+    klines: List[str] = jsonpath(json_response, '$..klines[:]')
+    if not klines:
+        columns.insert(0, '股票代码')
+        columns.insert(0, '股票名称')
         return pd.DataFrame(columns=columns)
-    klines: List[str] = data['klines']
     rows = [kline.split(',') for kline in klines]
+    stock_name = jsonpath(json_response, '$..name')[0]
+    stock_code = quote_id.split('.')[-1]
     df = pd.DataFrame(rows, columns=columns)
+    df.insert(0, '股票代码', [stock_code for _ in range(len(df))])
+    df.insert(0, '股票名称', [stock_name for _ in range(len(df))])
 
     return df
 
@@ -519,13 +524,18 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     json_response = requests.get(url,
                                  headers=EASTMONEY_REQUEST_HEADERS,
                                  params=params).json()
-    data = json_response['data']
-    klines = data['klines']
     columns = ['时间', '主力净流入', '小单净流入', '中单净流入', '大单净流入', '超大单净流入']
-    klines: List[str] = data['klines']
+    stock_name = jsonpath(json_response, '$..name')[0]
+    stock_code = quote_id.split('.')[-1]
+    klines: List[str] = jsonpath(json_response, '$..klines[:]')
+    if not klines:
+        columns.insert(0, '股票代码')
+        columns.insert(0, '股票名称')
+        return pd.DataFrame(columns=columns)
     rows = [kline.split(',') for kline in klines]
     df = pd.DataFrame(rows, columns=columns)
-    df.insert(0, '股票代码', [quote_id.split('.')[-1] for _ in range(len(df))])
+    df.insert(0, '股票代码', [stock_code for _ in range(len(df))])
+    df.insert(0, '股票名称', [stock_name for _ in range(len(df))])
     return df
 
 
@@ -548,15 +558,16 @@ def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
     --------
     >>> import efinance as ef
     >>> ef.stock.get_latest_quote(['600519','300750'])
-        股票代码  股票名称            日期            开盘            收盘            最高            最低           成交量        成交额            振幅        涨跌幅           涨跌额        换手率
-    0  600519  贵州茅台  1.858496e+11  1.597864e+10  5.296600e+09  3.272842e+10  3.232885e+10  3.995697e+08  15.207088  1.752743e+11  81.440261  1.374964e+09   1.094545
-    1  300750  宁德时代  1.206223e+11  2.076009e+10  2.527780e+09  1.019879e+11  6.687712e+10  3.511077e+10  58.840670  6.564424e+10  37.872642  4.138079e+10  17.767560
+        股票代码  股票名称   涨跌幅      最新价       最高      最低    涨跌额   换手率   动态市盈率    成交量           成交额    昨日收盘            总市值           流通市值 市场类型
+    0  600519  贵州茅台 -3.13  1700.09  1738.99  1688.8 -54.91  0.11   43.31  13373  2.299199e+09  1755.0  2135649317802  2135649317802   沪A
+    1  300750  宁德时代 -2.21   539.80   556.00   531.0 -12.20  0.13  160.82  27011  1.458472e+09   552.0  1257198411520  1095654311636   深A
     """
     if isinstance(stock_codes, str):
         stock_codes = [stock_codes]
+    secids: List[str] = [get_quote_id(stock_code)
+                         for stock_code in stock_codes]
 
-    secids = ",".join([get_quote_id(code) for code in stock_codes])
-    columns = EASTMONEY_LATEST_QUOTE_FIELDS
+    columns = EASTMONEY_QUOTE_FIELDS
     fields = ",".join(columns.keys())
     params = (
         ('OSVersion', '14.3'),
@@ -565,20 +576,24 @@ def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
         ('fltt', '2'),
         ('plat', 'Iphone'),
         ('product', 'EFund'),
-        ('secids', secids),
+        ('secids', ",".join(secids)),
         ('serverVersion', '6.3.6'),
         ('version', '6.3.8'),
     )
     url = 'https://push2.eastmoney.com/api/qt/ulist.np/get'
-    response = requests.get(url,
-                            headers=EASTMONEY_REQUEST_HEADERS,
-                            params=params)
+    json_response = requests.get(url,
+                                 headers=EASTMONEY_REQUEST_HEADERS,
+                                 params=params).json()
 
-    data = response.json()['data']
-    if data is None:
-        return pd.DataFrame(columns=columns.values())
-    diff = data['diff']
-    df = pd.DataFrame(diff)[columns.keys()].rename(columns=columns)
+    rows = jsonpath(json_response, '$..diff[:]')
+    if rows is None:
+        return pd.DataFrame(columns=columns.values()).rename({
+            '市场编号': '市场类型'
+        })
+
+    df = pd.DataFrame(rows)[columns.keys()].rename(columns=columns)
+    df['市场类型'] = df['市场编号'].apply(lambda x: MARET_NUMBER_DICT.get(str(x)))
+    del df['市场编号']
     return df
 
 

@@ -9,6 +9,7 @@ import multitasking
 import signal
 from .config import EastmoneyFundHeaders
 from ..utils import to_numeric
+from jsonpath import jsonpath
 signal.signal(signal.SIGINT, multitasking.killall)
 
 
@@ -45,7 +46,7 @@ def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     1471 2015-06-04  0.9970  0.9970      --
     1472 2015-05-29  0.9950  0.9950      --
     1473 2015-05-27  1.0000  1.0000      --
-    
+
     """
 
     data = {
@@ -137,20 +138,19 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
         'product': 'EFund',
         'version': '6.2.8',
     }
-
+    columns = {
+        'FCODE': '基金代码',
+        'SHORTNAME': '基金名称',
+        'GSZZL': '估算涨跌幅',
+        'GZTIME': '估算时间'
+    }
     json_response = requests.get(
         'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo', headers=EastmoneyFundHeaders, data=data).json()
-    data_list = json_response['Datas']
-
-    columns = ['基金代码', '名称', '估算涨跌幅', '估算时间']
-    rows = []
-    for fund in data_list:
-        code = fund['FCODE']
-        name = fund['SHORTNAME']
-        rate = fund['GSZZL']
-        gztime = fund['GZTIME']
-        rows.append([code, name, rate, gztime])
-    df = pd.DataFrame(rows, columns=columns)
+    rows = jsonpath(json_response, '$..Datas[:]')
+    if not rows:
+        df = pd.DataFrame(columns=columns.values())
+        return df
+    df = pd.DataFrame(rows).rename(columns=columns)
     return df
 
 
@@ -263,7 +263,7 @@ def get_inverst_position(fund_code: str, dates: Union[str, List[str]] = None) ->
     9  161725  603589   口子窖   2.48  -0.38  2021-06-30
     >>> # 获取近 2 个公开持仓日数据
     >>> public_dates = ef.fund.get_public_dates('161725')
-    >>> ef.fund.get_inverst_postion('161725',public_dates[:2])
+    >>> ef.fund.get_inverst_position('161725',public_dates[:2])
         基金代码    股票代码  股票简称   持仓占比  较上期变化        公开日期
     0  161725  000568  泸州老窖  15.98   1.27  2021-03-31
     1  161725  600519  贵州茅台  15.02   2.35  2021-03-31
@@ -313,17 +313,17 @@ def get_inverst_position(fund_code: str, dates: Union[str, List[str]] = None) ->
         if date is not None:
             params.append(('DATE', date))
         params = tuple(params)
-        response = requests.get('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition',
-                                headers=EastmoneyFundHeaders, params=params)
-        stocks = response.json()['Datas']['fundStocks']
-
-        if stocks is None or len(stocks) == 0:
+        json_response = requests.get('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition',
+                                     headers=EastmoneyFundHeaders, params=params).json()
+        stocks = jsonpath(json_response, '$..fundStocks[:]')
+        if not stocks:
             continue
-        date = response.json()['Expansion']
+        date = json_response['Expansion']
         _df = pd.DataFrame(stocks)
-        _df = _df[list(columns.keys())].rename(columns=columns)
+        _df = _df.rename(columns=columns)
         _df['公开日期'] = [date for _ in range(len(_df))]
         df = pd.concat([df, _df], axis=0)
+    df = df[columns.values()]
     df.insert(0, '基金代码', [fund_code for _ in range(len(df))])
     return df
 
@@ -552,7 +552,8 @@ def get_base_info_single(fund_code: str) -> pd.Series:
         'FSRQ': '净值更新日期',
         'COMMENTS': '简介',
     }
-    s = pd.Series(json_response['Datas']).rename(index=columns)
+    s = pd.Series(json_response['Datas']).rename(
+        index=columns)[columns.values()]
     s = s.apply(lambda x: x.replace('\n', ' ').strip()
                 if isinstance(x, str) else x)
     return s
@@ -612,25 +613,23 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
     Examples
     --------
     >>> import efinance as ef
-    >>> # 获取单只基金基本信息
     >>> ef.fund.get_base_info('161725')
-    基金代码                                                161725
-    基金简称                                        招商中证白酒指数(LOF)A
-    FTYPE                                                 股票指数
-    FEATURE                                    020,050,051,054
-    BFUNDTYPE                                              001
-                                        ...
-    HSGRT                                                0.10%
-    BENCH                 中证白酒指数收益率*95%+金融机构人民币活期存款基准利率(税后)*5%
-    FINSALES                                                 0
-    INVESTMENTIDEAR                                         --
-    INVESTMENTIDEARIMG                                      --
-    Length: 118, dtype: object
+    基金代码                                 161725
+    基金简称                         招商中证白酒指数(LOF)A
+    成立日期                             2015-05-27
+    涨跌幅                                   -6.03
+    最新净值                                 1.1959
+    基金公司                                   招商基金
+    净值更新日期                           2021-07-30
+    简介        产品特色：布局白酒领域的指数基金，历史业绩优秀，外资偏爱白酒板块。
+    dtype: object
+
     >>> # 获取多只基金基本信息
     >>> ef.fund.get_base_info(['161725','005827'])
-        基金代码            基金简称 FTYPE  ... FINSALES INVESTMENTIDEAR INVESTMENTIDEARIMG
-    0  005827       易方达蓝筹精选混合   混合型  ...        0              --                 --
-    1  161725  招商中证白酒指数(LOF)A  股票指数  ...        0              --                 --
+        基金代码            基金简称        成立日期   涨跌幅    最新净值   基金公司      净值更新日期                                    简介00:00,  6.38it/s]
+    0  005827       易方达蓝筹精选混合  2018-09-05 -2.98  2.4967  易方达基金  2021-07-30  明星消费基金经理另一力作，A+H股同步布局，价值投资典范，适合长期持有。
+    1  161725  招商中证白酒指数(LOF)A  2015-05-27 -6.03  1.1959   招商基金  2021-07-30     产品特色：布局白酒领域的指数基金，历史业绩优秀，外资偏爱白酒板块。
+    
     """
 
     if isinstance(fund_codes, str):
@@ -641,7 +640,8 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
 
 
 @to_numeric
-def get_industry_distribution(fund_code: str, dates: Union[str, List[str]] = None) -> pd.DataFrame:
+def get_industry_distribution(fund_code: str,
+                              dates: Union[str, List[str]] = None) -> pd.DataFrame:
     """
     获取指定基金行业分布信息
 
@@ -731,7 +731,9 @@ def get_industry_distribution(fund_code: str, dates: Union[str, List[str]] = Non
     return df
 
 
-def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') -> None:
+def get_pdf_reports(fund_code: str,
+                    max_count: int = 12,
+                    save_dir: str = 'pdf') -> None:
     """
     根据基金代码获取其全部 pdf 报告
 
