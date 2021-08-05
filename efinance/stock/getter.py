@@ -13,7 +13,7 @@ from .config import (EASTMONEY_KLINE_FIELDS,
                      EASTMONEY_HISTORY_BILL_FIELDS,
                      EASTMONEY_QUOTE_FIELDS,
                      EASTMONEY_STOCK_BASE_INFO_FIELDS)
-
+from ..shared import session
 signal.signal(signal.SIGINT, multitasking.killall)
 
 
@@ -42,9 +42,9 @@ def get_base_info_single(stock_code: str) -> pd.Series:
 
     )
     url = 'http://push2.eastmoney.com/api/qt/stock/get'
-    json_response = requests.get(url,
-                                 headers=EASTMONEY_REQUEST_HEADERS,
-                                 params=params).json()
+    json_response = session.get(url,
+                                headers=EASTMONEY_REQUEST_HEADERS,
+                                params=params).json()
 
     s = pd.Series(json_response['data']).rename(
         index=EASTMONEY_STOCK_BASE_INFO_FIELDS)
@@ -189,7 +189,7 @@ def get_quote_history_single(stock_code: str,
 
     url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
 
-    json_response = requests.get(
+    json_response = session.get(
         url, headers=EASTMONEY_REQUEST_HEADERS, params=params).json()
     klines: List[str] = jsonpath(json_response, '$..klines[:]')
     if not klines:
@@ -383,7 +383,7 @@ def get_realtime_quotes() -> pd.DataFrame:
     4591  688390     固德威  -11.15  501.99   545.0  485.55 -63.01    3.1  157.93    6494  333857920.0   565.0  44175120000  10514394398  1.688390   沪A
     4592  300511    雪榕生物   -11.8    6.95    7.33     6.9  -0.93   4.39    7.57  138677   97532444.0    7.88   3071284730   2195664516  0.300511   深A
     4593  300763    锦浪科技  -14.13  249.45   278.0  249.01 -41.04   2.97  129.67   31904  825647776.0  290.49  61758892365  26779236033  0.300763   深A
-    
+
     """
 
     fields = ",".join(EASTMONEY_QUOTE_FIELDS.keys())
@@ -401,9 +401,9 @@ def get_realtime_quotes() -> pd.DataFrame:
     )
     # TODO 修改该接口，使得实时性更佳
     url = 'http://push2.eastmoney.com/api/qt/clist/get'
-    json_response = requests.get(url,
-                                 headers=EASTMONEY_REQUEST_HEADERS,
-                                 params=params).json()
+    json_response = session.get(url,
+                                headers=EASTMONEY_REQUEST_HEADERS,
+                                params=params).json()
     df = (pd.DataFrame(json_response['data']['diff'])
           .rename(columns=EASTMONEY_QUOTE_FIELDS)
           [columns])
@@ -461,9 +461,9 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
 
     )
     url = 'http://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get'
-    json_response = requests.get(url,
-                                 headers=EASTMONEY_REQUEST_HEADERS,
-                                 params=params).json()
+    json_response = session.get(url,
+                                headers=EASTMONEY_REQUEST_HEADERS,
+                                params=params).json()
 
     klines: List[str] = jsonpath(json_response, '$..klines[:]')
     if not klines:
@@ -521,9 +521,9 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
         ('fields2', 'f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63'),
     )
     url = 'http://push2.eastmoney.com/api/qt/stock/fflow/kline/get'
-    json_response = requests.get(url,
-                                 headers=EASTMONEY_REQUEST_HEADERS,
-                                 params=params).json()
+    json_response = session.get(url,
+                                headers=EASTMONEY_REQUEST_HEADERS,
+                                params=params).json()
     columns = ['时间', '主力净流入', '小单净流入', '中单净流入', '大单净流入', '超大单净流入']
     stock_name = jsonpath(json_response, '$..name')[0]
     stock_code = quote_id.split('.')[-1]
@@ -581,9 +581,9 @@ def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
         ('version', '6.3.8'),
     )
     url = 'https://push2.eastmoney.com/api/qt/ulist.np/get'
-    json_response = requests.get(url,
-                                 headers=EASTMONEY_REQUEST_HEADERS,
-                                 params=params).json()
+    json_response = session.get(url,
+                                headers=EASTMONEY_REQUEST_HEADERS,
+                                params=params).json()
 
     rows = jsonpath(json_response, '$..diff[:]')
     if rows is None:
@@ -632,21 +632,20 @@ def get_top10_stock_holder_info(stock_code: str,
     9  600519  2021-03-31  78083830      珠海市瑞丰汇邦资产管理有限公司-瑞丰汇邦三号私募证券投资基金  416.1万   0.33%       不变      --
     """
 
-    def gen_fc(quote_id: str) -> str:
+    def gen_fc(stock_code: str) -> str:
         """
 
         Parameters
         ----------
-        quote_id : str
-            行情ID
+        stock_code : str
+            股票代码
 
         Returns
         -------
         str
             指定格式的字符串
         """
-
-        _type = quote_id.split('.')[0]
+        _type, stock_code = get_quote_id(stock_code).split('.')
         _type = int(_type)
         # 深市
         if _type == 0:
@@ -654,8 +653,7 @@ def get_top10_stock_holder_info(stock_code: str,
         # 沪市
         return f'{stock_code}01'
 
-    def get_public_dates(stock_code: str,
-                         top: int = 4) -> List[str]:
+    def get_public_dates(stock_code: str) -> List[str]:
         """
         获取指定股票公开股东信息的日期
 
@@ -663,8 +661,6 @@ def get_top10_stock_holder_info(stock_code: str,
         ----------
         stock_code : str
             股票代码
-        top : int, optional
-            最新的 top 个日期, 默认为 4
 
         Returns
         -------
@@ -672,28 +668,16 @@ def get_top10_stock_holder_info(stock_code: str,
             持仓公开日期列表
         """
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 color=b eastmoney_ios appversion_9.3 pkg=com.eastmoney.iphone mainBagVersion=9.3 statusBarHeight=20.000000 titleBarHeight=44.000000 density=2.000000 fontsize=3',
-            'Content-Type': 'application/json;charset=utf-8',
-            'Host': 'emh5.eastmoney.com',
-            'Origin': 'null',
-            'Cache-Control': 'public',
-        }
         quote_id = get_quote_id(stock_code)
         stock_code = quote_id.split('.')[-1]
         fc = gen_fc(stock_code)
         data = {"fc": fc}
         url = 'https://emh5.eastmoney.com/api/GuBenGuDong/GetFirstRequest2Data'
         json_response = requests.post(
-            url, headers=headers, json=data).json()
-        items: list[dict] = json_response['Result']['SDLTGDBGQ']
-        items = items.get('ShiDaLiuTongGuDongBaoGaoQiList')
-        if items is None:
+            url,  json=data).json()
+        dates = jsonpath(json_response, f'$..BaoGaoQi')
+        if not dates:
             return []
-        df = pd.DataFrame(items)
-        if 'BaoGaoQi' not in df:
-            return []
-        dates = df['BaoGaoQi'][:top]
         return dates
 
     fields = {
@@ -705,38 +689,28 @@ def get_top10_stock_holder_info(stock_code: str,
         'BianDongBiLi': '变动率',
 
     }
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 color=b eastmoney_ios appversion_9.3 pkg=com.eastmoney.iphone mainBagVersion=9.3 statusBarHeight=20.000000 titleBarHeight=44.000000 density=2.000000 fontsize=3',
-        'Content-Type': 'application/json;charset=utf-8',
-        'Host': 'emh5.eastmoney.com',
-        'Origin': 'null',
-        'Cache-Control': 'public',
-    }
+    quote_id = get_quote_id(stock_code)
+    stock_code = quote_id.split('.')[-1]
     fc = gen_fc(stock_code)
     dates = get_public_dates(stock_code)
     dfs: List[pd.DataFrame] = []
+    empty_df = pd.DataFrame(columns=['股票代码', '日期']+list(fields.values()))
+
     for date in dates[:top]:
         data = {"fc": fc, "BaoGaoQi": date}
         url = 'https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong'
-        response = requests.post(url,
-                                 headers=headers,
-                                 json=data)
+        response = requests.post(url, json=data)
         response.encoding = 'utf-8'
-
-        try:
-            items: list[dict] = response.json(
-            )['Result']['ShiDaLiuTongGuDongList']
-
-        except:
-            df = pd.DataFrame(columns=fields.values())
-            df.insert(0, '股票代码', [stock_code for _ in range(len(df))])
-            df.insert(1, '更新日期', [date for _ in range(len(df))])
-            return df
+        items: List[dict] = jsonpath(
+            response.json(), f'$..ShiDaLiuTongGuDongList[:]')
+        if not items:
+            continue
         df = pd.DataFrame(items)
         df.rename(columns=fields, inplace=True)
         df.insert(0, '股票代码', [stock_code for _ in range(len(df))])
         df.insert(1, '更新日期', [date for _ in range(len(df))])
         del df['IsLink']
         dfs.append(df)
-
+    if len(dfs) == 0:
+        return empty_df
     return pd.concat(dfs, axis=0)

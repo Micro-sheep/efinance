@@ -147,9 +147,9 @@
 
     <span class="p">)</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get&#39;</span>
-    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
-                                 <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
-                                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">json_response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                                <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
+                                <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
     <span class="n">klines</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsonpath</span><span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="s1">&#39;$..klines[:]&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">klines</span><span class="p">:</span>
@@ -256,9 +256,9 @@
         <span class="p">(</span><span class="s1">&#39;fields2&#39;</span><span class="p">,</span> <span class="s1">&#39;f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63&#39;</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://push2.eastmoney.com/api/qt/stock/fflow/kline/get&#39;</span>
-    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
-                                 <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
-                                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">json_response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                                <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
+                                <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;时间&#39;</span><span class="p">,</span> <span class="s1">&#39;主力净流入&#39;</span><span class="p">,</span> <span class="s1">&#39;小单净流入&#39;</span><span class="p">,</span> <span class="s1">&#39;中单净流入&#39;</span><span class="p">,</span> <span class="s1">&#39;大单净流入&#39;</span><span class="p">,</span> <span class="s1">&#39;超大单净流入&#39;</span><span class="p">]</span>
     <span class="n">stock_name</span> <span class="o">=</span> <span class="n">jsonpath</span><span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="s1">&#39;$..name&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">stock_code</span> <span class="o">=</span> <span class="n">quote_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -365,9 +365,9 @@
         <span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="s1">&#39;6.3.8&#39;</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://push2.eastmoney.com/api/qt/ulist.np/get&#39;</span>
-    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
-                                 <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
-                                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">json_response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                                <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
+                                <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
     <span class="n">rows</span> <span class="o">=</span> <span class="n">jsonpath</span><span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="s1">&#39;$..diff[:]&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rows</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -629,7 +629,7 @@ k线间距 默认为 101 即日k
 <span class="sd">    4591  688390     固德威  -11.15  501.99   545.0  485.55 -63.01    3.1  157.93    6494  333857920.0   565.0  44175120000  10514394398  1.688390   沪A</span>
 <span class="sd">    4592  300511    雪榕生物   -11.8    6.95    7.33     6.9  -0.93   4.39    7.57  138677   97532444.0    7.88   3071284730   2195664516  0.300511   深A</span>
 <span class="sd">    4593  300763    锦浪科技  -14.13  249.45   278.0  249.01 -41.04   2.97  129.67   31904  825647776.0  290.49  61758892365  26779236033  0.300763   深A</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">EASTMONEY_QUOTE_FIELDS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -647,9 +647,9 @@ k线间距 默认为 101 即日k
     <span class="p">)</span>
     <span class="c1"># TODO 修改该接口，使得实时性更佳</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://push2.eastmoney.com/api/qt/clist/get&#39;</span>
-    <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
-                                 <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
-                                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">json_response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
+                                <span class="n">headers</span><span class="o">=</span><span class="n">EASTMONEY_REQUEST_HEADERS</span><span class="p">,</span>
+                                <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;diff&#39;</span><span class="p">])</span>
           <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">EASTMONEY_QUOTE_FIELDS</span><span class="p">)</span>
           <span class="p">[</span><span class="n">columns</span><span class="p">])</span>
@@ -737,21 +737,20 @@ k线间距 默认为 101 即日k
 <span class="sd">    9  600519  2021-03-31  78083830      珠海市瑞丰汇邦资产管理有限公司-瑞丰汇邦三号私募证券投资基金  416.1万   0.33%       不变      --</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">gen_fc</span><span class="p">(</span><span class="n">quote_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">gen_fc</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        quote_id : str</span>
-<span class="sd">            行情ID</span>
+<span class="sd">        stock_code : str</span>
+<span class="sd">            股票代码</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
 <span class="sd">            指定格式的字符串</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">_type</span> <span class="o">=</span> <span class="n">quote_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">_type</span><span class="p">,</span> <span class="n">stock_code</span> <span class="o">=</span> <span class="n">get_quote_id</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
         <span class="n">_type</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_type</span><span class="p">)</span>
         <span class="c1"># 深市</span>
         <span class="k">if</span> <span class="n">_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -759,8 +758,7 @@ k线间距 默认为 101 即日k
         <span class="c1"># 沪市</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">stock_code</span><span class="si">}</span><span class="s1">01&#39;</span>
 
-    <span class="k">def</span> <span class="nf">get_public_dates</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                         <span class="n">top</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_public_dates</span><span class="p">(</span><span class="n">stock_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        获取指定股票公开股东信息的日期</span>
 
@@ -768,8 +766,6 @@ k线间距 默认为 101 即日k
 <span class="sd">        ----------</span>
 <span class="sd">        stock_code : str</span>
 <span class="sd">            股票代码</span>
-<span class="sd">        top : int, optional</span>
-<span class="sd">            最新的 top 个日期, 默认为 4</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -777,28 +773,16 @@ k线间距 默认为 101 即日k
 <span class="sd">            持仓公开日期列表</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 color=b eastmoney_ios appversion_9.3 pkg=com.eastmoney.iphone mainBagVersion=9.3 statusBarHeight=20.000000 titleBarHeight=44.000000 density=2.000000 fontsize=3&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json;charset=utf-8&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;Host&#39;</span><span class="p">:</span> <span class="s1">&#39;emh5.eastmoney.com&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;Origin&#39;</span><span class="p">:</span> <span class="s1">&#39;null&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;Cache-Control&#39;</span><span class="p">:</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span>
-        <span class="p">}</span>
         <span class="n">quote_id</span> <span class="o">=</span> <span class="n">get_quote_id</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
         <span class="n">stock_code</span> <span class="o">=</span> <span class="n">quote_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">fc</span> <span class="o">=</span> <span class="n">gen_fc</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fc&quot;</span><span class="p">:</span> <span class="n">fc</span><span class="p">}</span>
         <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://emh5.eastmoney.com/api/GuBenGuDong/GetFirstRequest2Data&#39;</span>
         <span class="n">json_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_response</span><span class="p">[</span><span class="s1">&#39;Result&#39;</span><span class="p">][</span><span class="s1">&#39;SDLTGDBGQ&#39;</span><span class="p">]</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ShiDaLiuTongGuDongBaoGaoQiList&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">items</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">url</span><span class="p">,</span>  <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="n">jsonpath</span><span class="p">(</span><span class="n">json_response</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;$..BaoGaoQi&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dates</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s1">&#39;BaoGaoQi&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
-        <span class="n">dates</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;BaoGaoQi&#39;</span><span class="p">][:</span><span class="n">top</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">dates</span>
 
     <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
@@ -810,40 +794,30 @@ k线间距 默认为 101 即日k
         <span class="s1">&#39;BianDongBiLi&#39;</span><span class="p">:</span> <span class="s1">&#39;变动率&#39;</span><span class="p">,</span>
 
     <span class="p">}</span>
-    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 color=b eastmoney_ios appversion_9.3 pkg=com.eastmoney.iphone mainBagVersion=9.3 statusBarHeight=20.000000 titleBarHeight=44.000000 density=2.000000 fontsize=3&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json;charset=utf-8&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Host&#39;</span><span class="p">:</span> <span class="s1">&#39;emh5.eastmoney.com&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Origin&#39;</span><span class="p">:</span> <span class="s1">&#39;null&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Cache-Control&#39;</span><span class="p">:</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="n">quote_id</span> <span class="o">=</span> <span class="n">get_quote_id</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
+    <span class="n">stock_code</span> <span class="o">=</span> <span class="n">quote_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">fc</span> <span class="o">=</span> <span class="n">gen_fc</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
     <span class="n">dates</span> <span class="o">=</span> <span class="n">get_public_dates</span><span class="p">(</span><span class="n">stock_code</span><span class="p">)</span>
     <span class="n">dfs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">empty_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;股票代码&#39;</span><span class="p">,</span> <span class="s1">&#39;日期&#39;</span><span class="p">]</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">fields</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
     <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">dates</span><span class="p">[:</span><span class="n">top</span><span class="p">]:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fc&quot;</span><span class="p">:</span> <span class="n">fc</span><span class="p">,</span> <span class="s2">&quot;BaoGaoQi&quot;</span><span class="p">:</span> <span class="n">date</span><span class="p">}</span>
         <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong&#39;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span>
-                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-                                 <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="n">response</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="s1">&#39;utf-8&#39;</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">(</span>
-            <span class="p">)[</span><span class="s1">&#39;Result&#39;</span><span class="p">][</span><span class="s1">&#39;ShiDaLiuTongGuDongList&#39;</span><span class="p">]</span>
-
-        <span class="k">except</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">fields</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;股票代码&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">stock_code</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))])</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;更新日期&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">date</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))])</span>
-            <span class="k">return</span> <span class="n">df</span>
+        <span class="n">items</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsonpath</span><span class="p">(</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="sa">f</span><span class="s1">&#39;$..ShiDaLiuTongGuDongList[:]&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
+            <span class="k">continue</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
         <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">fields</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;股票代码&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">stock_code</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))])</span>
         <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;更新日期&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">date</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))])</span>
         <span class="k">del</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;IsLink&#39;</span><span class="p">]</span>
         <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">empty_df</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 

@@ -8,7 +8,8 @@ import pandas as pd
 from collections import namedtuple
 from retry.api import retry
 from ..config import SEARCH_RESULT_CACHE_PATH
-from ..shared import SEARCH_RESULT_DICT
+from ..shared import (SEARCH_RESULT_DICT,
+                      session)
 
 
 def to_numeric(func):
@@ -112,7 +113,7 @@ def search_quote(keyword: str,
         ('type', '14'),
         ('token', 'D43BF722C8E33BDC906FB84D85E326E8'),
         ('count', f'{count}'))
-    json_response = requests.get(url, params=params).json()
+    json_response = session.get(url, params=params).json()
     items = json_response['QuotationCodeTable']['Data']
     if items is not None:
         quotes = [Quote(*item.values()) for item in items]

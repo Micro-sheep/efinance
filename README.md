@@ -356,10 +356,27 @@ dict_keys(['115.ZC109', '115.ZCM'])
 
 ## Docs
 
-更多使用例子详见文档 [![docs](https://img.shields.io/badge/efinance-docs-blue)](https://micro-sheep.github.io/efinance/efinance.html)
+API 文档 [![docs](https://img.shields.io/badge/efinance-docs-blue)](https://micro-sheep.github.io/efinance/efinance.html)
+
+如果需要本地使用，则可以使用 `pdoc` 进行文档生成
+步骤如下
+
+- 安装必要依赖
+
+```bash
+pip install pdoc efinance --upgrade
+```
+
+- 生成文档
+
+```bash
+pdoc efinance -d numpy
+```
+
+进行以上步骤之后，你将可以在弹出的浏览器界面看到文档。
 
 ## Contact
 
 [![zhihu](https://img.shields.io/badge/知乎-blue)](https://www.zhihu.com/people/la-ge-lang-ri-96-69)
 [![Github](https://img.shields.io/badge/Github-blue?style=social&logo=github)](https://github.com/Micro-sheep)
-[![Email](https://img.shields.io/badge/Email-blue)](mailto:micro-sheep@qq.com)
+[![Email](https://img.shields.io/badge/Email-blue)](mailto:micro-sheep@outlook.com)
