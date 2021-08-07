@@ -81,32 +81,6 @@ def get_quote_history_single(secid: str,
     """
     获取期货历史行情信息
 
-    Parameters
-    ----------
-    secid : str
-        根据 efinance.Futures.get_futures_base_info 函数获取
-    beg : str, optional
-        开始日期，默认为 '19000101'，表示 1900年1月1日
-    end : str, optional
-        结束日期，默认为 '20500101'，表示 2050年1月1日
-    klt : int, optional
-        行情之间的时间间隔
-        可选示例如下
-            klt : 1 1 分钟
-            klt : 5 5 分钟
-            klt : 101 日
-            klt : 102 周
-    fqt : int, optional
-        复权方式，默认为 1
-        可选示例如下
-            不复权 : 0
-            前复权 : 1
-            后复权 : 2 
-
-    Returns
-    -------
-    DataFrame
-        指定日期区间的期货历史行情信息
     """
 
     fields = list(EASTMONEY_KLINE_FIELDS.keys())
@@ -150,34 +124,6 @@ def get_quote_history_multi(secids: List[str],
     """
     获取多个期货历史行情信息
 
-    Parameters
-    ----------
-    secids : List[str]
-        多个 期货 secid 列表
-    beg : str, optional
-        开始日期，默认为 '19000101'，表示 1900年1月1日
-    end : str, optional
-        结束日期，默认为 '20500101'，表示 2050年1月1日
-    klt : int, optional
-        行情之间的时间间隔
-        可选示例如下
-            klt : 1 1 分钟
-            klt : 5 5 分钟
-            klt : 101 日
-            klt : 102 周
-    fqt : int, optional
-        复权方式，默认为 1
-        可选示例如下
-            不复权 : 0
-            前复权 : 1
-            后复权 : 2 
-    tries : int, optional
-        单个线程出错时重试次数, 默认为  3
-
-    Returns
-    -------
-    Dict[str, pd.DataFrame]
-        以 期货 secid 为 key，以 DataFrame 为值的 dict
     """
 
     dfs: Dict[str, pd.DataFrame] = {}
@@ -213,38 +159,38 @@ def get_quote_history(secids: Union[str, List[str]],
     secids : Union[str, List[str]]
         一个期货 secid，或者多个期货 secid构成的列表
     beg : str, optional
-        开始日期，默认为 '19000101'，表示 1900年1月1日
+        开始日期，默认为 ``'19000101'`` ，表示 1900年1月1日
     end : str, optional
-        结束日期，默认为 '20500101'，表示 2050年1月1日
+        结束日期，默认为 ``'20500101'`` ，表示 2050年1月1日
     klt : int, optional
-        行情之间的时间间隔
-        可选示例如下
-            klt : 1 1 分钟
-            klt : 5 5 分钟
-            klt : 101 日
-            klt : 102 周
+        行情之间的时间间隔，默认为 ``101`` ，可选示例如下
+
+            - ``1`` : 分钟
+            - ``5`` : 5 分钟
+            - ``101`` : 日
+            - ``102`` : 周
     fqt : int, optional
-        复权方式，默认为 1
-        可选示例如下
-            不复权 : 0
-            前复权 : 1
-            后复权 : 2 
-    tries : int, optional
-        单个线程出错时重试次数, 默认为  3
+        复权方式，默认为 ``1`` ，可选示例如下
+
+            - ``0`` : 不复权
+            - ``1`` : 前复权
+            - ``2`` : 后复权
 
     Returns
     -------
-    Dict[str, DataFrame]
-        以 期货 secid 为 key，以 DataFrame 为值的 dict
+    Union[DataFrame, Dict[str, DataFrame]]
+        期货的 K 线数据
 
-    Returns
-    -------
-    DataFrame
+            - ``DataFrame`` : 当 ``secids`` 是 ``str`` 时
+            - ``Dict[str, DataFrame]`` : 当 ``secids`` 是 ``List[str]`` 时
+
 
     Raises
     ------
     TypeError
+
         当 secids 不符合类型要求时
+
     Examples
     --------
     >>> import efinance as ef

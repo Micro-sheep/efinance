@@ -1,0 +1,3 @@
+myst_parser
+numpydoc
+sphinx_automodapi

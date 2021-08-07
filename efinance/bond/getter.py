@@ -85,8 +85,10 @@ def get_base_info(bond_codes: Union[str, List[str]]) -> Union[pd.DataFrame, pd.S
     Returns
     -------
     Union[DataFrame, Series]
-        DataFrame : 当 bond_codes 是字符串列表时
-        Series : 当 bond_codes 是字符串时
+        单只或多只可转债基本信息
+
+            - ``DataFrame`` : 当 ``bond_codes`` 是字符串列表时
+            - ``Series`` : 当 ``bond_codes`` 是字符串时
 
     Examples
     --------
@@ -130,7 +132,7 @@ def get_all_base_info() -> pd.DataFrame:
     Returns
     -------
     DataFrame
-        包含可转债一些基本信息
+        可转债一些基本信息
 
     Examples
     --------

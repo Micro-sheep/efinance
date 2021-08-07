@@ -29,7 +29,8 @@ def get_base_info_single(stock_code: str) -> pd.Series:
 
     Returns
     -------
-    Series : 包含单只股票基本信息
+    Series
+        单只股票基本信息
 
     """
     fields = ",".join(EASTMONEY_STOCK_BASE_INFO_FIELDS.keys())
@@ -63,7 +64,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
     Returns
     -------
     DataFrame
-        包含多只股票基本信息
+        多只股票基本信息
     """
 
     @multitasking.task
@@ -93,15 +94,14 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
     Returns
     -------
     Union[Series, DataFrame]
-        Series 
-            包含单只股票基本信息(当 stock_codes 是字符串时)
-        DataFrane
-            包含多只股票基本信息(当 stock_codes 是字符串列表时)
+
+        - ``Series`` : 包含单只股票基本信息(当 ``stock_codes`` 是字符串时)
+        - ``DataFrane`` : 包含多只股票基本信息(当 ``stock_codes`` 是字符串列表时)
 
     Raises
     ------
     TypeError
-        当 stock_codes 类型不符合要求时
+        当 ``stock_codes`` 类型不符合要求时
 
     Examples
     --------
@@ -146,30 +146,6 @@ def get_quote_history_single(stock_code: str,
     """
     获取单只股票k线数据
 
-    Parameters
-    ----------
-    stock_code : str
-        股票代码
-    beg : str, optional
-        开始日期 例如 20200101
-    end : str, optional
-        结束日期 例如 20200201
-    klt : int, optional
-        k线间距 默认为 101 即日k
-            klt : 1 1 分钟
-            klt : 5 5 分钟
-            klt : 101 日
-            klt : 102 周
-    fqt : int, optional
-        复权方式
-            不复权 : 0
-            前复权 : 1
-            后复权 : 2 
-
-    Returns
-    -------
-    DataFrame
-        包含股票k线数据
     """
 
     fields = list(EASTMONEY_KLINE_FIELDS.keys())
@@ -214,32 +190,6 @@ def get_quote_history_multi(stock_codes: List[str],
     """
     获取多只股票历史行情信息
 
-    Parameters
-    ----------
-    stock_code : str
-        6 位股票代码
-    beg : str, optional
-        开始日期 例如 20200101
-    end : str, optional
-        结束日期 例如 20200201
-    klt : int, optional
-        k线间距 默认为 101 即日k
-            klt : 1 1 分钟
-            klt : 5 5 分钟
-            klt : 101 日
-            klt : 102 周
-    fqt : int, optional
-        复权方式
-            不复权 : 0
-            前复权 : 1
-            后复权 : 2 
-    tries : int, optional
-        失败某个线程出错时重试次数
-
-    Returns
-    -------
-    Dict[str, DataFrame]
-        以 股票代码为 key，以 DataFrame 为 value 的 dict
     """
 
     dfs: Dict[str, pd.DataFrame] = {}
@@ -270,7 +220,7 @@ def get_quote_history(stock_codes: Union[str, List[str]],
                       beg: str = '19000101',
                       end: str = '20500101',
                       klt: int = 101,
-                      fqt: int = 1) -> pd.DataFrame:
+                      fqt: int = 1) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
     获取股票、ETF、债券的 K 线数据
 
@@ -279,26 +229,30 @@ def get_quote_history(stock_codes: Union[str, List[str]],
     stock_codes : Union[str,List[str]]
         股票、ETF、债券代码 或者 代码构成的列表
     beg : str, optional
-        开始日期 例如 20200101
+        开始日期，默认为 ``'19000101'`` ，表示 1900年1月1日
     end : str, optional
-        结束日期 例如 20200201
+        结束日期，默认为 ``'20500101'`` ，表示 2050年1月1日
     klt : int, optional
-        k线间距 默认为 101 即日k
-            klt : 1 1 分钟
-            klt : 5 5 分钟
-            klt : 101 日
-            klt : 102 周
+        行情之间的时间间隔，默认为 ``101`` ，可选示例如下
+
+            - ``1`` : 分钟
+            - ``5`` : 5 分钟
+            - ``101`` : 日
+            - ``102`` : 周
     fqt : int, optional
-        复权方式
-            不复权 : 0
-            前复权 : 1
-            后复权 : 2 
+        复权方式，默认为 ``1`` ，可选示例如下
+
+            - ``0`` : 不复权
+            - ``1`` : 前复权
+            - ``2`` : 后复权
 
     Returns
     -------
-    DataFrame
-        包含股票k线数据
+    Union[DataFrame, Dict[str, DataFrame]]
+        股票、ETF、或者债券的 K 线数据
 
+            - ``DataFrame`` : 当 ``stock_codes`` 是 ``str`` 时
+            - ``Dict[str, DataFrame]`` : 当 ``stock_codes`` 是 ``List[str]`` 时
     Examples
     --------
     >>> import efinance as ef
@@ -365,7 +319,7 @@ def get_realtime_quotes() -> pd.DataFrame:
     Returns
     -------
     DataFrame
-        包含沪深全市场A股上市公司的最新行情信息（涨跌幅、换手率等信息）
+        沪深全市场A股上市公司的最新行情信息（涨跌幅、换手率等信息）
 
     Examples
     --------
@@ -427,7 +381,7 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
     Returns
     -------
     DataFrame
-        包含沪深市场单只股票历史单子流入流出数据
+        沪深市场单只股票历史单子流入流出数据
 
     Examples
     --------
@@ -483,7 +437,7 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
 @to_numeric
 def get_today_bill(stock_code: str) -> pd.DataFrame:
     """
-    获取最新交易日单只股票最新交易日单子流入流出数据
+    获取单只股票最新交易日的日内分钟级单子流入流出数据
 
     Parameters
     ----------
@@ -493,7 +447,7 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     Returns
     -------
     DataFrame
-        包含沪深市场单只股票最新交易日的单子流入流出数据
+        单只股票最新交易日的日内分钟级单子流入流出数据
     Examples
     --------
     >>> import efinance as ef
@@ -552,7 +506,7 @@ def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
     Returns
     -------
     DataFrame
-        包含沪深市场多只股票的实时涨幅情况
+        沪深市场多只股票的实时涨幅情况
 
     Examples
     --------
@@ -561,6 +515,10 @@ def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
         股票代码  股票名称   涨跌幅      最新价       最高      最低    涨跌额   换手率   动态市盈率    成交量           成交额    昨日收盘            总市值           流通市值 市场类型
     0  600519  贵州茅台 -3.13  1700.09  1738.99  1688.8 -54.91  0.11   43.31  13373  2.299199e+09  1755.0  2135649317802  2135649317802   沪A
     1  300750  宁德时代 -2.21   539.80   556.00   531.0 -12.20  0.13  160.82  27011  1.458472e+09   552.0  1257198411520  1095654311636   深A
+
+    Notes
+    -----
+    当需要获取多只沪深 A 股 的实时涨跌情况时，最好使用 ``efinance.stock.get_realtime_quptes``
     """
     if isinstance(stock_codes, str):
         stock_codes = [stock_codes]
@@ -608,12 +566,12 @@ def get_top10_stock_holder_info(stock_code: str,
     stock_code : str
         股票代码
     top : int, optional
-        最新 top 个前 10 大流通股东公开信息, 默认为 4
+        最新 top 个前 10 大流通股东公开信息, 默认为  ``4``
 
     Returns
     -------
     DataFrame
-        包含个股持仓占比前 10 的股东的一些信息
+        个股持仓占比前 10 的股东的一些信息
 
     Examples
     --------

@@ -1,6 +1,7 @@
 # Folders
 __pycache__/
 *.egg-info*
+_build
 build
 dist
 .vscode/
