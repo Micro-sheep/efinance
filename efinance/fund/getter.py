@@ -109,6 +109,7 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
     -------
     DataFrame
         单只或者多只基金实时估算涨跌情况
+
     Examples
     --------
     >>> import efinance as ef
@@ -163,9 +164,9 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
     ft : str, optional
         基金类型可选示例如下
 
-            - ``'zq'`` : 债券类型基金
-            - ``'gp'`` : 股票类型基金
-            - ``None`` : 全部
+        - ``'zq'`` : 债券类型基金
+        - ``'gp'`` : 股票类型基金
+        - ``None`` : 全部
 
     Returns
     -------
@@ -241,9 +242,9 @@ def get_inverst_position(fund_code: str,
         日期或者日期构成的列表
         可选示例如下
 
-            - ``None`` : 最新公开日期
-            - ``'2020-01-01'`` : 一个公开持仓日期
-            - ``['2020-12-31' ,'2019-12-31']`` : 多个公开持仓日期
+        - ``None`` : 最新公开日期
+        - ``'2020-01-01'`` : 一个公开持仓日期
+        - ``['2020-12-31' ,'2019-12-31']`` : 多个公开持仓日期
 
 
     Returns
@@ -347,6 +348,7 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
     -------
     DataFrame
         指定基金的阶段涨跌数据
+        
     Examples
     --------
     >>> import efinance as ef
@@ -420,6 +422,7 @@ def get_public_dates(fund_code: str) -> List[str]:
     -------
     List[str]
         指定基金公开持仓的日期列表
+
     Examples
     --------
     >>> import efinance as ef
@@ -460,9 +463,9 @@ def get_types_persentage(fund_code: str,
     dates : Union[List[str], str, None]
         可选值类型示例如下(后面有获取 dates 的例子)
 
-            - ``None`` : 最新公开日期
-            - ``'2020-01-01'`` : 一个公开持仓日期
-            - ``['2020-12-31' ,'2019-12-31']`` : 多个公开持仓日期
+        - ``None`` : 最新公开日期
+        - ``'2020-01-01'`` : 一个公开持仓日期
+        - ``['2020-12-31' ,'2019-12-31']`` : 多个公开持仓日期
 
 
     Returns
@@ -611,13 +614,14 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
     Union[Series, DataFrame]
         基金的一些基本信息
 
-            - ``Series`` : 包含单只基金基本信息(当 ``fund_codes`` 是字符串时)
-            - ``DataFrane`` : 包含多只股票基本信息(当 ``fund_codes`` 是字符串列表时)
+        - ``Series`` : 包含单只基金基本信息(当 ``fund_codes`` 是字符串时)
+        - ``DataFrane`` : 包含多只股票基本信息(当 ``fund_codes`` 是字符串列表时)
 
     Raises
     ------
     TypeError
         当 fund_codes 类型不符合要求时
+
     Examples
     --------
     >>> import efinance as ef
@@ -661,9 +665,9 @@ def get_industry_distribution(fund_code: str,
         日期
         可选示例如下
 
-            - ``None`` : 最新公开日期
-            - ``'2020-01-01'`` : 一个公开持仓日期
-            - ``['2020-12-31' ,'2019-12-31']`` : 多个公开持仓日期
+        - ``None`` : 最新公开日期
+        - ``'2020-01-01'`` : 一个公开持仓日期
+        - ``['2020-12-31' ,'2019-12-31']`` : 多个公开持仓日期
 
     Returns
     -------
@@ -754,6 +758,7 @@ def get_pdf_reports(fund_code: str,
         要获取的最大个数个 pdf (从最新的的开始数), 默认为 ``12``
     save_dir : str, optional
         pdf 保存的文件夹路径, 默认为 ``'pdf'``
+
     Examples
     --------
     >>> import efinance as ef

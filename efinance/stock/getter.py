@@ -235,24 +235,26 @@ def get_quote_history(stock_codes: Union[str, List[str]],
     klt : int, optional
         行情之间的时间间隔，默认为 ``101`` ，可选示例如下
 
-            - ``1`` : 分钟
-            - ``5`` : 5 分钟
-            - ``101`` : 日
-            - ``102`` : 周
+        - ``1`` : 分钟
+        - ``5`` : 5 分钟
+        - ``101`` : 日
+        - ``102`` : 周
+
     fqt : int, optional
         复权方式，默认为 ``1`` ，可选示例如下
 
-            - ``0`` : 不复权
-            - ``1`` : 前复权
-            - ``2`` : 后复权
+        - ``0`` : 不复权
+        - ``1`` : 前复权
+        - ``2`` : 后复权
 
     Returns
     -------
     Union[DataFrame, Dict[str, DataFrame]]
         股票、ETF、或者债券的 K 线数据
 
-            - ``DataFrame`` : 当 ``stock_codes`` 是 ``str`` 时
-            - ``Dict[str, DataFrame]`` : 当 ``stock_codes`` 是 ``List[str]`` 时
+        - ``DataFrame`` : 当 ``stock_codes`` 是 ``str`` 时
+        - ``Dict[str, DataFrame]`` : 当 ``stock_codes`` 是 ``List[str]`` 时
+
     Examples
     --------
     >>> import efinance as ef
@@ -448,6 +450,7 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     -------
     DataFrame
         单只股票最新交易日的日内分钟级单子流入流出数据
+        
     Examples
     --------
     >>> import efinance as ef
