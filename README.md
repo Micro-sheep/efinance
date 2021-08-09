@@ -4,6 +4,7 @@
 [![Pypi Package](https://img.shields.io/pypi/v/efinance.svg?maxAge=60)](https://pypi.python.org/pypi/efinance)
 [![Pypi-Install](https://img.shields.io/pypi/dm/efinance.svg?maxAge=2592000&label=installs&color=%2327B1FF)](https://github.com/Micro-sheep/efinance)
 [![Docs](https://readthedocs.org/projects/efinance/badge/?version=latest)](https://efinance.readthedocs.io)
+[![CodeFactor](https://www.codefactor.io/repository/github/micro-sheep/efinance/badge)](https://www.codefactor.io/repository/github/micro-sheep/efinance/overview/main)
 [![Github Stars](https://img.shields.io/github/stars/Micro-sheep/efinance.svg?style=social&label=Star&maxAge=60)](https://github.com/Micro-sheep/efinance)
 
 [efinance](https://github.com/Micro-sheep/efinance) 是由个人打造的用于获取股票、基金、期货数据的免费开源 Python 库，你可以使用它很方便地获取数据以便更好地服务于个人的交易系统需求。
@@ -359,24 +360,8 @@ dict_keys(['115.ZC109', '115.ZCM'])
 
 在线 API 文档 [![docs](https://img.shields.io/badge/efinance-docs-blue)](https://efinance.readthedocs.io/)
 
-如果需要本地使用，则可以使用 `pdoc` 进行文档生成
-步骤如下
+如果需要本地使用，则可以使用 `sphinx` 来构建 `efinance` 的文档
 
-- 安装必要依赖
-
-```bash
-pip install pdoc efinance --upgrade
-```
-
-- 生成文档
-
-```bash
-pdoc efinance -d numpy
-```
-
-进行以上步骤之后，你将可以在弹出的浏览器界面看到文档。
-
-同时，你也可以使用 `sphinx` 来构建 `efinance` 的文档
 步骤如下
 
 - 克隆本仓库到本地
@@ -394,7 +379,31 @@ pip install -r requirements.txt --upgrade
 sphinx-build . ./build -b html
 ```
 
-经过以上步骤，你将会在 `docs/build` 下看的生成的 html 文档
+以上默认构建英文文档，如需构建中文文档，则最后一行代码改为
+
+```bash
+sphinx-build . ./build -b html  -D language=zh
+```
+
+经过以上步骤，你将会在 `docs/build` 下看的生成的 `html` 文档
+
+同时，你也可以使用 `pdoc` 来构建 `efinance` 的文档
+
+步骤如下
+
+- 安装必要依赖
+
+```bash
+pip install pdoc efinance --upgrade
+```
+
+- 生成文档
+
+```bash
+pdoc efinance -d numpy
+```
+
+进行以上步骤之后，你将可以在弹出的浏览器界面看到 `efinance` 的文档。
 
 ## Contact
 

@@ -237,8 +237,12 @@ def get_quote_history(stock_codes: Union[str, List[str]],
 
         - ``1`` : 分钟
         - ``5`` : 5 分钟
+        - ``15`` : 15 分钟
+        - ``30`` : 30 分钟
+        - ``60`` : 60 分钟
         - ``101`` : 日
         - ``102`` : 周
+        - ``103`` : 月
 
     fqt : int, optional
         复权方式，默认为 ``1`` ，可选示例如下
@@ -292,6 +296,7 @@ def get_quote_history(stock_codes: Union[str, List[str]],
     4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577  1.523081e+10  5.93 -5.06 -91.22   0.69
     4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68
     4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51
+
     """
 
     if isinstance(stock_codes, str):
@@ -307,10 +312,9 @@ def get_quote_history(stock_codes: Union[str, List[str]],
                                        end=end,
                                        klt=klt,
                                        fqt=fqt)
-    else:
-        raise TypeError(
-            '股票代码类型数据输入不正确！'
-        )
+    raise TypeError(
+        '股票代码类型数据输入不正确！'
+    )
 
 
 @to_numeric
@@ -355,7 +359,6 @@ def get_realtime_quotes() -> pd.DataFrame:
         ('fs', 'm:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23'),
         ('fields', fields)
     )
-    # TODO 修改该接口，使得实时性更佳
     url = 'http://push2.eastmoney.com/api/qt/clist/get'
     json_response = session.get(url,
                                 headers=EASTMONEY_REQUEST_HEADERS,
@@ -450,7 +453,7 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     -------
     DataFrame
         单只股票最新交易日的日内分钟级单子流入流出数据
-        
+
     Examples
     --------
     >>> import efinance as ef

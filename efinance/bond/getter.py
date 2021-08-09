@@ -7,7 +7,6 @@ from ..config import MARET_NUMBER_DICT
 import requests
 from typing import List, Union
 from ..utils import to_numeric
-import requests
 
 
 @to_numeric

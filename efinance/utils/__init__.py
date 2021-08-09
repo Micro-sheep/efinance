@@ -1,7 +1,5 @@
 import json
-import pandas as pd
 import re
-import requests
 from typing import Union, List
 from functools import wraps
 import pandas as pd
@@ -120,8 +118,7 @@ def search_quote(keyword: str,
         save_search_result(keyword, quotes)
         if count == 1:
             return quotes[0]
-        else:
-            return quotes
+        return quotes
     return None
 
 
