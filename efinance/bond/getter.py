@@ -3,7 +3,7 @@ import pandas as pd
 from .config import (EASTMONEY_REQUEST_HEADERS,
                      EASTMONEY_BOND_QUOTE_FIELDS,
                      EASTMONEY_BOND_BASE_INFO_FIELDS)
-from ..config import MARET_NUMBER_DICT
+from ..config import MARKET_NUMBER_DICT
 import requests
 from typing import List, Union
 from ..utils import to_numeric
@@ -230,6 +230,6 @@ def get_realtime_quotes() -> pd.DataFrame:
           [EASTMONEY_BOND_QUOTE_FIELDS.values()])
     df['行情ID'] = df['市场编号'].astype(str)+'.'+df['债券代码'].astype(str)
     df['市场类型'] = df['市场编号'].astype(str).apply(
-        lambda x: MARET_NUMBER_DICT.get(str(x)))
+        lambda x: MARKET_NUMBER_DICT.get(str(x)))
     del df['市场编号']
     return df

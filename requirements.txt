@@ -4,3 +4,4 @@ pandas
 retry
 multitasking
 jsonpath
+rich

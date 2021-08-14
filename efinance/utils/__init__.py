@@ -5,6 +5,7 @@ from functools import wraps
 import pandas as pd
 from collections import namedtuple
 from retry.api import retry
+import rich
 from ..config import SEARCH_RESULT_CACHE_PATH
 from ..shared import (SEARCH_RESULT_DICT,
                       session)
@@ -82,7 +83,8 @@ def get_quote_id(stock_code: str) -> str:
     if isinstance(quote, Quote):
         return quote.quote_id
     if quote is None:
-        raise Exception(f'证券代码 {stock_code} 可能有误')
+        rich.print(f'证券代码 {stock_code} 可能有误')
+        return ''
 
 
 def search_quote(keyword: str,
@@ -95,7 +97,7 @@ def search_quote(keyword: str,
     keyword : str
         搜索词(股票代码、债券代码甚至证券名称都可以)
     count : int, optional
-        最多搜索结果数, by default 1
+        最多搜索结果数, 默认为 `1`
 
     Returns
     -------
@@ -103,7 +105,7 @@ def search_quote(keyword: str,
 
     """
     quote = search_quote_locally(keyword)
-    if quote:
+    if count == 1 and quote:
         return quote
     url = 'https://searchapi.eastmoney.com/api/suggest/get'
     params = (
