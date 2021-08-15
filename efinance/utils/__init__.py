@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Union, List
+from typing import Callable, Dict, Union, List
 from functools import wraps
 import pandas as pd
 from collections import namedtuple
@@ -150,6 +150,60 @@ def save_search_result(keyword: str, quotes: List[Quote]):
         for quote in quotes:
             SEARCH_RESULT_DICT[keyword] = quote._asdict()
         json.dump(SEARCH_RESULT_DICT.copy(), f)
+
+
+def rename_dataframe_and_series(fields: dict):
+    """
+    重命名 DataFrame 和 Series 的列名的装饰器
+
+    Parameters
+    ----------
+    fields : dict
+
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            values = func(*args, **kwargs)
+            if isinstance(values, pd.DataFrame):
+                values = values.rename(columns=fields)[fields.values()]
+            elif isinstance(values, pd.Series):
+                values = values.rename(fields)
+            return values
+        return wrapper
+    return decorator
+
+
+def process_dataframe_and_series(function_fields: Dict[str, Callable] = dict(),
+                                 remove_columns_and_indexes: List[str] = list()):
+    """
+    对 DataFrame 和 Series 进一步操作
+
+    Parameters
+    ----------
+    function_fields : Dict[str, Callable], optional
+        函数字典
+    remove_columns_and_indexes : List[str], optional
+        需要删除的行或者列, by default list()
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            values = func(*args, **kwargs)
+            if isinstance(values, pd.DataFrame):
+                for column, function_name in function_fields.items():
+                    if column not in values.columns:
+                        continue
+                    values[column] = values[column].apply(function_name)
+                for column in remove_columns_and_indexes:
+                    if column in values.columns:
+                        del values[column]
+            elif isinstance(values, pd.Series):
+                for index in remove_columns_and_indexes:
+                    values = values.drop(index)
+            return values
+        return wrapper
+    return decorator
 
 
 __all__ = []
