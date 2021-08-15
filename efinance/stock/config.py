@@ -15,5 +15,4 @@ EASTMONEY_STOCK_BASE_INFO_FIELDS = {
     'f187': '净利率',
     'f105': '净利润',
     'f186': '毛利率'
-
 }
