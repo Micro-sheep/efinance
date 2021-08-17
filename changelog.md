@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+## Fixed
+
+- 修复创建缓存文件夹出错的问题
+
+---
+
 ## v0.3.5 (2021-08-15)
 
 ### Added
