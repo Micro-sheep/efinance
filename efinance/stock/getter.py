@@ -83,7 +83,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
         s = get_base_info_single(stock_code)
         dfs.append(s)
         pbar.update()
-        pbar.set_description(f'Processing {stock_code}')
+        pbar.set_description(f'Processing => {stock_code}')
     dfs: List[pd.DataFrame] = []
     pbar = tqdm(total=len(stock_codes))
     for stock_code in stock_codes:
@@ -550,7 +550,7 @@ def get_top10_stock_holder_info(stock_code: str,
         dfs.append(df)
     if len(dfs) == 0:
         return empty_df
-    return pd.concat(dfs, axis=0)
+    return pd.concat(dfs, axis=0, ignore_index=True)
 
 
 def get_all_report_dates() -> pd.DataFrame:
@@ -738,6 +738,6 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
         df = pd.DataFrame(items)
         dfs.append(df)
         page += 1
-    df = pd.concat(dfs, ignore_index=True)
+    df = pd.concat(dfs, axis=0, ignore_index=True)
     df = df.rename(columns=fields)[fields.values()]
     return df

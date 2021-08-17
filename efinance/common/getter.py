@@ -80,14 +80,16 @@ def get_quote_history_single(code: str,
         url, headers=EASTMONEY_REQUEST_HEADERS, params=params).json()
     klines: List[str] = jsonpath(json_response, '$..klines[:]')
     if not klines:
-        columns.extend(['名称', '代码'])
+        columns.insert(0, '代码')
+        columns.insert(0, '名称')
         return pd.DataFrame(columns=columns)
+
     rows = [kline.split(',') for kline in klines]
-    stock_name = json_response['data']['name']
+    name = json_response['data']['name']
     code = quote_id.split('.')[-1]
     df = pd.DataFrame(rows, columns=columns)
-    df.insert(0, '代码', [code] * len(df))
-    df.insert(0, '名称', [stock_name] * len(df))
+    df.insert(0, '代码', code)
+    df.insert(0, '名称', name)
 
     return df
 
@@ -108,26 +110,25 @@ def get_quote_history_multi(codes: List[str],
 
     @multitasking.task
     @retry(tries=tries, delay=1)
-    def start(stock_code: str):
+    def start(code: str):
         _df = get_quote_history_single(
-            stock_code,
+            code,
             beg=beg,
             end=end,
             klt=klt,
             fqt=fqt)
-        dfs[stock_code] = _df
+        dfs[code] = _df
         pbar.update(1)
-        pbar.set_description_str(f'Processing: {stock_code}')
+        pbar.set_description_str(f'Processing => {code}')
 
     pbar = tqdm(total=total)
-    for stock_code in codes:
-        start(stock_code)
+    for code in codes:
+        start(code)
     multitasking.wait_for_tasks()
     pbar.close()
     return dfs
 
 
-@to_numeric
 def get_quote_history(codes: Union[str, List[str]],
                       beg: str = '19000101',
                       end: str = '20500101',
@@ -170,7 +171,6 @@ def get_quote_history(codes: Union[str, List[str]],
 
         - ``DataFrame`` : 当 ``codes`` 是 ``str`` 时
         - ``Dict[str, DataFrame]`` : 当 ``codes`` 是 ``List[str]`` 时
-
 
     """
 
@@ -232,11 +232,11 @@ def get_history_bill(code: str) -> pd.DataFrame:
         columns.insert(0, '名称')
         return pd.DataFrame(columns=columns)
     rows = [kline.split(',') for kline in klines]
-    stock_name = jsonpath(json_response, '$..name')[0]
-    stock_code = quote_id.split('.')[-1]
+    name = jsonpath(json_response, '$..name')[0]
+    code = quote_id.split('.')[-1]
     df = pd.DataFrame(rows, columns=columns)
-    df.insert(0, '代码', [stock_code for _ in range(len(df))])
-    df.insert(0, '名称', [stock_name for _ in range(len(df))])
+    df.insert(0, '代码', code)
+    df.insert(0, '名称', name)
 
     return df
 
@@ -271,7 +271,7 @@ def get_today_bill(code: str) -> pd.DataFrame:
                                 headers=EASTMONEY_REQUEST_HEADERS,
                                 params=params).json()
     columns = ['时间', '主力净流入', '小单净流入', '中单净流入', '大单净流入', '超大单净流入']
-    stock_name = jsonpath(json_response, '$..name')[0]
+    name = jsonpath(json_response, '$..name')[0]
     code = quote_id.split('.')[-1]
     klines: List[str] = jsonpath(json_response, '$..klines[:]')
     if not klines:
@@ -280,6 +280,6 @@ def get_today_bill(code: str) -> pd.DataFrame:
         return pd.DataFrame(columns=columns)
     rows = [kline.split(',') for kline in klines]
     df = pd.DataFrame(rows, columns=columns)
-    df.insert(0, '代码', [code for _ in range(len(df))])
-    df.insert(0, '名称', [stock_name for _ in range(len(df))])
+    df.insert(0, '代码', code)
+    df.insert(0, '名称', name)
     return df
