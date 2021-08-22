@@ -1,3 +1,4 @@
+from ..utils import process_dataframe_and_series
 import multitasking
 import pandas as pd
 import requests
@@ -190,6 +191,7 @@ def get_all_base_info() -> pd.DataFrame:
     return df
 
 
+@process_dataframe_and_series(remove_columns_and_indexes=['市场编号'])
 @to_numeric
 def get_realtime_quotes() -> pd.DataFrame:
     """
@@ -219,8 +221,9 @@ def get_realtime_quotes() -> pd.DataFrame:
 
     """
     df = get_realtime_quotes_by_fs(FS_DICT['bond'])
-    df = df.rename(columns={'代码': '债券代码',
-                            '名称': '债券名称'})
+    df.rename(columns={'代码': '债券代码',
+                       '名称': '债券名称'},
+              inplace=True)
     return df
 
 

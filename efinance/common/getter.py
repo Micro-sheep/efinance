@@ -1,3 +1,4 @@
+from ..common.config import MARKET_NUMBER_DICT
 from jsonpath import jsonpath
 from retry import retry
 from typing import Dict, List, Union
@@ -10,12 +11,10 @@ from .config import (EASTMONEY_QUOTE_FIELDS,
                      EASTMONEY_REQUEST_HEADERS,
                      EASTMONEY_KLINE_FIELDS,
                      EASTMONEY_HISTORY_BILL_FIELDS)
-from ..utils import (rename_dataframe_and_series,
-                     get_quote_id)
+from ..utils import get_quote_id
 
 
 @to_numeric
-@rename_dataframe_and_series(EASTMONEY_QUOTE_FIELDS)
 def get_realtime_quotes_by_fs(fs: str) -> pd.DataFrame:
     """
     获取沪深市场最新行情总体情况
@@ -44,6 +43,11 @@ def get_realtime_quotes_by_fs(fs: str) -> pd.DataFrame:
                                 headers=EASTMONEY_REQUEST_HEADERS,
                                 params=params).json()
     df = pd.DataFrame(json_response['data']['diff'])
+    df = df.rename(columns=EASTMONEY_QUOTE_FIELDS)
+    df = df[EASTMONEY_QUOTE_FIELDS.values()]
+    df['行情ID'] = df['市场编号'].astype(str)+'.'+df['代码'].astype('str')
+    df['市场类型'] = df['市场编号'].astype(str).apply(
+        lambda x: MARKET_NUMBER_DICT.get(x))
 
     return df
 
@@ -53,7 +57,8 @@ def get_quote_history_single(code: str,
                              beg: str = '19000101',
                              end: str = '20500101',
                              klt: int = 101,
-                             fqt: int = 1) -> pd.DataFrame:
+                             fqt: int = 1,
+                             **kwargs) -> pd.DataFrame:
     """
     获取单只股票、债券 K 线数据
 
@@ -62,7 +67,10 @@ def get_quote_history_single(code: str,
     fields = list(EASTMONEY_KLINE_FIELDS.keys())
     columns = list(EASTMONEY_KLINE_FIELDS.values())
     fields2 = ",".join(fields)
-    quote_id = get_quote_id(code)
+    if kwargs.get('quote_id_mode'):
+        quote_id = code
+    else:
+        quote_id = get_quote_id(code)
     params = (
         ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
         ('fields2', fields2),
@@ -99,7 +107,9 @@ def get_quote_history_multi(codes: List[str],
                             end: str = '20500101',
                             klt: int = 101,
                             fqt: int = 1,
-                            tries: int = 3) -> Dict[str, pd.DataFrame]:
+                            tries: int = 3,
+                            **kwargs
+                            ) -> Dict[str, pd.DataFrame]:
     """
     获取多只股票、债券历史行情信息
 
@@ -116,7 +126,8 @@ def get_quote_history_multi(codes: List[str],
             beg=beg,
             end=end,
             klt=klt,
-            fqt=fqt)
+            fqt=fqt,
+            **kwargs)
         dfs[code] = _df
         pbar.update(1)
         pbar.set_description_str(f'Processing => {code}')
@@ -133,7 +144,8 @@ def get_quote_history(codes: Union[str, List[str]],
                       beg: str = '19000101',
                       end: str = '20500101',
                       klt: int = 101,
-                      fqt: int = 1) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
+                      fqt: int = 1,
+                      **kwargs) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
     获取股票、ETF、债券的 K 线数据
 
@@ -179,14 +191,17 @@ def get_quote_history(codes: Union[str, List[str]],
                                         beg=beg,
                                         end=end,
                                         klt=klt,
-                                        fqt=fqt)
+                                        fqt=fqt,
+                                        **kwargs)
+
     elif hasattr(codes, '__iter__'):
         codes = list(codes)
         return get_quote_history_multi(codes,
                                        beg=beg,
                                        end=end,
                                        klt=klt,
-                                       fqt=fqt)
+                                       fqt=fqt,
+                                       **kwargs)
     raise TypeError(
         '代码数据类型输入不正确！'
     )

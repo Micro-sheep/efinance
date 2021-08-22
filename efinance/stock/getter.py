@@ -1,3 +1,4 @@
+from ..utils import process_dataframe_and_series
 import rich
 from jsonpath import jsonpath
 from retry import retry
@@ -254,6 +255,7 @@ def get_quote_history(stock_codes: Union[str, List[str]],
     return df
 
 
+@process_dataframe_and_series(remove_columns_and_indexes=['市场编号'])
 @to_numeric
 def get_realtime_quotes() -> pd.DataFrame:
     """
@@ -283,9 +285,10 @@ def get_realtime_quotes() -> pd.DataFrame:
     """
     fs = FS_DICT['stock']
     df = get_realtime_quotes_by_fs(fs)
-    df = df.rename(columns={'代码': '股票代码',
-                            '名称': '股票名称'
-                            })
+    df.rename(columns={'代码': '股票代码',
+                       '名称': '股票名称'
+                       }, inplace=True)
+
     return df
 
 

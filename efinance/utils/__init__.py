@@ -83,7 +83,7 @@ def get_quote_id(stock_code: str) -> str:
     if isinstance(quote, Quote):
         return quote.quote_id
     if quote is None:
-        rich.print(f'证券代码 {stock_code} 可能有误')
+        rich.print(f'证券代码 "{stock_code}" 可能有误')
         return ''
 
 
@@ -146,29 +146,57 @@ def search_quote_locally(keyword: str) -> Union[Quote, None]:
 
 
 def save_search_result(keyword: str, quotes: List[Quote]):
+    """
+    存储搜索结果到文件中
+
+    Parameters
+    ----------
+    keyword : str
+        搜索词
+    quotes : List[Quote]
+        搜索结果
+    """
     with open(SEARCH_RESULT_CACHE_PATH, 'w', encoding='utf-8') as f:
         for quote in quotes:
             SEARCH_RESULT_DICT[keyword] = quote._asdict()
         json.dump(SEARCH_RESULT_DICT.copy(), f)
 
 
-def rename_dataframe_and_series(fields: dict):
+def rename_dataframe_and_series(fields: dict,
+                                to_be_removed: List[str] = [],
+                                keep_all: bool = True):
     """
     重命名 DataFrame 和 Series 的列名的装饰器
 
     Parameters
     ----------
     fields : dict
-
+        新的表头
+    to_be_removed : List[str], optional
+        要移除的列, by default []
+    keep_all : bool, optional
+        是保存全部列(包含未重命名的列), by default True
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             values = func(*args, **kwargs)
             if isinstance(values, pd.DataFrame):
-                values = values.rename(columns=fields)[fields.values()]
+                columns = list(fields.values())
+                if keep_all:
+                    for column in values.columns:
+                        if column not in columns:
+                            columns.append(column)
+                    values = values.rename(columns=fields)[columns]
+                else:
+                    values = values.rename(columns=fields)[columns]
+                for column in values:
+                    if column in to_be_removed:
+                        del values[column]
             elif isinstance(values, pd.Series):
                 values = values.rename(fields)
+
             return values
         return wrapper
     return decorator

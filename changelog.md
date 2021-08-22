@@ -1,11 +1,18 @@
 # Changelog
 
-## [Unreleased]
+## v0.3.6 (2021-08-21)
 
 ## Fixed
 
 - 修复创建缓存文件夹出错的问题
+
+## Changed
+
 - 简化部分代码
+
+## Added
+
+- 为 `futures` 模块添加实时行情获取功能
 
 ---
 
