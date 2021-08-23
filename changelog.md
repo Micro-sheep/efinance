@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+## Add
+
+- 添加使用 `docker` 安装的方法说明
+
 ## v0.3.6 (2021-08-21)
 
 ## Fixed

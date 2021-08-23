@@ -1,0 +1,9 @@
+version: "3"
+services:
+  app:
+    build:
+      context: .
+    # 环境变量文件
+    env_file: ./.env
+    # 项目工作目录(可在 .env 文件中找到定义)
+    working_dir: ${APP_WORKING_DIR}
