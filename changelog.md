@@ -5,6 +5,11 @@
 ## Add
 
 - 添加使用 `docker` 安装的方法说明
+- 添加获取沪深 A 股股东数量的功能
+
+## Change
+
+- 为函数 `efinance.stock.get_all_company_performance` 添加更多字段
 
 ## v0.3.6 (2021-08-21)
 
