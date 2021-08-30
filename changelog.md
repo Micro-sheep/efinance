@@ -1,11 +1,17 @@
 # Changelog
 
-## [Unreleased]
+## v0.3.7
 
 ## Add
 
 - 添加使用 `docker` 安装的方法说明
 - 添加获取沪深 A 股股东数量的功能
+- 为 `stock` 模块添加龙虎榜数据获取功能
+
+## Fixed
+
+- 修复 `fund` 模块获取基金代码的函数产生的 bug
+- 修复 `fund` 模块中获取基金涨幅估计函数产生的 bug
 
 ## Change
 

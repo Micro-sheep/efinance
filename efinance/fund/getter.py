@@ -154,7 +154,7 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
     if not rows:
         df = pd.DataFrame(columns=columns.values())
         return df
-    df = pd.DataFrame(rows).rename(columns=columns)
+    df = pd.DataFrame(rows).rename(columns=columns)[columns.values()]
     return df
 
 
@@ -225,9 +225,9 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
         url,
         headers=headers,
         params=params)
-    results = re.findall('(\d{6}),(.*?),', response.text)
+
     columns = ['基金代码', '基金简称']
-    results = re.findall('(\d{6}),(.*?),', response.text)
+    results = re.findall('"(\d{6}),(.*?),', response.text)
     df = pd.DataFrame(results, columns=columns)
     return df
 
@@ -854,3 +854,4 @@ def get_pdf_reports(fund_code: str,
     multitasking.wait_for_tasks()
     pbar.close()
     print(f'{fund_code} 的 pdf 文件已存储到文件夹 {save_dir}/{fund_code} 中')
+
