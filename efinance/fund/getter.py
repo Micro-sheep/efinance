@@ -115,13 +115,15 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
     >>> import efinance as ef
     >>> # 单只基金
     >>> ef.fund.get_realtime_increase_rate('161725')
-        基金代码              名称  估算涨跌幅              估算时间
-    0  161725  招商中证白酒指数(LOF)A  -0.64  2021-06-15 11:13
+        基金代码            基金名称    最新净值    最新净值公开日期              估算时间  估算涨跌幅
+    0  161725  招商中证白酒指数(LOF)A  2.8856  2021-09-07  2021-09-07 15:00   0.64
+
     >>> # 多只基金
     >>> ef.fund.get_realtime_increase_rate(['161725','005827'])
-        基金代码              名称  估算涨跌幅              估算时间
-    0  161725  招商中证白酒指数(LOF)A  -0.60  2021-06-15 11:16
-    1  005827       易方达蓝筹精选混合  -1.36  2021-06-15 11:16
+        基金代码            基金名称    最新净值    最新净值公开日期              估算时间  估算涨跌幅
+    0  161725  招商中证白酒指数(LOF)A  2.8856  2021-09-07  2021-09-07 15:00   0.64
+    1  005827       易方达蓝筹精选混合  2.5704  2021-09-07  2021-09-07 15:00   0.67
+    
     """
 
     if not isinstance(fund_codes, list):
@@ -142,8 +144,10 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
     columns = {
         'FCODE': '基金代码',
         'SHORTNAME': '基金名称',
-        'GSZZL': '估算涨跌幅',
-        'GZTIME': '估算时间'
+        'ACCNAV': '最新净值',
+        'PDATE': '最新净值公开日期',
+        'GZTIME': '估算时间',
+        'GSZZL': '估算涨跌幅'
     }
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo'
     json_response = requests.get(
@@ -854,4 +858,3 @@ def get_pdf_reports(fund_code: str,
     multitasking.wait_for_tasks()
     pbar.close()
     print(f'{fund_code} 的 pdf 文件已存储到文件夹 {save_dir}/{fund_code} 中')
-

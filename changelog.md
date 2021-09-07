@@ -1,8 +1,14 @@
 # Changelog
 
+## [Unreleased] (2021-09-07)
+
+## Changed
+
+- 为 `fund` 模块的获取实时基金涨幅估计函数添加更多字段
+
 ## v0.3.7
 
-## Add
+## Added
 
 - 添加使用 `docker` 安装的方法说明
 - 添加获取沪深 A 股股东数量的功能
@@ -13,7 +19,7 @@
 - 修复 `fund` 模块获取基金代码的函数产生的 bug
 - 修复 `fund` 模块中获取基金涨幅估计函数产生的 bug
 
-## Change
+## Changed
 
 - 为函数 `efinance.stock.get_all_company_performance` 添加更多字段
 
