@@ -727,17 +727,6 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
     dfs: List[pd.DataFrame] = []
     while 1:
         params = (
-            ('type', 'RPT_LICO_FN_CPD_BB'),
-            ('source', 'DataCenter'),
-            ('sty', 'SECURITY_CODE,SECURITY_NAME_ABBR,TRADE_MARKET,REPORTDATE,REPORTDATEWZ,REPORTDATEYW,BASIC_EPS,TOTAL_OPERATE_INCOME,TOTAL_OPERATE_INCOME_TQ,PARENT_NETPROFIT,PARENT_NETPROFIT_TQ,ISNEW,NOTICE_DATE'),
-            ('p', f'{page}'),
-            ('ps', '500'),
-            ('sr', '-1,1'),
-            ('st', 'NOTICE_DATE,SECURITY_CODE'),
-            ('filter',
-             f'{date}(TRADE_MARKET in (0101,0102,0201,0202,0120,0220))'),
-        )
-        params = (
             ('st', 'NOTICE_DATE,SECURITY_CODE'),
             ('sr', '-1,-1'),
             ('ps', '500'),
@@ -745,7 +734,7 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
             ('type', 'RPT_LICO_FN_CPD'),
             ('sty', 'ALL'),
             ('token', '894050c76af8597a853f5b408b759f5d'),
-            #! 只选沪深A股
+            # ! 只选沪深A股
             ('filter',
              f'(SECURITY_TYPE_CODE in ("058001001","058001008")){date}'),
 
@@ -864,7 +853,7 @@ def get_daily_billboard(start_date: str = None,
     end_date : str, optional
         结束日期
         部分可选示例如下
-        
+
         - ``None`` 最新一个榜单公开日(默认值)
         - ``"2021-08-31"`` 2021年8月31日
 
@@ -948,7 +937,7 @@ def get_daily_billboard(start_date: str = None,
 
             url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
 
-            response = session.get(url,params=params)
+            response = session.get(url, params=params)
             if bar is None:
                 pages = jsonpath(response.json(), '$..pages')
 
