@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## v0.3.8
 
 ## Changed
 
@@ -9,6 +9,7 @@
 ## Added
 
 - 添加获取多个板块成分股实时行情以及板块历史行情的功能
+- 添加获取 ETF、LOF 基金实时行情的功能
 ## v0.3.7
 
 ## Added

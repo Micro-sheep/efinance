@@ -123,7 +123,7 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
         基金代码            基金名称    最新净值    最新净值公开日期              估算时间  估算涨跌幅
     0  161725  招商中证白酒指数(LOF)A  2.8856  2021-09-07  2021-09-07 15:00   0.64
     1  005827       易方达蓝筹精选混合  2.5704  2021-09-07  2021-09-07 15:00   0.67
-    
+
     """
 
     if not isinstance(fund_codes, list):
@@ -174,6 +174,7 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
 
         - ``'zq'`` : 债券类型基金
         - ``'gp'`` : 股票类型基金
+        - ``‘ct’``   : 场内基金
         - ``None`` : 全部
 
     Returns
@@ -202,6 +203,7 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
     1985  012516  国泰中证细分机械设备产业主题ETF联接A
 
     """
+    # TODO 添加获取 ETF 基金的功能
 
     params = [
         ('op', 'ph'),
@@ -210,11 +212,11 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
         ('gs', '0'),
         ('sc', '6yzf'),
         ('st', 'desc'),
-        ('qdii', ''),
         ('pi', '1'),
         ('pn', '50000'),
         ('dx', '1'),
     ]
+
     headers = {
         'Connection': 'keep-alive',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75',
@@ -222,7 +224,7 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
         'Referer': 'http://fund.eastmoney.com/data/fundranking.html',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     }
-    if ft is not None and ft in ['gp', 'zq']:
+    if ft is not None and ft in ['gp', 'zq', 'ct']:
         params.append(('ft', ft))
     url = 'http://fund.eastmoney.com/data/rankhandler.aspx'
     response = requests.get(
