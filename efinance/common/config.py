@@ -6,6 +6,8 @@ MARKET_NUMBER_DICT = {
     '0': '深A',
     '1': '沪A',
     '105': '美股',
+    '106': '美股',
+    '107': '美股',
     '116': '港股',
     '113': '上期所',
     '114': '大商所',
@@ -51,9 +53,15 @@ FS_DICT = {
     '深证系列指数': 'm:0 t:5',
     '沪深系列指数': 'm:1 s:2,m:0 t:5',
     # ETF 基金
-    'ETF':'b:MK0021,b:MK0022,b:MK0023,b:MK0024',
+    'ETF': 'b:MK0021,b:MK0022,b:MK0023,b:MK0024',
     # LOF 基金
-    'LOF':'b:MK0404,b:MK0405,b:MK0406,b:MK0407'
+    'LOF': 'b:MK0404,b:MK0405,b:MK0406,b:MK0407',
+
+    '美股': 'm:105,m:106,m:107',
+    '港股': 'm:128 t:3,m:128 t:4,m:128 t:1,m:128 t:2',
+    '英股': 'm:155 t:1,m:155 t:2,m:155 t:3,m:156 t:1,m:156 t:2,m:156 t:5,m:156 t:6,m:156 t:7,m:156 t:8',
+    '中概股': 'b:MK0201',
+    '中国概念股': 'b:MK0201'
 
 }
 
@@ -110,7 +118,6 @@ EASTMONEY_HISTORY_BILL_FIELDS = {
     'f62': '收盘价',
     'f63': '涨跌幅'
 }
-
 # 请求头
 EASTMONEY_REQUEST_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko',
