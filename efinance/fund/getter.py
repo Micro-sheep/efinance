@@ -172,10 +172,14 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
     ft : str, optional
         基金类型可选示例如下
 
-        - ``'zq'`` : 债券类型基金
-        - ``'gp'`` : 股票类型基金
-        - ``‘ct’``   : 场内基金
-        - ``None`` : 全部
+        - ``'zq'``  : 债券类型基金
+        - ``'gp'``  : 股票类型基金
+        - ``'etf'`` : ETF 基金
+        - ``'hh'``  : 混合型基金
+        - ``'zs'``  : 指数型基金
+        - ``'fof'`` : FOF 基金
+        - ``'qdii'``: QDII 型基金
+        - ``None``  : 全部
 
     Returns
     -------
@@ -203,19 +207,18 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
     1985  012516  国泰中证细分机械设备产业主题ETF联接A
 
     """
-    # TODO 添加获取 ETF 基金的功能
-
     params = [
-        ('op', 'ph'),
+        ('op', 'dy'),
         ('dt', 'kf'),
         ('rs', ''),
         ('gs', '0'),
-        ('sc', '6yzf'),
+        ('sc', 'qjzf'),
         ('st', 'desc'),
+        ('es', '0'),
+        ('qdii', ''),
         ('pi', '1'),
         ('pn', '50000'),
-        ('dx', '1'),
-    ]
+        ('dx', '0')]
 
     headers = {
         'Connection': 'keep-alive',
@@ -224,8 +227,9 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
         'Referer': 'http://fund.eastmoney.com/data/fundranking.html',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     }
-    if ft is not None and ft in ['gp', 'zq', 'ct']:
+    if ft is not None:
         params.append(('ft', ft))
+
     url = 'http://fund.eastmoney.com/data/rankhandler.aspx'
     response = requests.get(
         url,
