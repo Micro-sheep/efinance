@@ -9,7 +9,8 @@ from .getter import (
     get_all_report_dates,
     get_all_company_performance,
     get_latest_holder_number,
-    get_daily_billboard)
+    get_daily_billboard,
+    get_members)
 __all__ = ['get_history_bill',
            'get_today_bill',
            'get_latest_quote',
@@ -20,4 +21,5 @@ __all__ = ['get_history_bill',
            'get_all_report_dates',
            'get_all_company_performance',
            'get_latest_holder_number',
-           'get_daily_billboard']
+           'get_daily_billboard',
+           'get_members']

@@ -1,6 +1,7 @@
+import time
 import json
 import re
-from typing import Callable, Dict, Union, List
+from typing import Callable, Dict, Union, List, TypeVar
 from functools import wraps
 import pandas as pd
 from collections import namedtuple
@@ -9,9 +10,11 @@ import rich
 from ..config import SEARCH_RESULT_CACHE_PATH
 from ..shared import (SEARCH_RESULT_DICT,
                       session)
+# 函数变量
+F = TypeVar('F')
 
 
-def to_numeric(func):
+def to_numeric(func: F) -> F:
     """
     将 DataFrame 或者 Series 尽可能地转为数字的装饰器
 
@@ -104,6 +107,7 @@ def search_quote(keyword: str,
     Union[Quote, None, List[Quote]]
 
     """
+
     quote = search_quote_locally(keyword)
     if count == 1 and quote:
         return quote
@@ -139,8 +143,18 @@ def search_quote_locally(keyword: str) -> Union[Quote, None]:
 
     """
     q = SEARCH_RESULT_DICT.get(keyword)
-    if q is None:
+    # NOTE 兼容旧版本 给缓存加上最后修改时间
+    if q is None or not q.get('last_time'):
         return None
+    last_time: float = q['last_time']
+    # 缓存过期秒数
+    max_ts = 3600*24*3
+    now = time.time()
+    # 缓存过期，在线搜索
+    if (now-last_time) > max_ts:
+        return None
+    # NOTE 一定要删除它 否则会构造错误
+    del q['last_time']
     quote = Quote(**q)
     return quote
 
@@ -158,7 +172,10 @@ def save_search_result(keyword: str, quotes: List[Quote]):
     """
     with open(SEARCH_RESULT_CACHE_PATH, 'w', encoding='utf-8') as f:
         for quote in quotes:
-            SEARCH_RESULT_DICT[keyword] = quote._asdict()
+            now = time.time()
+            d = dict(quote._asdict())
+            d['last_time'] = now
+            SEARCH_RESULT_DICT[keyword] = d
         json.dump(SEARCH_RESULT_DICT.copy(), f)
 
 
@@ -175,7 +192,7 @@ def rename_dataframe_and_series(fields: dict,
     to_be_removed : List[str], optional
         要移除的列, by default []
     keep_all : bool, optional
-        是保存全部列(包含未重命名的列), by default True
+        是否保存全部列(包含未重命名的列), by default True
     """
 
     def decorator(func):
