@@ -9,6 +9,8 @@
 - 添加获取指数成分股的函数 `efnance.stock.get_members`
 - 增强函数 `efnance.stock.get_realtime_quotes`
 - 为搜索缓存添加过期时间
+- 添加获取企业 IPO 审核情况的函数 `efnance.stock.get_latest_ipo_info`
+- 增强获取股东户数变动情况的函数 `efnance.stock.get_latest_holder_number`
 
 ## v0.3.8(2021-09-18)
 
