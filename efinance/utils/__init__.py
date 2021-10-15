@@ -91,7 +91,8 @@ def get_quote_id(stock_code: str) -> str:
 
 
 def search_quote(keyword: str,
-                 count: int = 1) -> Union[Quote, None, List[Quote]]:
+                 count: int = 1,
+                 use_local: bool = True) -> Union[Quote, None, List[Quote]]:
     """
     根据关键词搜索以获取证券信息
 
@@ -101,16 +102,19 @@ def search_quote(keyword: str,
         搜索词(股票代码、债券代码甚至证券名称都可以)
     count : int, optional
         最多搜索结果数, 默认为 `1`
+    use_local : bool, optional
+        是否使用本地缓存
 
     Returns
     -------
     Union[Quote, None, List[Quote]]
 
     """
-
-    quote = search_quote_locally(keyword)
-    if count == 1 and quote:
-        return quote
+    # NOTE 本地仅存储第一个搜索结果
+    if use_local and count == 1:
+        quote = search_quote_locally(keyword)
+        if quote:
+            return quote
     url = 'https://searchapi.eastmoney.com/api/suggest/get'
     params = (
         ('input', f'{keyword}'),
@@ -121,7 +125,8 @@ def search_quote(keyword: str,
     items = json_response['QuotationCodeTable']['Data']
     if items is not None:
         quotes = [Quote(*item.values()) for item in items]
-        save_search_result(keyword, quotes)
+        # NOTE 暂时仅存储第一个搜索结果
+        save_search_result(keyword, quotes[:1])
         if count == 1:
             return quotes[0]
         return quotes
@@ -153,9 +158,11 @@ def search_quote_locally(keyword: str) -> Union[Quote, None]:
     # 缓存过期，在线搜索
     if (now-last_time) > max_ts:
         return None
+    # NOTE 一定要拷贝 否则改变源对象
+    _q = q.copy()
     # NOTE 一定要删除它 否则会构造错误
-    del q['last_time']
-    quote = Quote(**q)
+    del _q['last_time']
+    quote = Quote(**_q)
     return quote
 
 
@@ -171,11 +178,13 @@ def save_search_result(keyword: str, quotes: List[Quote]):
         搜索结果
     """
     with open(SEARCH_RESULT_CACHE_PATH, 'w', encoding='utf-8') as f:
+        # TODO考虑如何存储多个搜索结果
         for quote in quotes:
             now = time.time()
             d = dict(quote._asdict())
             d['last_time'] = now
             SEARCH_RESULT_DICT[keyword] = d
+            break
         json.dump(SEARCH_RESULT_DICT.copy(), f)
 
 

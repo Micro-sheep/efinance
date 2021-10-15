@@ -6,10 +6,13 @@
 
 - 优化 `fund` 模块的获取基金列表的函数
 - 更新 `common` 模块的行情配置文件以支持获取更多板块的行情数据
+
+## Added
+
 - 添加获取指数成分股的函数 `efnance.stock.get_members`
 - 增强函数 `efnance.stock.get_realtime_quotes`
-- 为搜索缓存添加过期时间
 - 添加获取企业 IPO 审核情况的函数 `efnance.stock.get_latest_ipo_info`
+- 为搜索缓存添加过期时间
 - 增强获取股东户数变动情况的函数 `efnance.stock.get_latest_holder_number`
 
 ## v0.3.8(2021-09-18)
