@@ -335,7 +335,8 @@ def get_inverst_position(fund_code: str,
             params.append(('DATE', date))
         url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition'
         json_response = requests.get(url,
-                                     headers=EastmoneyFundHeaders, params=params).json()
+                                     headers=EastmoneyFundHeaders,
+                                     params=params).json()
         stocks = jsonpath(json_response, '$..fundStocks[:]')
         if not stocks:
             continue
@@ -473,7 +474,7 @@ def get_public_dates(fund_code: str) -> List[str]:
 
 @retry(tries=3)
 @to_numeric
-def get_types_persentage(fund_code: str,
+def get_types_percentage(fund_code: str,
                          dates: Union[List[str], str, None] = None) -> pd.DataFrame:
     """
     获取指定基金不同类型占比信息
@@ -502,7 +503,7 @@ def get_types_persentage(fund_code: str,
     >>> public_dates = ef.fund.get_public_dates('005827')
     >>> # 取前两个公开持仓日期
     >>> dates = public_dates[:2]
-    >>> ef.fund.get_types_persentage('005827',dates)
+    >>> ef.fund.get_types_percentage('005827',dates)
         基金代码   股票比重 债券比重  现金比重         总规模(亿元) 其他比重
     0  005827   94.4   --  6.06  880.1570625231    0
     0  005827  94.09   --  7.63   677.007455712    0
@@ -537,7 +538,9 @@ def get_types_persentage(fund_code: str,
         params = tuple(params)
         url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew'
         json_response = requests.get(
-            url,  params=params).json()
+            url,
+            params=params,
+            headers=EastmoneyFundHeaders).json()
 
         if len(json_response['Datas']) == 0:
             continue
