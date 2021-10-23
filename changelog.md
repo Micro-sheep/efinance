@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unrelease]
+## 0.3.9(2021-10-23)
 
 ## Changed
 

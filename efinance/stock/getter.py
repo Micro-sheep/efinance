@@ -1181,7 +1181,10 @@ def get_members(index_code: str) -> pd.DataFrame:
                 params=params,
                 headers=EASTMONEY_REQUEST_HEADERS).json()
             items = json_response['Datas']
-            df = pd.DataFrame(items).rename(
+            # NOTE 这是为了跳过排在前面但无法获取成分股的指数 例如搜索 白酒 时排在前面的 980031
+            if not items:
+                continue
+            df: pd.DataFrame = pd.DataFrame(items).rename(
                 columns=fields)[fields.values()]
             df['股票权重'] = pd.to_numeric(df['股票权重'], errors='coerce')
             return df
