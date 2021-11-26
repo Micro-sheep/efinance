@@ -44,6 +44,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_rtd_theme',
     'myst_parser',
+    'sphinx_copybutton'
 ]
 source_suffix = ['.rst', '.md']
 # Add any paths that contain templates here, relative to this directory.

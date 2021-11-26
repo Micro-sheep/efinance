@@ -3,3 +3,4 @@ numpydoc
 sphinx_automodapi
 sphinx_rtd_theme
 furo
+sphinx_copybutton
