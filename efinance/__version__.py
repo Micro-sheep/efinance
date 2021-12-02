@@ -1,5 +1,5 @@
 __title__ = 'efinance'
-__version__ = '0.3.9'
+__version__ = '0.4.0'
 __author__ = 'micro sheep'
 __url__ = 'https://github.com/Micro-sheep/efinance'
 __author_email__ = 'micro-sheep@outlook.com'

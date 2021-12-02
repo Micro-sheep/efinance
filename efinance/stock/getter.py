@@ -273,10 +273,11 @@ def get_realtime_quotes(fs: Union[str, List[str]] = None) -> pd.DataFrame:
     fs : Union[str, List[str]], optional
         行情名称或者多个行情名列表 可选值及示例如下
 
-        - ``None``  沪深A股市场行情
+        - ``None``  沪深京A股市场行情
         - ``'沪深A股'`` 沪深A股市场行情
         - ``'沪A'`` 沪市A股市场行情
         - ``'深A'`` 深市A股市场行情
+        - ``北A``   北证A股市场行情
         - ``'可转债'``  沪深可转债市场行情
         - ``'期货'``    期货市场行情
         - ``'创业板'``  创业板市场行情
