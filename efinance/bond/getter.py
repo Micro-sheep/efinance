@@ -231,7 +231,8 @@ def get_quote_history(bond_codes: Union[str, List[str]],
                       beg: str = '19000101',
                       end: str = '20500101',
                       klt: int = 101,
-                      fqt: int = 1) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
+                      fqt: int = 1,
+                      **kwargs) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
     获取债券的 K 线数据
 
@@ -309,6 +310,9 @@ def get_quote_history(bond_codes: Union[str, List[str]],
                                           '名称': '债券名称'
                                           },
                                  inplace=True)
+        # NOTE 扩展接口 设定此关键词即返回 DataFrame 而不是 dict
+        if kwargs.get('return_df'):
+            df: pd.DataFrame = pd.concat(df, axis=0, ignore_index=True)
     return df
 
 

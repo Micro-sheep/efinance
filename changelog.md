@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- 扩展 `get_quote_history` 函数，支持通过设定 `kwargs` 来指定返回类型
+
+---
+
 ## v0.4.0(2021-12-02)
 
 ### Fiexd
