@@ -1,10 +1,14 @@
 # Changelog
 
-## [Unreleased]
+## v0.4.2(2022-03-07)
 
 ### Changed
 
 - 扩展 `get_quote_history` 函数，支持通过设定 `kwargs` 来指定返回类型
+  
+### Added
+
+- 为 `stock` 模块添加函数 `get_quote_snapshot` 以支持获取沪深市场 3 秒行情快照
 
 ---
 

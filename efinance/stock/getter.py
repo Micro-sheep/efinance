@@ -1,5 +1,8 @@
+import json
 import calendar
-from ..utils import search_quote
+
+import numpy as np
+from ..utils import search_quote, to_float
 from datetime import datetime, timedelta
 from ..utils import process_dataframe_and_series
 import rich
@@ -1264,3 +1267,132 @@ def get_latest_ipo_info() -> pd.DataFrame:
         return df
     df = pd.concat(dfs, ignore_index=True, axis=0)
     return df
+
+
+@retry(tries=3)
+def get_quote_snapshot(stock_code: str) -> pd.Series:
+    """
+    获取沪深市场股票最新行情快照
+
+    Parameters
+    ----------
+    stock_code : str
+        股票代码
+
+    Returns
+    -------
+    Series
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> ef.stock.get_quote_snapshot('600519')
+    代码          600519
+    名称            贵州茅台
+    时间        15:59:30
+    涨跌额          -73.5
+    涨跌幅          -4.13
+    最新价         1707.0
+    昨收          1780.5
+    今开          1760.2
+    开盘          1760.2
+    最高          1768.0
+    最低          1703.8
+    均价         1726.65
+    涨停价        1958.55
+    跌停价        1602.45
+    换手率           0.39
+    成交量          49156
+    成交额     8487507456
+    卖1价         1708.0
+    卖2价        1708.75
+    卖4价         1709.6
+    卖5价        1709.63
+    买1价         1707.0
+    买2价        1706.99
+    买3价        1706.88
+    买4价        1706.87
+    买5价        1706.86
+    卖1数量           3.0
+    卖2数量           2.0
+    卖3数量          39.0
+    卖4数量           3.0
+    卖5数量           1.0
+    买1数量          17.0
+    买2数量           8.0
+    买3数量          10.0
+    买4数量           8.0
+    买5数量          21.0
+    dtype: object    
+
+    """
+
+    params = (
+        ('id', stock_code),
+        ('callback', 'jQuery183026310160411569883_1646052793441'),
+    )
+
+    response = requests.get(
+        'https://hsmarketwg.eastmoney.com/api/SHSZQuoteSnapshot',  params=params)
+    start_index = response.text.find('{')
+    end_index = response.text.rfind('}')
+    columns = {
+
+        'code': '代码',
+        'name': '名称',
+        'time': '时间',
+        'zd': '涨跌额',
+        'zdf': '涨跌幅',
+        'currentPrice': '最新价',
+        'yesClosePrice': '昨收',
+        'openPrice': '今开',
+        'open': '开盘',
+        'high': '最高',
+        'low': '最低',
+        'avg': '均价',
+        'topprice': '涨停价',
+        'bottomprice': '跌停价',
+        'turnover': '换手率',
+        'volume': '成交量',
+        'amount': '成交额',
+        'sale1': '卖1价',
+        'sale2': '卖2价',
+        'sale3': '卖3价',
+        'sale4': '卖4价',
+        'sale5': '卖5价',
+        'buy1': '买1价',
+        'buy2': '买2价',
+        'buy3': '买3价',
+        'buy4': '买4价',
+        'buy5': '买5价',
+        'sale1_count': '卖1数量',
+        'sale2_count': '卖2数量',
+        'sale3_count': '卖3数量',
+        'sale4_count': '卖4数量',
+        'sale5_count': '卖5数量',
+        'buy1_count': '买1数量',
+        'buy2_count': '买2数量',
+        'buy3_count': '买3数量',
+        'buy4_count': '买4数量',
+        'buy5_count': '买5数量',
+
+    }
+    s = pd.Series(index=columns.values())
+    try:
+        qd: dict = json.loads(response.text[start_index:end_index+1])
+    except:
+        return s
+    if not qd.get('fivequote'):
+        return s
+    d = {**qd.pop('fivequote'), **qd.pop('realtimequote'), **qd}
+    s = pd.Series(d).rename(index=columns)[columns.values()]
+    for i in range(1, 6):
+        s[f'买{i}价'] = to_float(s[f'买{i}价'], np.nan)
+        s[f'卖{i}价'] = to_float(s[f'卖{i}价'], np.nan)
+        s[f'买{i}数量'] = to_float(s[f'买{i}数量'], np.nan)
+        s[f'卖{i}数量'] = to_float(s[f'卖{i}数量'], np.nan)
+    str_type_list = ['代码', '名称', '时间']
+    all_type_list = columns.values()
+    for column in (set(all_type_list)-set(str_type_list)):
+        s[column] = to_float(str(s[column]).strip('%'), np.nan)
+    return s

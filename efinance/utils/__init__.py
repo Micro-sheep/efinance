@@ -260,4 +260,32 @@ def process_dataframe_and_series(function_fields: Dict[str, Callable] = dict(),
     return decorator
 
 
+T = TypeVar('T')
+
+
+def to_float(s: str, default: T = None) -> Union[float, T]:
+    """
+    字符串转浮点数
+
+    Parameters
+    ----------
+    s : str
+        要转为浮点数的字符串
+    default : T, optional
+        转化失败后返回的默认值, 如果为 ``None`` 则原样返回
+
+    Returns
+    -------
+    Union[float, T]
+        转换结果
+    """
+    try:
+        s = float(s)
+        return s
+    except:
+        if default is None:
+            return s
+        return default
+
+
 __all__ = []

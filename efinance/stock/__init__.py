@@ -11,7 +11,8 @@ from .getter import (
     get_latest_holder_number,
     get_daily_billboard,
     get_members,
-    get_latest_ipo_info)
+    get_latest_ipo_info,
+    get_quote_snapshot)
 __all__ = ['get_history_bill',
            'get_today_bill',
            'get_latest_quote',
@@ -24,4 +25,5 @@ __all__ = ['get_history_bill',
            'get_latest_holder_number',
            'get_daily_billboard',
            'get_members',
-           'get_latest_ipo_info']
+           'get_latest_ipo_info',
+           'get_quote_snapshot']
