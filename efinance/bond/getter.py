@@ -47,7 +47,7 @@ def get_base_info_single(bond_code: str) -> pd.Series:
                                  headers=EASTMONEY_REQUEST_HEADERS,
                                  params=params).json()
     if json_response['result'] is None:
-        return pd.Series(index=columns.values())
+        return pd.Series(index=columns.values(),dtype='object')
     items = json_response['result']['data']
     s = pd.Series(items[0]).rename(index=columns)
     s = s[columns.values()]

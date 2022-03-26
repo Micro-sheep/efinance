@@ -2,7 +2,7 @@ import json
 import calendar
 
 import numpy as np
-from ..utils import search_quote, to_float
+from ..utils import (search_quote, to_type)
 from datetime import datetime, timedelta
 from ..utils import process_dataframe_and_series
 import rich
@@ -53,7 +53,7 @@ def get_base_info_single(stock_code: str) -> pd.Series:
     fields = ",".join(EASTMONEY_STOCK_BASE_INFO_FIELDS.keys())
     secid = get_quote_id(stock_code)
     if not secid:
-        return pd.Series(index=EASTMONEY_STOCK_BASE_INFO_FIELDS.values())
+        return pd.Series(index=EASTMONEY_STOCK_BASE_INFO_FIELDS.values(), dtype='object')
     params = (
         ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
         ('invt', '2'),
@@ -1337,7 +1337,6 @@ def get_quote_snapshot(stock_code: str) -> pd.Series:
     start_index = response.text.find('{')
     end_index = response.text.rfind('}')
     columns = {
-
         'code': '代码',
         'name': '名称',
         'time': '时间',
@@ -1375,9 +1374,8 @@ def get_quote_snapshot(stock_code: str) -> pd.Series:
         'buy3_count': '买3数量',
         'buy4_count': '买4数量',
         'buy5_count': '买5数量',
-
     }
-    s = pd.Series(index=columns.values())
+    s = pd.Series(index=columns.values(), dtype='object')
     try:
         qd: dict = json.loads(response.text[start_index:end_index+1])
     except:
@@ -1386,13 +1384,9 @@ def get_quote_snapshot(stock_code: str) -> pd.Series:
         return s
     d = {**qd.pop('fivequote'), **qd.pop('realtimequote'), **qd}
     s = pd.Series(d).rename(index=columns)[columns.values()]
-    for i in range(1, 6):
-        s[f'买{i}价'] = to_float(s[f'买{i}价'], np.nan)
-        s[f'卖{i}价'] = to_float(s[f'卖{i}价'], np.nan)
-        s[f'买{i}数量'] = to_float(s[f'买{i}数量'], np.nan)
-        s[f'卖{i}数量'] = to_float(s[f'卖{i}数量'], np.nan)
     str_type_list = ['代码', '名称', '时间']
     all_type_list = columns.values()
     for column in (set(all_type_list)-set(str_type_list)):
-        s[column] = to_float(str(s[column]).strip('%'), np.nan)
+        s[column] = to_type(float, str(s[column]).strip('%'), np.nan)
+
     return s

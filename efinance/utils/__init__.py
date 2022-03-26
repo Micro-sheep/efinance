@@ -1,3 +1,4 @@
+from typing import Any
 import time
 import json
 import re
@@ -263,28 +264,33 @@ def process_dataframe_and_series(function_fields: Dict[str, Callable] = dict(),
 T = TypeVar('T')
 
 
-def to_float(s: str, default: T = None) -> Union[float, T]:
+def to_type(f: Callable[[str], T],
+            value: Any,
+            default: T = None) -> T:
     """
-    字符串转浮点数
+    类型转换
 
     Parameters
     ----------
-    s : str
-        要转为浮点数的字符串
+    f : Callable[[str], T]
+        转换函数
+    value : Any
+        待转换的值
+
     default : T, optional
-        转化失败后返回的默认值, 如果为 ``None`` 则原样返回
+        转换失败时的返回值, 默认为  ``None`` 表示原样返回
 
     Returns
     -------
-    Union[float, T]
+    T
         转换结果
     """
     try:
-        s = float(s)
-        return s
+        value = f(value)
+        return value
     except:
         if default is None:
-            return s
+            return value
         return default
 
 
