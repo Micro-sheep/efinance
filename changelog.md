@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.3(2022-04-28)
+
+### Added
+
+- 为 `stock` 模块添加 `get_belong_plate` 函数，以支持获取股票所属板块
+- 为 `stock` 模块添加 `get_deal_detail` 函数，以支持获取股票最新交易日的成交明细
+
 ## v0.4.2(2022-03-07)
 
 ### Changed

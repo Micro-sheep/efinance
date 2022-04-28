@@ -1,35 +1,29 @@
-import json
 import calendar
-
-import numpy as np
-from ..utils import (search_quote, to_type)
+import json
+import signal
 from datetime import datetime, timedelta
-from ..utils import process_dataframe_and_series
+from typing import Dict, List, Union
+
+import multitasking
+import numpy as np
+import pandas as pd
+import requests
 import rich
 from jsonpath import jsonpath
 from retry import retry
-import pandas as pd
-import requests
-import multitasking
-import signal
 from tqdm import tqdm
-from typing import (Dict,
-                    List,
-                    Union)
-from ..shared import session
-from ..common import get_quote_history as get_quote_history_for_stock
+
 from ..common import get_history_bill as get_history_bill_for_stock
-from ..common import get_today_bill as get_today_bill_for_stock
+from ..common import get_quote_history as get_quote_history_for_stock
 from ..common import get_realtime_quotes_by_fs
-from ..utils import (to_numeric,
-                     get_quote_id)
-from .config import EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS, EASTMONEY_STOCK_BASE_INFO_FIELDS
-from ..common.config import (
-    FS_DICT,
-    MARKET_NUMBER_DICT,
-    EASTMONEY_REQUEST_HEADERS,
-    EASTMONEY_QUOTE_FIELDS
-)
+from ..common import get_today_bill as get_today_bill_for_stock
+from ..common.config import (EASTMONEY_QUOTE_FIELDS, EASTMONEY_REQUEST_HEADERS,
+                             FS_DICT, MARKET_NUMBER_DICT)
+from ..shared import session
+from ..utils import (get_quote_id, process_dataframe_and_series, search_quote,
+                     to_numeric, to_type)
+from .config import (EASTMONEY_STOCK_BASE_INFO_FIELDS,
+                     EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS)
 
 signal.signal(signal.SIGINT, multitasking.killall)
 
@@ -1390,3 +1384,134 @@ def get_quote_snapshot(stock_code: str) -> pd.Series:
         s[column] = to_type(float, str(s[column]).strip('%'), np.nan)
 
     return s
+
+
+@to_numeric
+def get_deal_detail(stock_code: str,
+                    max_count: int = 1000000) -> pd.DataFrame:
+    """
+    获取股票最新交易日成交明细
+
+    Parameters
+    ----------
+    stock_code : str
+        股票代码或者股票名称
+    max_count : int, optional
+        最近的最大数据条数, 默认为 ``1000000``
+
+    Returns
+    -------
+    DataFrame
+        最新交易日成交明细
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> ef.stock.get_deal_detail('600519')
+        股票名称    股票代码       昨收        时间      成交价  成交量   单数
+    0     贵州茅台  600519  1794.92  09:15:03  1794.92    5    0
+    1     贵州茅台  600519  1794.92  09:15:06  1809.00   21    0
+    2     贵州茅台  600519  1794.92  09:15:09  1809.00   24    0
+    3     贵州茅台  600519  1794.92  09:15:12  1802.00   29    0
+    4     贵州茅台  600519  1794.92  09:15:15  1804.60   30    0
+    ...    ...     ...      ...       ...      ...  ...  ...
+    4592  贵州茅台  600519  1794.92  14:56:52  1830.88   14   13
+    4593  贵州茅台  600519  1794.92  14:56:55  1830.88   10    9
+    4594  贵州茅台  600519  1794.92  14:56:58  1830.89   10   10
+    4595  贵州茅台  600519  1794.92  14:57:02  1830.80    2    1
+    4596  贵州茅台  600519  1794.92  15:00:00  1835.00  893  406
+
+    """
+    q = search_quote(stock_code)
+    columns = ['股票名称', '股票代码', '时间', '昨收', '成交价', '成交量', '单数']
+    if not q:
+        return pd.DataFrame(columns=columns)
+    params = (
+        ('secid', q.quote_id),
+        ('fields1', 'f1,f2,f3,f4,f5'),
+        ('fields2', 'f51,f52,f53,f54,f55'),
+        ('pos', f'-{int(max_count)}')
+    )
+
+    response = session.get(
+        'https://push2.eastmoney.com/api/qt/stock/details/get', params=params)
+
+    js: dict = response.json()
+    lines: List[str] = js['data']['details']
+    rows = [line.split(',')[:4] for line in lines]
+    df = pd.DataFrame(columns=columns, index=range(len(rows)))
+    df.loc[:, '股票代码'] = q.code
+    df.loc[:, '股票名称'] = q.name
+    detail_df = pd.DataFrame(rows, columns=['时间',  '成交价', '成交量', '单数'])
+    detail_df.insert(1, '昨收', js['data']['prePrice'])
+    df.loc[:, detail_df.columns] = detail_df.values
+    return df
+
+
+def get_belong_plate(stock_code: str) -> pd.DataFrame:
+    """
+    获取股票所属板块
+
+    Parameters
+    ----------
+    stock_code : str
+        股票代码或者股票名称
+
+    Returns
+    -------
+    DataFrame
+        股票所属板块
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> ef.stock.get_belong_plate('600519')
+        股票名称    股票代码    板块代码    板块名称  板块涨幅
+    0   贵州茅台  600519  BK0477    酿酒行业  0.56
+    1   贵州茅台  600519  BK0173    贵州板块 -1.27
+    2   贵州茅台  600519  BK0611   上证50_  0.60
+    3   贵州茅台  600519  BK0718    证金持股  0.54
+    4   贵州茅台  600519  BK0896      白酒  0.25
+    5   贵州茅台  600519  BK0500  HS300_  0.21
+    6   贵州茅台  600519  BK0612  上证180_  0.18
+    7   贵州茅台  600519  BK0999     茅指数  0.10
+    8   贵州茅台  600519  BK0610   央视50_  0.03
+    9   贵州茅台  600519  BK0821  MSCI中国 -0.12
+    10  贵州茅台  600519  BK0879    标准普尔 -0.37
+    11  贵州茅台  600519  BK0707     沪股通 -0.45
+    12  贵州茅台  600519  BK1059     百元股 -0.46
+    13  贵州茅台  600519  BK0867    富时罗素 -0.68
+    14  贵州茅台  600519  BK0811    超级品牌 -0.74
+    15  贵州茅台  600519  BK0596    融资融券 -1.38
+    16  贵州茅台  600519  BK0665    电商概念 -2.19
+    """
+    q = search_quote(stock_code)
+    if not q:
+        return pd.DataFrame(columns=['股票代码', '股票名称', '板块代码', '板块名称', '板块涨幅'])
+    params = (
+        ('forcect', '1'),
+        ('spt', '3'),
+        ('fields', 'f1,f12,f152,f3,f14,f128,f136'),
+        ('pi', '0'),
+        ('pz', '1000'),
+        ('po', '1'),
+        ('fid', 'f3'),
+        ('fid0', 'f4003'),
+        ('invt', '2'),
+        ('secid', q.quote_id),
+    )
+
+    response = session.get(
+        'https://push2.eastmoney.com/api/qt/slist/get', params=params)
+    df = pd.DataFrame(response.json()['data']['diff']).T
+    df.index = range(len(df))
+    filelds = {
+        'f12': '板块代码',
+        'f14': '板块名称',
+        'f3': '板块涨幅',
+    }
+    df: pd.DataFrame = df.rename(columns=filelds)[filelds.values()]
+    df['板块涨幅'] = df['板块涨幅'].apply(lambda x: to_type(float, x, np.nan)/100)
+    df.insert(0, '股票名称', q.name)
+    df.insert(1, '股票代码', q.code)
+    return df
