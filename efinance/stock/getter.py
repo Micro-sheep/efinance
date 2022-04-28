@@ -1,6 +1,7 @@
 import calendar
 import json
 import signal
+import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Union
 
@@ -26,6 +27,10 @@ from .config import (EASTMONEY_STOCK_BASE_INFO_FIELDS,
                      EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS)
 
 signal.signal(signal.SIGINT, multitasking.killall)
+python_version = sys.version_info.major, sys.version_info.minor
+# * 适配 pythn 3.10 及其以上版本
+if python_version >= (3, 10):
+    requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
 
 
 @to_numeric
