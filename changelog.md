@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.4(2022-04-29)
+
+### Added
+
+- 增加对 python3.10 及其以上版本的适配
+
+### Changed
+
+- 将 `stock` 模块里面的 `get_belong_plate` 重命名为 `get_belong_board`
+
 ## v0.4.3(2022-04-28)
 
 ### Added

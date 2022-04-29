@@ -1453,7 +1453,7 @@ def get_deal_detail(stock_code: str,
     return df
 
 
-def get_belong_plate(stock_code: str) -> pd.DataFrame:
+def get_belong_board(stock_code: str) -> pd.DataFrame:
     """
     获取股票所属板块
 
@@ -1470,7 +1470,7 @@ def get_belong_plate(stock_code: str) -> pd.DataFrame:
     Examples
     --------
     >>> import efinance as ef
-    >>> ef.stock.get_belong_plate('600519')
+    >>> ef.stock.get_belong_board('600519')
         股票名称    股票代码    板块代码    板块名称  板块涨幅
     0   贵州茅台  600519  BK0477    酿酒行业  0.56
     1   贵州茅台  600519  BK0173    贵州板块 -1.27
