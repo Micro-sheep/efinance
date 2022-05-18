@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- 修复 `bond` 模块的 `get_base_info` 进行正股代码转换时出现的问题
+
 ## v0.4.4(2022-04-29)
 
 ### Added
