@@ -1,20 +1,16 @@
-from ..utils import process_dataframe_and_series
+from typing import Dict, List, Union
+
 import multitasking
 import pandas as pd
 import requests
-from typing import (List,
-                    Union,
-                    Dict)
 
+from ..common import get_deal_detail as get_deal_detail_for_bond
 from ..common import get_history_bill as get_history_bill_for_bond
-from ..common import get_today_bill as get_today_bill_for_bond
 from ..common import get_quote_history as get_quote_history_for_bond
 from ..common import get_realtime_quotes_by_fs
-
-from ..utils import to_numeric
-from ..common.config import (EASTMONEY_REQUEST_HEADERS,
-                             FS_DICT)
-
+from ..common import get_today_bill as get_today_bill_for_bond
+from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT
+from ..utils import process_dataframe_and_series, search_quote, to_numeric
 from .config import EASTMONEY_BOND_BASE_INFO_FIELDS
 
 
@@ -47,7 +43,7 @@ def get_base_info_single(bond_code: str) -> pd.Series:
                                  headers=EASTMONEY_REQUEST_HEADERS,
                                  params=params).json()
     if json_response['result'] is None:
-        return pd.Series(index=columns.values(),dtype='object')
+        return pd.Series(index=columns.values(), dtype='object')
     items = json_response['result']['data']
     s = pd.Series(items[0]).rename(index=columns)
     s = s[columns.values()]
@@ -83,17 +79,17 @@ def get_base_info_multi(bond_codes: List[str]) -> pd.DataFrame:
 
 def get_base_info(bond_codes: Union[str, List[str]]) -> Union[pd.DataFrame, pd.Series]:
     """
-    获取单只或多只可转债基本信息
+    获取单只或多只债券基本信息
 
     Parameters
     ----------
     bond_codes : Union[str, List[str]]
-        可转债代码、名称 或者 可转债代码、名称构成的列表
+        债券代码、名称 或者 债券代码、名称构成的列表
 
     Returns
     -------
     Union[DataFrame, Series]
-        单只或多只可转债基本信息
+        单只或多只债券基本信息
 
         - ``DataFrame`` : 当 ``bond_codes`` 是字符串列表时
         - ``Series`` : 当 ``bond_codes`` 是字符串时
@@ -135,12 +131,12 @@ def get_base_info(bond_codes: Union[str, List[str]]) -> Union[pd.DataFrame, pd.S
 
 def get_all_base_info() -> pd.DataFrame:
     """
-    获取全部可转债基本信息列表
+    获取全部债券基本信息列表
 
     Returns
     -------
     DataFrame
-        可转债一些基本信息
+        债券一些基本信息
 
     Examples
     --------
@@ -153,10 +149,10 @@ def get_all_base_info() -> pd.DataFrame:
     3   123119   康泰转2  300601  康泰生物   AA  2021-07-15 00:00:00  20.000000    0.014182                 None  2027-07-15 00:00:00       6  第一年为0.30%、第二年为0.50%、第三年为1.00%、第 四年为1.50%、第五年为1....
     4   113627   太平转债  603877   太平鸟   AA  2021-07-15 00:00:00   8.000000    0.000542                 None  2027-07-15 00:00:00       6  第一年0.30%、第二年0.50%、第三年1.00%、第四年1.50%、第五年1.80%、第...
     ..     ...    ...     ...   ...  ...                  ...        ...         ...                  ...                  ...     ...                                                ...
-    80  110227   赤化转债  600227   圣济堂  AAA  2007-10-10 00:00:00   4.500000    0.158854  2007-10-23 00:00:00  2009-05-25 00:00:00  1.6192  票面利率和付息日期:本次发行的可转债票面利率第一 年为1.5%、第二年为1.8%、第三年为2....
+    80  110227   赤化转债  600227   圣济堂  AAA  2007-10-10 00:00:00   4.500000    0.158854  2007-10-23 00:00:00  2009-05-25 00:00:00  1.6192  票面利率和付息日期:本次发行的债券票面利率第一 年为1.5%、第二年为1.8%、第三年为2....
     81  126006  07深高债  600548   深高速  AAA  2007-10-09 00:00:00  15.000000    0.290304  2007-10-30 00:00:00  2013-10-09 00:00:00       6                                               None
     82  110971   恒源转债  600971  恒源煤电  AAA  2007-09-24 00:00:00   4.000000    5.311774  2007-10-12 00:00:00  2009-12-21 00:00:00  2.2484  票面利率为:第一年年利率1.5%,第二年年利率1.8%,第三年年利率2.1%,第四年年利率2...
-    83  110567   山鹰转债  600567  山鹰国际   AA  2007-09-05 00:00:00   4.700000    0.496391  2007-09-17 00:00:00  2010-02-01 00:00:00  2.4055  票面利率和付息日期:本次发行的可转债票面利率第一年为1.4%,第二年为1.7%,第三年为2....
+    83  110567   山鹰转债  600567  山鹰国际   AA  2007-09-05 00:00:00   4.700000    0.496391  2007-09-17 00:00:00  2010-02-01 00:00:00  2.4055  票面利率和付息日期:本次发行的债券票面利率第一年为1.4%,第二年为1.7%,第三年为2....
     84  110026   中海转债  600026  中远海能  AAA  2007-07-02 00:00:00  20.000000    1.333453  2007-07-12 00:00:00  2008-03-27 00:00:00   0.737  票面利率:第一年为1.84%,第二年为2.05%,第三年为2.26%,第四年为2.47%,第...
 
     """
@@ -195,12 +191,12 @@ def get_all_base_info() -> pd.DataFrame:
 @to_numeric
 def get_realtime_quotes() -> pd.DataFrame:
     """
-    获取沪深市场全部可转债实时行情信息
+    获取沪深市场全部债券实时行情信息
 
     Returns
     -------
     DataFrame
-        沪深市场全部可转债实时行情信息
+        沪深市场全部债券实时行情信息
 
     Examples
     --------
@@ -382,4 +378,51 @@ def get_today_bill(bond_code: str) -> pd.DataFrame:
         '名称': '债券名称'},
         inplace=True)
 
+    return df
+
+
+def get_deal_detail(bond_code: str,
+                    max_count: int = 1000000) -> pd.DataFrame:
+    """
+    获取债券最新交易日成交明细
+
+    Parameters
+    ----------
+    bond_code : str
+        债券代码或者名称
+    max_count : int, optional
+        最近的最大数据条数, 默认为 ``1000000``
+
+    Returns
+    -------
+    DataFrame
+        债券最新交易日成交明细
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> ef.bond.get_deal_detail('113050')
+        债券名称    债券代码        时间      昨收     成交价  成交量  单数
+    0     南银转债  113050  09:15:30  122.44  122.60   21   0
+    1     南银转债  113050  09:17:07  122.44  122.60   21   0
+    2     南银转债  113050  09:20:52  122.44  122.60   21   0
+    3     南银转债  113050  09:22:34  122.44  122.60   21   0
+    4     南银转债  113050  09:23:35  122.44  122.56   21   0
+    ...    ...     ...       ...     ...     ...  ...  ..
+    1720  南银转债  113050  14:58:49  122.44  121.87    1   0
+    1721  南银转债  113050  14:58:52  122.44  121.87    5   0
+    1722  南银转债  113050  14:59:01  122.44  121.88    4   0
+    1723  南银转债  113050  14:59:31  122.44  121.82  130   0
+    1724  南银转债  113050  15:00:00  122.44  121.82   50   0
+
+    """
+    q = search_quote(bond_code)
+    columns = ['债券名称', '债券代码', '时间', '昨收', '成交价', '成交量', '单数']
+    if not q:
+        return pd.DataFrame(columns=columns)
+    df = get_deal_detail_for_bond(q.quote_id, max_count=max_count)
+    df.rename(
+        columns={'代码': '债券代码', '名称': '债券名称'},
+        inplace=True
+    )
     return df

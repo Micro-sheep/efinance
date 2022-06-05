@@ -1,17 +1,19 @@
-from ..common.config import MARKET_NUMBER_DICT
+from typing import Dict, List, Union
+
+import multitasking
+import numpy as np
+import pandas as pd
 from jsonpath import jsonpath
 from retry import retry
-from typing import Dict, List, Union
 from tqdm import tqdm
-import multitasking
-import pandas as pd
-from ..utils import to_numeric
-from ..shared import session
-from .config import (EASTMONEY_QUOTE_FIELDS,
-                     EASTMONEY_REQUEST_HEADERS,
-                     EASTMONEY_KLINE_FIELDS,
-                     EASTMONEY_HISTORY_BILL_FIELDS)
-from ..utils import get_quote_id
+
+from efinance.stock.config import EASTMONEY_STOCK_BASE_INFO_FIELDS
+
+from ..common.config import MARKET_NUMBER_DICT
+from ..shared import BASE_INFO_CACHE, session
+from ..utils import get_quote_id, to_numeric
+from .config import (EASTMONEY_BASE_INFO_FIELDS, EASTMONEY_HISTORY_BILL_FIELDS, EASTMONEY_KLINE_FIELDS,
+                     EASTMONEY_QUOTE_FIELDS, EASTMONEY_REQUEST_HEADERS)
 
 
 @to_numeric
@@ -297,4 +299,79 @@ def get_today_bill(code: str) -> pd.DataFrame:
     df = pd.DataFrame(rows, columns=columns)
     df.insert(0, '代码', code)
     df.insert(0, '名称', name)
+    return df
+
+
+@to_numeric
+def get_base_info(quote_id: str) -> pd.Series:
+
+    fields = ",".join(EASTMONEY_BASE_INFO_FIELDS.keys())
+    params = (
+        ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
+        ('invt', '2'),
+        ('fltt', '2'),
+        ('fields', fields),
+        ('secid', quote_id)
+    )
+    url = 'http://push2.eastmoney.com/api/qt/stock/get'
+    json_response = session.get(url,
+                                headers=EASTMONEY_REQUEST_HEADERS,
+                                params=params).json()
+    items = json_response['data']
+    if not items:
+        return pd.Series(index=EASTMONEY_BASE_INFO_FIELDS.values(), dtype='object')
+
+    s = pd.Series(items, dtype='object').rename(
+        index=EASTMONEY_BASE_INFO_FIELDS)
+    return s
+
+
+@to_numeric
+def get_deal_detail(quote_id: str,
+                    max_count: int = 1000000) -> pd.DataFrame:
+    """
+    获取股票、期货、债券的最新交易日成交情况
+
+    Parameters
+    ----------
+    quote_id : str
+        包含市场编号的股票、期货、债券代码
+    max_count : int, optional
+        最大数据条数, 默认为 ``1000000``
+
+    Returns
+    -------
+    DataFrame
+        股票、期货、债券的最新交易日成交情况
+
+    Fields
+    ------
+    ``['名称', '代码', '时间', '昨收', '成交价', '成交量', '单数']``
+    """
+    base_info = BASE_INFO_CACHE.get(quote_id, get_base_info(quote_id))
+    BASE_INFO_CACHE[quote_id] = base_info
+    columns = ['名称', '代码', '时间', '昨收', '成交价', '成交量', '单数']
+    if str(base_info['代码']).lower() == 'nan':
+        return pd.DataFrame(columns=columns)
+    code = base_info['代码']
+    name = base_info['名称']
+    params = (
+        ('secid', quote_id),
+        ('fields1', 'f1,f2,f3,f4,f5'),
+        ('fields2', 'f51,f52,f53,f54,f55'),
+        ('pos', f'-{int(max_count)}')
+    )
+
+    response = session.get(
+        'https://push2.eastmoney.com/api/qt/stock/details/get', params=params)
+
+    js: dict = response.json()
+    lines: List[str] = js['data']['details']
+    rows = [line.split(',')[:4] for line in lines]
+    df = pd.DataFrame(columns=columns, index=range(len(rows)))
+    df.loc[:, '代码'] = code
+    df.loc[:, '名称'] = name
+    detail_df = pd.DataFrame(rows, columns=['时间',  '成交价', '成交量', '单数'])
+    detail_df.insert(1, '昨收', js['data']['prePrice'])
+    df.loc[:, detail_df.columns] = detail_df.values
     return df

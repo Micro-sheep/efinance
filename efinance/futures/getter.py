@@ -1,9 +1,12 @@
-from ..common import get_quote_history as get_quote_history_for_futures
-from ..utils import process_dataframe_and_series
-from ..common import get_realtime_quotes_by_fs
 from typing import List, Union
+
 import pandas as pd
+
+from ..common import get_deal_detail as get_deal_detail_for_futures
+from ..common import get_quote_history as get_quote_history_for_futures
+from ..common import get_realtime_quotes_by_fs
 from ..common.config import FS_DICT
+from ..utils import process_dataframe_and_series
 
 
 def get_futures_base_info() -> pd.DataFrame:
@@ -55,7 +58,7 @@ def get_quote_history(quote_ids: Union[str, List[str]],
     Parameters
     ----------
     quote_ids : Union[str, List[str]]
-        一个期货 行情ID，或者多个期货 行情ID 构成的列表
+        一个期货 或者多个期货 行情ID 构成的列表
     beg : str, optional
         开始日期，默认为 ``'19000101'`` ，表示 1900年1月1日
     end : str, optional
@@ -197,4 +200,40 @@ def get_realtime_quotes() -> pd.DataFrame:
     df = df.rename(columns={'代码': '期货代码',
                             '名称': '期货名称'
                             })
+    return df
+
+
+def get_deal_detail(quote_id: str,
+                    max_count: int = 1000000) -> pd.DataFrame:
+    """
+    获取期货最新交易日成交明细
+
+    Parameters
+    ----------
+    quote_id : str
+        期货行情ID
+    max_count : int, optional
+        最大返回条数,  默认为 ``1000000``
+
+    Returns
+    -------
+    DataFrame
+        期货最新交易日成交明细
+
+    Notes
+    -----
+    行情ID 格式参考 ``efinance.futures.get_futures_base_info`` 中得到的数据
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> ef.futures.get_deal_detail('115.ZCM',3)
+        期货名称 期货代码        时间   昨收    成交价  成交量     单数
+    0  动力煤主力  ZCM  21:00:00  0.0  879.0   23    0.0
+    1  动力煤主力  ZCM  21:00:00  0.0  879.0    0 -373.0
+    2  动力煤主力  ZCM  21:00:00  0.0  879.0    0    0.0
+
+    """
+    df = get_deal_detail_for_futures(quote_id, max_count=max_count)
+    df.rename(columns={'代码': '期货代码', '名称': '期货名称'}, inplace=True)
     return df

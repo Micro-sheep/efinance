@@ -14,6 +14,8 @@ from jsonpath import jsonpath
 from retry import retry
 from tqdm import tqdm
 
+from ..common import get_base_info as get_base_info_for_stock
+from ..common import get_deal_detail as get_deal_detail_for_stock
 from ..common import get_history_bill as get_history_bill_for_stock
 from ..common import get_quote_history as get_quote_history_for_stock
 from ..common import get_realtime_quotes_by_fs
@@ -21,8 +23,9 @@ from ..common import get_today_bill as get_today_bill_for_stock
 from ..common.config import (EASTMONEY_QUOTE_FIELDS, EASTMONEY_REQUEST_HEADERS,
                              FS_DICT, MARKET_NUMBER_DICT)
 from ..shared import session
-from ..utils import (get_quote_id, process_dataframe_and_series, search_quote,
-                     to_numeric, to_type)
+from ..utils import (get_quote_id, process_dataframe_and_series,
+                     rename_dataframe_and_series, search_quote, to_numeric,
+                     to_type)
 from .config import (EASTMONEY_STOCK_BASE_INFO_FIELDS,
                      EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS)
 
@@ -49,26 +52,10 @@ def get_base_info_single(stock_code: str) -> pd.Series:
         单只股票基本信息
 
     """
-    fields = ",".join(EASTMONEY_STOCK_BASE_INFO_FIELDS.keys())
     secid = get_quote_id(stock_code)
     if not secid:
         return pd.Series(index=EASTMONEY_STOCK_BASE_INFO_FIELDS.values(), dtype='object')
-    params = (
-        ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
-        ('invt', '2'),
-        ('fltt', '2'),
-        ('fields', fields),
-        ('secid', secid),
-
-    )
-    url = 'http://push2.eastmoney.com/api/qt/stock/get'
-    json_response = session.get(url,
-                                headers=EASTMONEY_REQUEST_HEADERS,
-                                params=params).json()
-
-    s = pd.Series(json_response['data']).rename(
-        index=EASTMONEY_STOCK_BASE_INFO_FIELDS)
-    return s[EASTMONEY_STOCK_BASE_INFO_FIELDS.values()]
+    return get_base_info_for_stock(secid)
 
 
 def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
@@ -522,12 +509,12 @@ def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
                                 params=params).json()
 
     rows = jsonpath(json_response, '$..diff[:]')
-    if rows is None:
+    if not rows:
         return pd.DataFrame(columns=columns.values()).rename({
             '市场编号': '市场类型'
         })
 
-    df = pd.DataFrame(rows)[columns.keys()].rename(columns=columns)
+    df = pd.DataFrame(rows)[list(columns.keys())].rename(columns=columns)
     df['市场类型'] = df['市场编号'].apply(lambda x: MARKET_NUMBER_DICT.get(str(x)))
     del df['市场编号']
     return df
@@ -1391,7 +1378,6 @@ def get_quote_snapshot(stock_code: str) -> pd.Series:
     return s
 
 
-@to_numeric
 def get_deal_detail(stock_code: str,
                     max_count: int = 1000000) -> pd.DataFrame:
     """
@@ -1431,25 +1417,11 @@ def get_deal_detail(stock_code: str,
     columns = ['股票名称', '股票代码', '时间', '昨收', '成交价', '成交量', '单数']
     if not q:
         return pd.DataFrame(columns=columns)
-    params = (
-        ('secid', q.quote_id),
-        ('fields1', 'f1,f2,f3,f4,f5'),
-        ('fields2', 'f51,f52,f53,f54,f55'),
-        ('pos', f'-{int(max_count)}')
+    df = get_deal_detail_for_stock(q.quote_id, max_count=max_count)
+    df.rename(
+        columns={'代码': '股票代码', '名称': '股票名称'},
+        inplace=True
     )
-
-    response = session.get(
-        'https://push2.eastmoney.com/api/qt/stock/details/get', params=params)
-
-    js: dict = response.json()
-    lines: List[str] = js['data']['details']
-    rows = [line.split(',')[:4] for line in lines]
-    df = pd.DataFrame(columns=columns, index=range(len(rows)))
-    df.loc[:, '股票代码'] = q.code
-    df.loc[:, '股票名称'] = q.name
-    detail_df = pd.DataFrame(rows, columns=['时间',  '成交价', '成交量', '单数'])
-    detail_df.insert(1, '昨收', js['data']['prePrice'])
-    df.loc[:, detail_df.columns] = detail_df.values
     return df
 
 
