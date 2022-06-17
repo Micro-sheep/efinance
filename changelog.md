@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unrelease]
+
+### Changed
+
+- 从 `stock` 模块中抽离出获取证券最新行情的函数
+
 ## v0.4.5(2022-06-05)
 
 ### Fixed

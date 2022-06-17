@@ -344,9 +344,9 @@ def get_deal_detail(quote_id: str,
     DataFrame
         股票、期货、债券的最新交易日成交情况
 
-    Fields
+    Notes
     ------
-    ``['名称', '代码', '时间', '昨收', '成交价', '成交量', '单数']``
+    返回的数据表头: ``['名称', '代码', '时间', '昨收', '成交价', '成交量', '单数']``
     """
     base_info = BASE_INFO_CACHE.get(quote_id, get_base_info(quote_id))
     BASE_INFO_CACHE[quote_id] = base_info
@@ -374,4 +374,60 @@ def get_deal_detail(quote_id: str,
     detail_df = pd.DataFrame(rows, columns=['时间',  '成交价', '成交量', '单数'])
     detail_df.insert(1, '昨收', js['data']['prePrice'])
     df.loc[:, detail_df.columns] = detail_df.values
+    return df
+
+
+@to_numeric
+def get_latest_quote(quote_id_list: Union[str, List[str]]) -> pd.DataFrame:
+    """
+    获取股票、期货、债券的最新行情
+
+    Parameters
+    ----------
+    quote_id_list : List[str]
+        带市场编号的行情ID或者行情ID组成的列表格式如下
+        -  ``'1.600159'``
+        - ``['1.600159','0.300750']`` 
+
+        市场编号参见文件 ``efinance/common/config.py`` 中的 ``MARKET_NUMBER_DICT``
+
+    Returns
+    -------
+    DataFrame
+        股票、期货、债券的最新行情
+
+    Notes
+    ------
+    返回的数据表头: ``['代码', '名称', '涨跌幅', '最新价', '最高', '最低', '今开', '涨跌额', '换手率', '量比', '动态市盈率','成交量', '成交额', '昨日收盘', '总市值', '流通市值', '市场类型', '行情ID']``
+    """
+    if isinstance(quote_id_list, str):
+        quote_id_list = [quote_id_list]
+    secids: List[str] = quote_id_list
+
+    columns = EASTMONEY_QUOTE_FIELDS
+    fields = ",".join(columns.keys())
+    params = (
+        ('OSVersion', '14.3'),
+        ('appVersion', '6.3.8'),
+        ('fields', fields),
+        ('fltt', '2'),
+        ('plat', 'Iphone'),
+        ('product', 'EFund'),
+        ('secids', ",".join(secids)),
+        ('serverVersion', '6.3.6'),
+        ('version', '6.3.8'),
+    )
+    url = 'https://push2.eastmoney.com/api/qt/ulist.np/get'
+    json_response = session.get(url,
+                                headers=EASTMONEY_REQUEST_HEADERS,
+                                params=params).json()
+
+    rows = jsonpath(json_response, '$..diff[:]')
+    if not rows:
+        df = pd.DataFrame(columns=columns.values())
+    else:
+        df = pd.DataFrame(rows)[list(columns.keys())].rename(columns=columns)
+    df['市场类型'] = df['市场编号'].apply(lambda x: MARKET_NUMBER_DICT.get(str(x)))
+    df['行情ID'] = df['市场编号'].astype(str) + '.' + df['代码'].astype(str)
+    del df['市场编号']
     return df

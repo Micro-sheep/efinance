@@ -20,11 +20,12 @@ from ..common import get_history_bill as get_history_bill_for_stock
 from ..common import get_quote_history as get_quote_history_for_stock
 from ..common import get_realtime_quotes_by_fs
 from ..common import get_today_bill as get_today_bill_for_stock
-from ..common.config import (EASTMONEY_QUOTE_FIELDS, EASTMONEY_REQUEST_HEADERS,
-                             FS_DICT, MARKET_NUMBER_DICT)
+from ..common.config import (EASTMONEY_REQUEST_HEADERS,
+                             FS_DICT)
+from ..common.getter import get_latest_quote as get_latest_quote_for_stock
 from ..shared import session
 from ..utils import (get_quote_id, process_dataframe_and_series,
-                     rename_dataframe_and_series, search_quote, to_numeric,
+                     search_quote, to_numeric,
                      to_type)
 from .config import (EASTMONEY_STOCK_BASE_INFO_FIELDS,
                      EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS)
@@ -457,15 +458,18 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     return df
 
 
-@to_numeric
-def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
+def get_latest_quote(stock_codes: Union[str, List[str]]) -> pd.DataFrame:
     """
     获取沪深市场多只股票的实时涨幅情况
 
     Parameters
     ----------
-    stock_codes : List[str]
-        多只股票代码列表
+    stock_codes : Union[str, List[str]]
+        单只股票代码或者多只股票代码构成的列表
+
+        例如
+        - ``'600519'``
+        - ``['600519','300750']``
 
     Returns
     -------
@@ -476,47 +480,21 @@ def get_latest_quote(stock_codes: List[str]) -> pd.DataFrame:
     --------
     >>> import efinance as ef
     >>> ef.stock.get_latest_quote(['600519','300750'])
-        股票代码  股票名称   涨跌幅      最新价      最高      最低      今开    涨跌额   换手率    量比   动态市盈率     成交量           成交额    昨日收盘            总市值           流通市值 市场类型
-    0  600519  贵州茅台  0.59  1700.04  1713.0  1679.0  1690.0  10.04  0.30  0.72   43.31   37905  6.418413e+09  1690.0  2135586507912  2135586507912   沪A
-    1  300750  宁德时代  0.01   502.05   529.9   480.0   480.0   0.05  1.37  1.75  149.57  277258  1.408545e+10   502.0  1169278366994  1019031580505   深A
+        代码    名称   涨跌幅      最新价       最高       最低       今开    涨跌额   换手率    量比   动态市盈率     成交量           成交额    昨日收盘            总市值           流通市值 市场类型      行情ID
+    0  600519  贵州茅台  3.94  1951.00  1952.00  1878.09  1878.09  74.00  0.40  1.45   35.53   50542  9.749531e+09  1877.0  2450841907800  2450841907800   沪A  1.600519
+    1  300750  宁德时代  5.60   486.06   490.68   451.22   452.30  25.76  1.39  1.15  189.73  282939  1.359520e+10   460.3  1132933534272   990909383251   深A  0.300750
 
     Notes
     -----
-    当需要获取多只沪深 A 股 的实时涨跌情况时，最好使用 ``efinance.stock.get_realtime_quptes``
+    当需要获取多只沪深 A 股 的实时涨跌情况时，最好使用 ``efinance.stock.get_realtime_quotes``
 
     """
     if isinstance(stock_codes, str):
         stock_codes = [stock_codes]
     secids: List[str] = [get_quote_id(stock_code)
                          for stock_code in stock_codes]
+    df = get_latest_quote_for_stock(secids)
 
-    columns = EASTMONEY_QUOTE_FIELDS
-    fields = ",".join(columns.keys())
-    params = (
-        ('OSVersion', '14.3'),
-        ('appVersion', '6.3.8'),
-        ('fields', fields),
-        ('fltt', '2'),
-        ('plat', 'Iphone'),
-        ('product', 'EFund'),
-        ('secids', ",".join(secids)),
-        ('serverVersion', '6.3.6'),
-        ('version', '6.3.8'),
-    )
-    url = 'https://push2.eastmoney.com/api/qt/ulist.np/get'
-    json_response = session.get(url,
-                                headers=EASTMONEY_REQUEST_HEADERS,
-                                params=params).json()
-
-    rows = jsonpath(json_response, '$..diff[:]')
-    if not rows:
-        return pd.DataFrame(columns=columns.values()).rename({
-            '市场编号': '市场类型'
-        })
-
-    df = pd.DataFrame(rows)[list(columns.keys())].rename(columns=columns)
-    df['市场类型'] = df['市场编号'].apply(lambda x: MARKET_NUMBER_DICT.get(str(x)))
-    del df['市场编号']
     return df
 
 
