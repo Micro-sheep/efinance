@@ -95,7 +95,17 @@ EASTMONEY_KLINE_FIELDS = {
     'f61': '换手率'
 
 }
+# 股票、ETF、债券 近 n 天 1 分钟 K 线表头
+EASTMONEY_KLINE_NDAYS_FIELDS = {
+    'f51': '日期',
+    'f52': '开盘',
+    'f53': '收盘',
+    'f54': '最高',
+    'f55': '最低',
+    'f56': '成交量',
+    'f57': '成交额',
 
+}
 # 股票、债券榜单表头
 EASTMONEY_QUOTE_FIELDS = {
     'f12': '代码',

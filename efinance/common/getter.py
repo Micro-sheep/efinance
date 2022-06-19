@@ -11,8 +11,9 @@ from ..common.config import MARKET_NUMBER_DICT
 from ..shared import BASE_INFO_CACHE, session
 from ..utils import get_quote_id, to_numeric
 from .config import (EASTMONEY_BASE_INFO_FIELDS, EASTMONEY_HISTORY_BILL_FIELDS,
-                     EASTMONEY_KLINE_FIELDS, EASTMONEY_QUOTE_FIELDS,
-                     EASTMONEY_REQUEST_HEADERS, MagicConfig)
+                     EASTMONEY_KLINE_FIELDS, EASTMONEY_KLINE_NDAYS_FIELDS,
+                     EASTMONEY_QUOTE_FIELDS, EASTMONEY_REQUEST_HEADERS,
+                     MagicConfig)
 
 
 @to_numeric
@@ -448,4 +449,59 @@ def get_latest_quote(quote_id_list: Union[str, List[str]],
     del df['最新交易日']
     df['最新交易日'] = tmp
     del df['更新时间戳']
+    return df
+
+
+@to_numeric
+def get_latest_ndays_quote(code: str,
+                           ndays: int = 1,
+                           **kwargs) -> pd.DataFrame:
+    """
+    获取股票、期货、债券的最近 ``ndays`` 天的1分钟K线行情
+
+    Parameters
+    ----------
+    code : str
+        代码、名称或者行情ID 如果是行情ID则需传入 ``quote_id_mode=True``
+    ndays : int, optional
+        天数 默认为 ``1`` 最大为 ``5``
+
+    Returns
+    -------
+    DataFrame
+        股票、期货、债券的最近 ndays 天的1分钟K线行情
+    """
+    # TODO 考虑如何解决 ndays 不为 1 时，第一天开盘价为 0 的问题
+    fields = list(EASTMONEY_KLINE_NDAYS_FIELDS.keys())
+    columns = list(EASTMONEY_KLINE_NDAYS_FIELDS.values())
+    fields2 = ",".join(fields)
+    if kwargs.get(MagicConfig.QUOTE_ID_MODE):
+        quote_id = code
+    else:
+        quote_id = get_quote_id(code)
+    params = (
+        ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
+        ('fields2', fields2),
+        ('ndays', ndays),
+        ('iscr', '0'),
+        ('iscca', '0'),
+        ('secid', quote_id),
+    )
+
+    json_response = session.get('http://push2his.eastmoney.com/api/qt/stock/trends2/get',
+                                params=params).json()
+
+    klines: List[str] = jsonpath(json_response, '$..trends[:]')
+    if not klines:
+        columns.insert(0, '代码')
+        columns.insert(0, '名称')
+        return pd.DataFrame(columns=columns)
+
+    rows = [kline.split(',') for kline in klines]
+    name = json_response['data']['name']
+    code = quote_id.split('.')[-1]
+    df = pd.DataFrame(rows, columns=columns)
+    df.insert(0, '代码', code)
+    df.insert(0, '名称', name)
+
     return df

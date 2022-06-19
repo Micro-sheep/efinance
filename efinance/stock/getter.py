@@ -20,13 +20,11 @@ from ..common import get_history_bill as get_history_bill_for_stock
 from ..common import get_quote_history as get_quote_history_for_stock
 from ..common import get_realtime_quotes_by_fs
 from ..common import get_today_bill as get_today_bill_for_stock
-from ..common.config import (EASTMONEY_REQUEST_HEADERS,
-                             FS_DICT)
+from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig
 from ..common.getter import get_latest_quote as get_latest_quote_for_stock
 from ..shared import session
-from ..utils import (get_quote_id, process_dataframe_and_series,
-                     search_quote, to_numeric,
-                     to_type)
+from ..utils import (get_quote_id, process_dataframe_and_series, search_quote,
+                     to_numeric, to_type)
 from .config import (EASTMONEY_STOCK_BASE_INFO_FIELDS,
                      EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS)
 
@@ -493,9 +491,11 @@ def get_latest_quote(stock_codes: Union[str, List[str]],
     """
     if isinstance(stock_codes, str):
         stock_codes = [stock_codes]
+    if kwargs.get(MagicConfig.QUOTE_ID_MODE):
+        secids = stock_codes
     secids: List[str] = [get_quote_id(stock_code)
                          for stock_code in stock_codes]
-    df = get_latest_quote_for_stock(secids,**kwargs)
+    df = get_latest_quote_for_stock(secids, **kwargs)
 
     return df
 
@@ -1359,7 +1359,8 @@ def get_quote_snapshot(stock_code: str) -> pd.Series:
 
 
 def get_deal_detail(stock_code: str,
-                    max_count: int = 1000000) -> pd.DataFrame:
+                    max_count: int = 1000000,
+                    **kwargs) -> pd.DataFrame:
     """
     获取股票最新交易日成交明细
 
@@ -1393,11 +1394,15 @@ def get_deal_detail(stock_code: str,
     4596  贵州茅台  600519  1794.92  15:00:00  1835.00  893  406
 
     """
-    q = search_quote(stock_code)
     columns = ['股票名称', '股票代码', '时间', '昨收', '成交价', '成交量', '单数']
-    if not q:
+    quote_id = ''
+    if kwargs.get(MagicConfig.QUOTE_ID_MODE):
+        quote_id = stock_code
+    else:
+        quote_id = get_quote_id(stock_code)
+    if not quote_id:
         return pd.DataFrame(columns=columns)
-    df = get_deal_detail_for_stock(q.quote_id, max_count=max_count)
+    df = get_deal_detail_for_stock(quote_id, max_count=max_count)
     df.rename(
         columns={'代码': '股票代码', '名称': '股票名称'},
         inplace=True

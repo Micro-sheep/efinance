@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+## Added
+
+- 添加获取近 n 日 1 分钟 K 线的功能
+
 ## v0.4.6(2022-06-19)
 
 ### Changed

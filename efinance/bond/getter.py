@@ -9,8 +9,9 @@ from ..common import get_history_bill as get_history_bill_for_bond
 from ..common import get_quote_history as get_quote_history_for_bond
 from ..common import get_realtime_quotes_by_fs
 from ..common import get_today_bill as get_today_bill_for_bond
-from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT
-from ..utils import process_dataframe_and_series, search_quote, to_numeric
+from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig
+from ..utils import (get_quote_id, process_dataframe_and_series, search_quote,
+                     to_numeric)
 from .config import EASTMONEY_BOND_BASE_INFO_FIELDS
 
 
@@ -382,7 +383,8 @@ def get_today_bill(bond_code: str) -> pd.DataFrame:
 
 
 def get_deal_detail(bond_code: str,
-                    max_count: int = 1000000) -> pd.DataFrame:
+                    max_count: int = 1000000,
+                    **kwargs) -> pd.DataFrame:
     """
     获取债券最新交易日成交明细
 
@@ -416,11 +418,16 @@ def get_deal_detail(bond_code: str,
     1724  南银转债  113050  15:00:00  122.44  121.82   50   0
 
     """
-    q = search_quote(bond_code)
+
+    quote_id = ''
+    if kwargs.get(MagicConfig.QUOTE_ID_MODE):
+        quote_id = bond_code
+    else:
+        quote_id = get_quote_id(bond_code)
     columns = ['债券名称', '债券代码', '时间', '昨收', '成交价', '成交量', '单数']
-    if not q:
+    if not quote_id:
         return pd.DataFrame(columns=columns)
-    df = get_deal_detail_for_bond(q.quote_id, max_count=max_count)
+    df = get_deal_detail_for_bond(quote_id, max_count=max_count)
     df.rename(
         columns={'代码': '债券代码', '名称': '债券名称'},
         inplace=True
