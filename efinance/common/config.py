@@ -1,6 +1,12 @@
 from pathlib import Path
 HERE = Path(__file__).parent
 
+
+class MagicConfig:
+    EXTRA_FIELDS = 'extra_fields'
+    QUOTE_ID_MODE = 'quote_id_mode'
+
+
 # 各个市场编号
 MARKET_NUMBER_DICT = {
     '0': '深A',
@@ -108,7 +114,9 @@ EASTMONEY_QUOTE_FIELDS = {
     'f18': '昨日收盘',
     'f20': '总市值',
     'f21': '流通市值',
-    'f13': '市场编号'
+    'f13': '市场编号',
+    'f124': '更新时间戳',
+    'f297': '最新交易日',
 }
 
 # 股票、债券历史大单数据表头

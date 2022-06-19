@@ -189,7 +189,7 @@ def get_all_base_info() -> pd.DataFrame:
 
 @process_dataframe_and_series(remove_columns_and_indexes=['市场编号'])
 @to_numeric
-def get_realtime_quotes() -> pd.DataFrame:
+def get_realtime_quotes(**kwargs) -> pd.DataFrame:
     """
     获取沪深市场全部债券实时行情信息
 
@@ -216,7 +216,7 @@ def get_realtime_quotes() -> pd.DataFrame:
     394  123066  赛意转债   -6.0   193.08  203.999   193.08   203.0  -12.32   323.13   0.22     -   133317   261546032.0   205.4    79660753    79660753  0.123066   深A
 
     """
-    df = get_realtime_quotes_by_fs(FS_DICT['bond'])
+    df = get_realtime_quotes_by_fs(FS_DICT['bond'], **kwargs)
     df.rename(columns={'代码': '债券代码',
                        '名称': '债券名称'},
               inplace=True)

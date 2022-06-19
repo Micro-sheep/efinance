@@ -1,23 +1,23 @@
+from datetime import datetime
 from typing import Dict, List, Union
 
 import multitasking
-import numpy as np
 import pandas as pd
 from jsonpath import jsonpath
 from retry import retry
 from tqdm import tqdm
 
-from efinance.stock.config import EASTMONEY_STOCK_BASE_INFO_FIELDS
-
 from ..common.config import MARKET_NUMBER_DICT
 from ..shared import BASE_INFO_CACHE, session
 from ..utils import get_quote_id, to_numeric
-from .config import (EASTMONEY_BASE_INFO_FIELDS, EASTMONEY_HISTORY_BILL_FIELDS, EASTMONEY_KLINE_FIELDS,
-                     EASTMONEY_QUOTE_FIELDS, EASTMONEY_REQUEST_HEADERS)
+from .config import (EASTMONEY_BASE_INFO_FIELDS, EASTMONEY_HISTORY_BILL_FIELDS,
+                     EASTMONEY_KLINE_FIELDS, EASTMONEY_QUOTE_FIELDS,
+                     EASTMONEY_REQUEST_HEADERS, MagicConfig)
 
 
 @to_numeric
-def get_realtime_quotes_by_fs(fs: str) -> pd.DataFrame:
+def get_realtime_quotes_by_fs(fs: str,
+                              **kwargs) -> pd.DataFrame:
     """
     获取沪深市场最新行情总体情况
 
@@ -28,7 +28,11 @@ def get_realtime_quotes_by_fs(fs: str) -> pd.DataFrame:
 
     """
 
-    fields = ",".join(EASTMONEY_QUOTE_FIELDS.keys())
+    columns = {
+        **EASTMONEY_QUOTE_FIELDS,
+        **kwargs.get(MagicConfig.EXTRA_FIELDS, {})
+    }
+    fields = ",".join(columns.keys())
     params = (
         ('pn', '1'),
         ('pz', '1000000'),
@@ -45,12 +49,17 @@ def get_realtime_quotes_by_fs(fs: str) -> pd.DataFrame:
                                 headers=EASTMONEY_REQUEST_HEADERS,
                                 params=params).json()
     df = pd.DataFrame(json_response['data']['diff'])
-    df = df.rename(columns=EASTMONEY_QUOTE_FIELDS)
-    df = df[EASTMONEY_QUOTE_FIELDS.values()]
-    df['行情ID'] = df['市场编号'].astype(str)+'.'+df['代码'].astype('str')
+    df = df.rename(columns=columns)
+    df: pd.DataFrame = df[columns.values()]
+    df['行情ID'] = df['市场编号'].astype(str)+'.'+df['代码'].astype(str)
     df['市场类型'] = df['市场编号'].astype(str).apply(
         lambda x: MARKET_NUMBER_DICT.get(x))
-
+    df['更新时间'] = df['更新时间戳'].apply(lambda x: str(datetime.fromtimestamp(x)))
+    df['最新交易日'] = pd.to_datetime(df['最新交易日'], format='%Y%m%d').astype(str)
+    tmp = df['最新交易日']
+    del df['最新交易日']
+    df['最新交易日'] = tmp
+    del df['更新时间戳']
     return df
 
 
@@ -69,7 +78,7 @@ def get_quote_history_single(code: str,
     fields = list(EASTMONEY_KLINE_FIELDS.keys())
     columns = list(EASTMONEY_KLINE_FIELDS.values())
     fields2 = ",".join(fields)
-    if kwargs.get('quote_id_mode'):
+    if kwargs.get(MagicConfig.QUOTE_ID_MODE):
         quote_id = code
     else:
         quote_id = get_quote_id(code)
@@ -273,7 +282,6 @@ def get_today_bill(code: str) -> pd.DataFrame:
     DataFrame
         单只股票、债券最新交易日的日内分钟级单子流入流出数据
 
-
     """
     quote_id = get_quote_id(code)
     params = (
@@ -378,7 +386,8 @@ def get_deal_detail(quote_id: str,
 
 
 @to_numeric
-def get_latest_quote(quote_id_list: Union[str, List[str]]) -> pd.DataFrame:
+def get_latest_quote(quote_id_list: Union[str, List[str]],
+                     **kwargs) -> pd.DataFrame:
     """
     获取股票、期货、债券的最新行情
 
@@ -404,7 +413,10 @@ def get_latest_quote(quote_id_list: Union[str, List[str]]) -> pd.DataFrame:
         quote_id_list = [quote_id_list]
     secids: List[str] = quote_id_list
 
-    columns = EASTMONEY_QUOTE_FIELDS
+    columns = {
+        **EASTMONEY_QUOTE_FIELDS,
+        **kwargs.get(MagicConfig.EXTRA_FIELDS, {})
+    }
     fields = ",".join(columns.keys())
     params = (
         ('OSVersion', '14.3'),
@@ -430,4 +442,10 @@ def get_latest_quote(quote_id_list: Union[str, List[str]]) -> pd.DataFrame:
     df['市场类型'] = df['市场编号'].apply(lambda x: MARKET_NUMBER_DICT.get(str(x)))
     df['行情ID'] = df['市场编号'].astype(str) + '.' + df['代码'].astype(str)
     del df['市场编号']
+    df['更新时间'] = df['更新时间戳'].apply(lambda x: str(datetime.fromtimestamp(x)))
+    df['最新交易日'] = pd.to_datetime(df['最新交易日'], format='%Y%m%d').astype(str)
+    tmp = df['最新交易日']
+    del df['最新交易日']
+    df['最新交易日'] = tmp
+    del df['更新时间戳']
     return df

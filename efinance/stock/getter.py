@@ -257,7 +257,8 @@ def get_quote_history(stock_codes: Union[str, List[str]],
 
 @process_dataframe_and_series(remove_columns_and_indexes=['市场编号'])
 @to_numeric
-def get_realtime_quotes(fs: Union[str, List[str]] = None) -> pd.DataFrame:
+def get_realtime_quotes(fs: Union[str, List[str]] = None,
+                        **kwargs) -> pd.DataFrame:
     """
     获取单个或者多个市场行情的最新状况
 
@@ -368,7 +369,7 @@ def get_realtime_quotes(fs: Union[str, List[str]] = None) -> pd.DataFrame:
         if not fs_list:
             fs_list.append(FS_DICT['stock'])
     fs_str = ','.join(fs_list)
-    df = get_realtime_quotes_by_fs(fs_str)
+    df = get_realtime_quotes_by_fs(fs_str, **kwargs)
     df.rename(columns={'代码': '股票代码',
                        '名称': '股票名称'
                        }, inplace=True)
@@ -458,7 +459,8 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
     return df
 
 
-def get_latest_quote(stock_codes: Union[str, List[str]]) -> pd.DataFrame:
+def get_latest_quote(stock_codes: Union[str, List[str]],
+                     **kwargs) -> pd.DataFrame:
     """
     获取沪深市场多只股票的实时涨幅情况
 
@@ -493,7 +495,7 @@ def get_latest_quote(stock_codes: Union[str, List[str]]) -> pd.DataFrame:
         stock_codes = [stock_codes]
     secids: List[str] = [get_quote_id(stock_code)
                          for stock_code in stock_codes]
-    df = get_latest_quote_for_stock(secids)
+    df = get_latest_quote_for_stock(secids,**kwargs)
 
     return df
 
