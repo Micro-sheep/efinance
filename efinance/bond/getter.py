@@ -184,7 +184,7 @@ def get_all_base_info() -> pd.DataFrame:
         dfs.append(df)
         page += 1
 
-    df = pd.concat(dfs)
+    df = pd.concat(dfs, ignore_index=True)
     return df
 
 

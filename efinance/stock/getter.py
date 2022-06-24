@@ -493,8 +493,9 @@ def get_latest_quote(stock_codes: Union[str, List[str]],
         stock_codes = [stock_codes]
     if kwargs.get(MagicConfig.QUOTE_ID_MODE):
         secids = stock_codes
-    secids: List[str] = [get_quote_id(stock_code)
-                         for stock_code in stock_codes]
+    else:
+        secids = [get_quote_id(stock_code)
+                  for stock_code in stock_codes]
     df = get_latest_quote_for_stock(secids, **kwargs)
 
     return df

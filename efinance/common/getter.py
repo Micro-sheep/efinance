@@ -434,7 +434,6 @@ def get_latest_quote(quote_id_list: Union[str, List[str]],
     json_response = session.get(url,
                                 headers=EASTMONEY_REQUEST_HEADERS,
                                 params=params).json()
-
     rows = jsonpath(json_response, '$..diff[:]')
     if not rows:
         df = pd.DataFrame(columns=columns.values())
