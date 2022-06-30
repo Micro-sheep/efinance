@@ -54,7 +54,10 @@ def get_base_info_single(stock_code: str) -> pd.Series:
     secid = get_quote_id(stock_code)
     if not secid:
         return pd.Series(index=EASTMONEY_STOCK_BASE_INFO_FIELDS.values(), dtype='object')
-    return get_base_info_for_stock(secid)
+    return get_base_info_for_stock(secid).rename(index={
+        '代码': '股票代码',
+        '名称': '股票名称'
+    })
 
 
 def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:

@@ -1,12 +1,18 @@
 # Changelog
 
+## v0.4.8(2022-06-30)
+
+### Fixed
+
+- 修复 `stock` 模块的 `get_base_info` 函数的 bug
+
 ## v0.4.7(2022-06-24)
 
-## Added
+### Added
 
 - 添加获取近 n 日 1 分钟 K 线的功能
 
-## Fixed
+### Fixed
 
 - 修复部分函数命名拼写错误
 
