@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.9(2022-07-29)
+
+### Added
+
+- 为 `get_quote_history` 添加更多选项
+
 ## v0.4.8(2022-06-30)
 
 ### Fixed

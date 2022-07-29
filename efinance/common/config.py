@@ -5,6 +5,7 @@ HERE = Path(__file__).parent
 class MagicConfig:
     EXTRA_FIELDS = 'extra_fields'
     QUOTE_ID_MODE = 'quote_id_mode'
+    RETURN_DF = 'return_df'
 
 
 # 各个市场编号

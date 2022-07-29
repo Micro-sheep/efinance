@@ -149,6 +149,8 @@ def get_quote_history_multi(codes: List[str],
         start(code)
     multitasking.wait_for_tasks()
     pbar.close()
+    if kwargs.get(MagicConfig.RETURN_DF):
+        return pd.concat(dfs, axis=0, ignore_index=True)
     return dfs
 
 

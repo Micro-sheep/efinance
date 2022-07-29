@@ -292,7 +292,8 @@ def get_quote_history(bond_codes: Union[str, List[str]],
         beg=beg,
         end=end,
         klt=klt,
-        fqt=fqt
+        fqt=fqt,
+        **kwargs
     )
 
     if isinstance(df, pd.DataFrame):
@@ -307,9 +308,6 @@ def get_quote_history(bond_codes: Union[str, List[str]],
                                           '名称': '债券名称'
                                           },
                                  inplace=True)
-        # NOTE 扩展接口 设定此关键词即返回 DataFrame 而不是 dict
-        if kwargs.get('return_df'):
-            df: pd.DataFrame = pd.concat(df, axis=0, ignore_index=True)
     return df
 
 
