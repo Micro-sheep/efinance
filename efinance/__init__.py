@@ -5,5 +5,6 @@ __docformat__ = "restructuredtext"
 from efinance.api import (stock,
                           fund,
                           futures,
-                          bond)
-__all__ = ['stock', 'fund', 'bond', 'futures']
+                          bond,
+                          macro)
+__all__ = ['stock', 'fund', 'bond', 'futures', 'macro']
