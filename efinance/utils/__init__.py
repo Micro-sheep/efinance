@@ -1,3 +1,5 @@
+from collections import OrderedDict
+from ..common.config import MARKET_NUMBER_DICT, FS_DICT
 from typing import Any
 import time
 import json
@@ -154,10 +156,10 @@ def search_quote_locally(keyword: str) -> Union[Quote, None]:
         return None
     last_time: float = q['last_time']
     # 缓存过期秒数
-    max_ts = 3600*24*3
+    max_ts = 3600 * 24 * 3
     now = time.time()
     # 缓存过期，在线搜索
-    if (now-last_time) > max_ts:
+    if (now - last_time) > max_ts:
         return None
     # NOTE 一定要拷贝 否则改变源对象
     _q = q.copy()
@@ -292,6 +294,34 @@ def to_type(f: Callable[[str], T],
         if default is None:
             return value
         return default
+
+
+def add_market(category: str,
+               market_number: str,
+               market_name: str,
+               drop_duplicate: bool = True
+               ) -> None:
+    """
+    添加市场
+
+    Parameters
+    ----------
+    category : str
+        市场类别
+    market_number : str
+        市场编号
+    market_name : str
+        市场名称
+    drop_duplicate : bool, optional
+        是否去重, 默认为 ``True``
+    """
+    MARKET_NUMBER_DICT[market_number] = market_name
+    old = FS_DICT.get(category, '')
+    new = f'{old},m:{market_number}'
+    if drop_duplicate:
+        FS_DICT[category] = ','.join(OrderedDict.fromkeys(new.split(',')))
+    else:
+        FS_DICT[category] = new
 
 
 __all__ = []

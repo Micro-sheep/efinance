@@ -52,7 +52,7 @@ def get_realtime_quotes_by_fs(fs: str,
     df = pd.DataFrame(json_response['data']['diff'])
     df = df.rename(columns=columns)
     df: pd.DataFrame = df[columns.values()]
-    df['行情ID'] = df['市场编号'].astype(str)+'.'+df['代码'].astype(str)
+    df['行情ID'] = df['市场编号'].astype(str) + '.' + df['代码'].astype(str)
     df['市场类型'] = df['市场编号'].astype(str).apply(
         lambda x: MARKET_NUMBER_DICT.get(x))
     df['更新时间'] = df['更新时间戳'].apply(lambda x: str(datetime.fromtimestamp(x)))
@@ -382,7 +382,7 @@ def get_deal_detail(quote_id: str,
     df = pd.DataFrame(columns=columns, index=range(len(rows)))
     df.loc[:, '代码'] = code
     df.loc[:, '名称'] = name
-    detail_df = pd.DataFrame(rows, columns=['时间',  '成交价', '成交量', '单数'])
+    detail_df = pd.DataFrame(rows, columns=['时间', '成交价', '成交量', '单数'])
     detail_df.insert(1, '昨收', js['data']['prePrice'])
     df.loc[:, detail_df.columns] = detail_df.values
     return df
