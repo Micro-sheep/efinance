@@ -1,9 +1,12 @@
-from typing import Dict
-from ..config import SEARCH_RESULT_CACHE_PATH
-from pathlib import Path
-import requests
 import json
+from pathlib import Path
+from typing import Dict
+
 import pandas as pd
+import requests
+
+from ..config import SEARCH_RESULT_CACHE_PATH
+
 session = requests.Session()
 # 关键词搜索缓存
 SEARCH_RESULT_DICT: Dict[str, dict] = dict()

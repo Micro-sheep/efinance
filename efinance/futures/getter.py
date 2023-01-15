@@ -37,7 +37,7 @@ def get_futures_base_info() -> pd.DataFrame:
 
     Notes
     -----
-    这里的 行情ID 主要作用是为使用函数 ``efinance.futures.get_quote_history`` 
+    这里的 行情ID 主要作用是为使用函数 ``efinance.futures.get_quote_history``
     获取期货行情信息提供参数
     """
     columns = ['期货代码', '期货名称', '行情ID', '市场类型']
@@ -46,12 +46,14 @@ def get_futures_base_info() -> pd.DataFrame:
     return df
 
 
-def get_quote_history(quote_ids: Union[str, List[str]],
-                      beg: str = '19000101',
-                      end: str = '20500101',
-                      klt: int = 101,
-                      fqt: int = 1,
-                      **kwargs) -> pd.DataFrame:
+def get_quote_history(
+    quote_ids: Union[str, List[str]],
+    beg: str = '19000101',
+    end: str = '20500101',
+    klt: int = 101,
+    fqt: int = 1,
+    **kwargs
+) -> pd.DataFrame:
     """
     获取期货历史行情信息
 
@@ -137,24 +139,15 @@ def get_quote_history(quote_ids: Union[str, List[str]],
     1528  动力煤主力  ZCM  2021-08-23  796.8  836.6  843.8  796.8  82954  6.850341e+09  5.97  6.28  49.4  0.0
 
     """
-    df = get_quote_history_for_futures(quote_ids,
-                                       beg=beg,
-                                       end=end,
-                                       klt=klt,
-                                       fqt=fqt,
-                                       quote_id_mode=True)
+    df = get_quote_history_for_futures(
+        quote_ids, beg=beg, end=end, klt=klt, fqt=fqt, quote_id_mode=True
+    )
     if isinstance(df, pd.DataFrame):
 
-        df.rename(columns={'代码': '期货代码',
-                           '名称': '期货名称'
-                           },
-                  inplace=True)
+        df.rename(columns={'代码': '期货代码', '名称': '期货名称'}, inplace=True)
     elif isinstance(df, dict):
         for stock_code in df.keys():
-            df[stock_code].rename(columns={'代码': '期货代码',
-                                           '名称': '期货名称'
-                                           },
-                                  inplace=True)
+            df[stock_code].rename(columns={'代码': '期货代码', '名称': '期货名称'}, inplace=True)
             # NOTE 扩展接口 设定此关键词即返回 DataFrame 而不是 dict
         if kwargs.get('return_df'):
             df: pd.DataFrame = pd.concat(df, axis=0, ignore_index=True)
@@ -191,20 +184,17 @@ def get_realtime_quotes() -> pd.DataFrame:
     Notes
     -----
     如果不记得行情ID,则可以调用函数 ``efinance.futures.get_realtime_quotes`` 获取
-    接着便可以使用函数 ``efinance.futures.get_quote_history`` 
+    接着便可以使用函数 ``efinance.futures.get_quote_history``
     来获取期货 K 线数据
 
     """
     fs = FS_DICT['futures']
     df = get_realtime_quotes_by_fs(fs)
-    df = df.rename(columns={'代码': '期货代码',
-                            '名称': '期货名称'
-                            })
+    df = df.rename(columns={'代码': '期货代码', '名称': '期货名称'})
     return df
 
 
-def get_deal_detail(quote_id: str,
-                    max_count: int = 1000000) -> pd.DataFrame:
+def get_deal_detail(quote_id: str, max_count: int = 1000000) -> pd.DataFrame:
     """
     获取期货最新交易日成交明细
 

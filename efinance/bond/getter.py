@@ -10,8 +10,7 @@ from ..common import get_quote_history as get_quote_history_for_bond
 from ..common import get_realtime_quotes_by_fs
 from ..common import get_today_bill as get_today_bill_for_bond
 from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig
-from ..utils import (get_quote_id, process_dataframe_and_series, search_quote,
-                     to_numeric)
+from ..utils import get_quote_id, process_dataframe_and_series, to_numeric
 from .config import EASTMONEY_BOND_BASE_INFO_FIELDS
 
 
@@ -40,9 +39,9 @@ def get_base_info_single(bond_code: str) -> pd.Series:
     )
 
     url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
-    json_response = requests.get(url,
-                                 headers=EASTMONEY_REQUEST_HEADERS,
-                                 params=params).json()
+    json_response = requests.get(
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+    ).json()
     if json_response['result'] is None:
         return pd.Series(index=columns.values(), dtype='object')
     items = json_response['result']['data']
@@ -71,6 +70,7 @@ def get_base_info_multi(bond_codes: List[str]) -> pd.DataFrame:
     def start(bond_code: str) -> None:
         s = get_base_info_single(bond_code)
         ss.append(s)
+
     for bond_code in bond_codes:
         start(bond_code)
     multitasking.wait_for_tasks()
@@ -173,14 +173,13 @@ def get_all_base_info() -> pd.DataFrame:
         )
 
         url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
-        json_response = requests.get(url,
-                                     headers=EASTMONEY_REQUEST_HEADERS,
-                                     params=params).json()
+        json_response = requests.get(
+            url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+        ).json()
         if json_response['result'] is None:
             break
         data = json_response['result']['data']
-        df = pd.DataFrame(data).rename(
-            columns=columns)[columns.values()]
+        df = pd.DataFrame(data).rename(columns=columns)[columns.values()]
         dfs.append(df)
         page += 1
 
@@ -218,18 +217,18 @@ def get_realtime_quotes(**kwargs) -> pd.DataFrame:
 
     """
     df = get_realtime_quotes_by_fs(FS_DICT['bond'], **kwargs)
-    df.rename(columns={'代码': '债券代码',
-                       '名称': '债券名称'},
-              inplace=True)
+    df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
     return df
 
 
-def get_quote_history(bond_codes: Union[str, List[str]],
-                      beg: str = '19000101',
-                      end: str = '20500101',
-                      klt: int = 101,
-                      fqt: int = 1,
-                      **kwargs) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
+def get_quote_history(
+    bond_codes: Union[str, List[str]],
+    beg: str = '19000101',
+    end: str = '20500101',
+    klt: int = 101,
+    fqt: int = 1,
+    **kwargs,
+) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
     获取债券的 K 线数据
 
@@ -288,26 +287,15 @@ def get_quote_history(bond_codes: Union[str, List[str]],
 
     """
     df = get_quote_history_for_bond(
-        bond_codes,
-        beg=beg,
-        end=end,
-        klt=klt,
-        fqt=fqt,
-        **kwargs
+        bond_codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
     )
 
     if isinstance(df, pd.DataFrame):
 
-        df.rename(columns={'代码': '债券代码',
-                           '名称': '债券名称'
-                           },
-                  inplace=True)
+        df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
     elif isinstance(df, dict):
         for bond_code in df.keys():
-            df[bond_code].rename(columns={'代码': '债券代码',
-                                          '名称': '债券名称'
-                                          },
-                                 inplace=True)
+            df[bond_code].rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
     return df
 
 
@@ -333,9 +321,7 @@ def get_history_bill(bond_code: str) -> pd.DataFrame:
     """
 
     df = get_history_bill_for_bond(bond_code)
-    df.rename(columns={'代码': '债券代码',
-                       '名称': '债券名称'},
-              inplace=True)
+    df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
     return df
 
 
@@ -372,17 +358,12 @@ def get_today_bill(bond_code: str) -> pd.DataFrame:
 
     """
     df = get_today_bill_for_bond(bond_code)
-    df.rename(columns={
-        '代码': '债券代码',
-        '名称': '债券名称'},
-        inplace=True)
+    df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
 
     return df
 
 
-def get_deal_detail(bond_code: str,
-                    max_count: int = 1000000,
-                    **kwargs) -> pd.DataFrame:
+def get_deal_detail(bond_code: str, max_count: int = 1000000, **kwargs) -> pd.DataFrame:
     """
     获取债券最新交易日成交明细
 
@@ -426,8 +407,5 @@ def get_deal_detail(bond_code: str,
     if not quote_id:
         return pd.DataFrame(columns=columns)
     df = get_deal_detail_for_bond(quote_id, max_count=max_count)
-    df.rename(
-        columns={'代码': '债券代码', '名称': '债券名称'},
-        inplace=True
-    )
+    df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
     return df

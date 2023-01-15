@@ -1,4 +1,3 @@
-
 EastmoneyRank = {
     'f12': '代码',
     'f14': '名称',
@@ -7,7 +6,7 @@ EastmoneyRank = {
     'f4': '涨跌额',
     'f5': '成交量',
     'f6': '成交额',
-    'f18': '昨日收盘'
+    'f18': '昨日收盘',
 }
 
 EastmoneyHeaders = {

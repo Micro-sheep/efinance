@@ -1,18 +1,18 @@
-from collections import OrderedDict
-from ..common.config import MARKET_NUMBER_DICT, FS_DICT
-from typing import Any
-import time
 import json
 import re
-from typing import Callable, Dict, Union, List, TypeVar
+import time
+from collections import OrderedDict, namedtuple
 from functools import wraps
+from typing import Any, Callable, Dict, List, TypeVar, Union
+
 import pandas as pd
-from collections import namedtuple
-from retry.api import retry
 import rich
+from retry.api import retry
+
+from ..common.config import FS_DICT, MARKET_NUMBER_DICT
 from ..config import SEARCH_RESULT_CACHE_PATH
-from ..shared import (SEARCH_RESULT_DICT,
-                      session)
+from ..shared import SEARCH_RESULT_DICT, session
+
 # 函数变量
 F = TypeVar('F')
 
@@ -60,12 +60,30 @@ def to_numeric(func: F) -> F:
         except:
             pass
         return o
+
     return run
 
 
 # 存储证券代码的实体
-Quote = namedtuple('Quote', ['code', 'name', 'pinyin', 'id', 'jys', 'classify', 'market_type',
-                   'security_typeName', 'security_type', 'mkt_num', 'type_us', 'quote_id', 'unified_code', 'inner_code'])
+Quote = namedtuple(
+    'Quote',
+    [
+        'code',
+        'name',
+        'pinyin',
+        'id',
+        'jys',
+        'classify',
+        'market_type',
+        'security_typeName',
+        'security_type',
+        'mkt_num',
+        'type_us',
+        'quote_id',
+        'unified_code',
+        'inner_code',
+    ],
+)
 
 
 @retry(tries=3, delay=1)
@@ -93,9 +111,9 @@ def get_quote_id(stock_code: str) -> str:
         return ''
 
 
-def search_quote(keyword: str,
-                 count: int = 1,
-                 use_local: bool = True) -> Union[Quote, None, List[Quote]]:
+def search_quote(
+    keyword: str, count: int = 1, use_local: bool = True
+) -> Union[Quote, None, List[Quote]]:
     """
     根据关键词搜索以获取证券信息
 
@@ -123,7 +141,8 @@ def search_quote(keyword: str,
         ('input', f'{keyword}'),
         ('type', '14'),
         ('token', 'D43BF722C8E33BDC906FB84D85E326E8'),
-        ('count', f'{count}'))
+        ('count', f'{count}'),
+    )
     json_response = session.get(url, params=params).json()
     items = json_response['QuotationCodeTable']['Data']
     if items is not None:
@@ -191,9 +210,9 @@ def save_search_result(keyword: str, quotes: List[Quote]):
         json.dump(SEARCH_RESULT_DICT.copy(), f)
 
 
-def rename_dataframe_and_series(fields: dict,
-                                to_be_removed: List[str] = [],
-                                keep_all: bool = True):
+def rename_dataframe_and_series(
+    fields: dict, to_be_removed: List[str] = [], keep_all: bool = True
+):
     """
     重命名 DataFrame 和 Series 的列名的装饰器
 
@@ -227,12 +246,16 @@ def rename_dataframe_and_series(fields: dict,
                 values = values.rename(fields)
 
             return values
+
         return wrapper
+
     return decorator
 
 
-def process_dataframe_and_series(function_fields: Dict[str, Callable] = dict(),
-                                 remove_columns_and_indexes: List[str] = list()):
+def process_dataframe_and_series(
+    function_fields: Dict[str, Callable] = dict(),
+    remove_columns_and_indexes: List[str] = list(),
+):
     """
     对 DataFrame 和 Series 进一步操作
 
@@ -243,6 +266,7 @@ def process_dataframe_and_series(function_fields: Dict[str, Callable] = dict(),
     remove_columns_and_indexes : List[str], optional
         需要删除的行或者列, by default list()
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -259,16 +283,16 @@ def process_dataframe_and_series(function_fields: Dict[str, Callable] = dict(),
                 for index in remove_columns_and_indexes:
                     values = values.drop(index)
             return values
+
         return wrapper
+
     return decorator
 
 
 T = TypeVar('T')
 
 
-def to_type(f: Callable[[str], T],
-            value: Any,
-            default: T = None) -> T:
+def to_type(f: Callable[[str], T], value: Any, default: T = None) -> T:
     """
     类型转换
 
@@ -296,11 +320,9 @@ def to_type(f: Callable[[str], T],
         return default
 
 
-def add_market(category: str,
-               market_number: str,
-               market_name: str,
-               drop_duplicate: bool = True
-               ) -> None:
+def add_market(
+    category: str, market_number: str, market_name: str, drop_duplicate: bool = True
+) -> None:
     """
     添加市场
 

@@ -10,15 +10,19 @@ from tqdm import tqdm
 from ..common.config import MARKET_NUMBER_DICT
 from ..shared import BASE_INFO_CACHE, session
 from ..utils import get_quote_id, to_numeric
-from .config import (EASTMONEY_BASE_INFO_FIELDS, EASTMONEY_HISTORY_BILL_FIELDS,
-                     EASTMONEY_KLINE_FIELDS, EASTMONEY_KLINE_NDAYS_FIELDS,
-                     EASTMONEY_QUOTE_FIELDS, EASTMONEY_REQUEST_HEADERS,
-                     MagicConfig)
+from .config import (
+    EASTMONEY_BASE_INFO_FIELDS,
+    EASTMONEY_HISTORY_BILL_FIELDS,
+    EASTMONEY_KLINE_FIELDS,
+    EASTMONEY_KLINE_NDAYS_FIELDS,
+    EASTMONEY_QUOTE_FIELDS,
+    EASTMONEY_REQUEST_HEADERS,
+    MagicConfig,
+)
 
 
 @to_numeric
-def get_realtime_quotes_by_fs(fs: str,
-                              **kwargs) -> pd.DataFrame:
+def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
     """
     获取沪深市场最新行情总体情况
 
@@ -29,10 +33,7 @@ def get_realtime_quotes_by_fs(fs: str,
 
     """
 
-    columns = {
-        **EASTMONEY_QUOTE_FIELDS,
-        **kwargs.get(MagicConfig.EXTRA_FIELDS, {})
-    }
+    columns = {**EASTMONEY_QUOTE_FIELDS, **kwargs.get(MagicConfig.EXTRA_FIELDS, {})}
     fields = ",".join(columns.keys())
     params = (
         ('pn', '1'),
@@ -43,18 +44,17 @@ def get_realtime_quotes_by_fs(fs: str,
         ('invt', '2'),
         ('fid', 'f3'),
         ('fs', fs),
-        ('fields', fields)
+        ('fields', fields),
     )
     url = 'http://push2.eastmoney.com/api/qt/clist/get'
-    json_response = session.get(url,
-                                headers=EASTMONEY_REQUEST_HEADERS,
-                                params=params).json()
+    json_response = session.get(
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+    ).json()
     df = pd.DataFrame(json_response['data']['diff'])
     df = df.rename(columns=columns)
     df: pd.DataFrame = df[columns.values()]
     df['行情ID'] = df['市场编号'].astype(str) + '.' + df['代码'].astype(str)
-    df['市场类型'] = df['市场编号'].astype(str).apply(
-        lambda x: MARKET_NUMBER_DICT.get(x))
+    df['市场类型'] = df['市场编号'].astype(str).apply(lambda x: MARKET_NUMBER_DICT.get(x))
     df['更新时间'] = df['更新时间戳'].apply(lambda x: str(datetime.fromtimestamp(x)))
     df['最新交易日'] = pd.to_datetime(df['最新交易日'], format='%Y%m%d').astype(str)
     tmp = df['最新交易日']
@@ -65,12 +65,14 @@ def get_realtime_quotes_by_fs(fs: str,
 
 
 @to_numeric
-def get_quote_history_single(code: str,
-                             beg: str = '19000101',
-                             end: str = '20500101',
-                             klt: int = 101,
-                             fqt: int = 1,
-                             **kwargs) -> pd.DataFrame:
+def get_quote_history_single(
+    code: str,
+    beg: str = '19000101',
+    end: str = '20500101',
+    klt: int = 101,
+    fqt: int = 1,
+    **kwargs,
+) -> pd.DataFrame:
     """
     获取单只股票、债券 K 线数据
 
@@ -97,7 +99,8 @@ def get_quote_history_single(code: str,
     url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
 
     json_response = session.get(
-        url, headers=EASTMONEY_REQUEST_HEADERS, params=params).json()
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+    ).json()
     klines: List[str] = jsonpath(json_response, '$..klines[:]')
     if not klines:
         columns.insert(0, '代码')
@@ -114,14 +117,15 @@ def get_quote_history_single(code: str,
     return df
 
 
-def get_quote_history_multi(codes: List[str],
-                            beg: str = '19000101',
-                            end: str = '20500101',
-                            klt: int = 101,
-                            fqt: int = 1,
-                            tries: int = 3,
-                            **kwargs
-                            ) -> Dict[str, pd.DataFrame]:
+def get_quote_history_multi(
+    codes: List[str],
+    beg: str = '19000101',
+    end: str = '20500101',
+    klt: int = 101,
+    fqt: int = 1,
+    tries: int = 3,
+    **kwargs,
+) -> Dict[str, pd.DataFrame]:
     """
     获取多只股票、债券历史行情信息
 
@@ -134,12 +138,8 @@ def get_quote_history_multi(codes: List[str],
     @retry(tries=tries, delay=1)
     def start(code: str):
         _df = get_quote_history_single(
-            code,
-            beg=beg,
-            end=end,
-            klt=klt,
-            fqt=fqt,
-            **kwargs)
+            code, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
+        )
         dfs[code] = _df
         pbar.update(1)
         pbar.set_description_str(f'Processing => {code}')
@@ -154,12 +154,14 @@ def get_quote_history_multi(codes: List[str],
     return dfs
 
 
-def get_quote_history(codes: Union[str, List[str]],
-                      beg: str = '19000101',
-                      end: str = '20500101',
-                      klt: int = 101,
-                      fqt: int = 1,
-                      **kwargs) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
+def get_quote_history(
+    codes: Union[str, List[str]],
+    beg: str = '19000101',
+    end: str = '20500101',
+    klt: int = 101,
+    fqt: int = 1,
+    **kwargs,
+) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
     获取股票、ETF、债券的 K 线数据
 
@@ -201,24 +203,16 @@ def get_quote_history(codes: Union[str, List[str]],
     """
 
     if isinstance(codes, str):
-        return get_quote_history_single(codes,
-                                        beg=beg,
-                                        end=end,
-                                        klt=klt,
-                                        fqt=fqt,
-                                        **kwargs)
+        return get_quote_history_single(
+            codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
+        )
 
     elif hasattr(codes, '__iter__'):
         codes = list(codes)
-        return get_quote_history_multi(codes,
-                                       beg=beg,
-                                       end=end,
-                                       klt=klt,
-                                       fqt=fqt,
-                                       **kwargs)
-    raise TypeError(
-        '代码数据类型输入不正确！'
-    )
+        return get_quote_history_multi(
+            codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
+        )
+    raise TypeError('代码数据类型输入不正确！')
 
 
 @to_numeric
@@ -248,12 +242,11 @@ def get_history_bill(code: str) -> pd.DataFrame:
         ('secid', quote_id),
         ('fields1', 'f1,f2,f3,f7'),
         ('fields2', fields2),
-
     )
     url = 'http://push2his.eastmoney.com/api/qt/stock/fflow/daykline/get'
-    json_response = session.get(url,
-                                headers=EASTMONEY_REQUEST_HEADERS,
-                                params=params).json()
+    json_response = session.get(
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+    ).json()
 
     klines: List[str] = jsonpath(json_response, '$..klines[:]')
     if not klines:
@@ -295,9 +288,9 @@ def get_today_bill(code: str) -> pd.DataFrame:
         ('fields2', 'f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63'),
     )
     url = 'http://push2.eastmoney.com/api/qt/stock/fflow/kline/get'
-    json_response = session.get(url,
-                                headers=EASTMONEY_REQUEST_HEADERS,
-                                params=params).json()
+    json_response = session.get(
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+    ).json()
     columns = ['时间', '主力净流入', '小单净流入', '中单净流入', '大单净流入', '超大单净流入']
     name = jsonpath(json_response, '$..name')[0]
     code = quote_id.split('.')[-1]
@@ -322,24 +315,22 @@ def get_base_info(quote_id: str) -> pd.Series:
         ('invt', '2'),
         ('fltt', '2'),
         ('fields', fields),
-        ('secid', quote_id)
+        ('secid', quote_id),
     )
     url = 'http://push2.eastmoney.com/api/qt/stock/get'
-    json_response = session.get(url,
-                                headers=EASTMONEY_REQUEST_HEADERS,
-                                params=params).json()
+    json_response = session.get(
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+    ).json()
     items = json_response['data']
     if not items:
         return pd.Series(index=EASTMONEY_BASE_INFO_FIELDS.values(), dtype='object')
 
-    s = pd.Series(items, dtype='object').rename(
-        index=EASTMONEY_BASE_INFO_FIELDS)
+    s = pd.Series(items, dtype='object').rename(index=EASTMONEY_BASE_INFO_FIELDS)
     return s
 
 
 @to_numeric
-def get_deal_detail(quote_id: str,
-                    max_count: int = 1000000) -> pd.DataFrame:
+def get_deal_detail(quote_id: str, max_count: int = 1000000) -> pd.DataFrame:
     """
     获取股票、期货、债券的最新交易日成交情况
 
@@ -370,11 +361,12 @@ def get_deal_detail(quote_id: str,
         ('secid', quote_id),
         ('fields1', 'f1,f2,f3,f4,f5'),
         ('fields2', 'f51,f52,f53,f54,f55'),
-        ('pos', f'-{int(max_count)}')
+        ('pos', f'-{int(max_count)}'),
     )
 
     response = session.get(
-        'https://push2.eastmoney.com/api/qt/stock/details/get', params=params)
+        'https://push2.eastmoney.com/api/qt/stock/details/get', params=params
+    )
 
     js: dict = response.json()
     lines: List[str] = js['data']['details']
@@ -389,8 +381,7 @@ def get_deal_detail(quote_id: str,
 
 
 @to_numeric
-def get_latest_quote(quote_id_list: Union[str, List[str]],
-                     **kwargs) -> pd.DataFrame:
+def get_latest_quote(quote_id_list: Union[str, List[str]], **kwargs) -> pd.DataFrame:
     """
     获取股票、期货、债券的最新行情
 
@@ -399,7 +390,7 @@ def get_latest_quote(quote_id_list: Union[str, List[str]],
     quote_id_list : List[str]
         带市场编号的行情ID或者行情ID组成的列表格式如下
         -  ``'1.600159'``
-        - ``['1.600159','0.300750']`` 
+        - ``['1.600159','0.300750']``
 
         市场编号参见文件 ``efinance/common/config.py`` 中的 ``MARKET_NUMBER_DICT``
 
@@ -416,10 +407,7 @@ def get_latest_quote(quote_id_list: Union[str, List[str]],
         quote_id_list = [quote_id_list]
     secids: List[str] = quote_id_list
 
-    columns = {
-        **EASTMONEY_QUOTE_FIELDS,
-        **kwargs.get(MagicConfig.EXTRA_FIELDS, {})
-    }
+    columns = {**EASTMONEY_QUOTE_FIELDS, **kwargs.get(MagicConfig.EXTRA_FIELDS, {})}
     fields = ",".join(columns.keys())
     params = (
         ('OSVersion', '14.3'),
@@ -433,9 +421,9 @@ def get_latest_quote(quote_id_list: Union[str, List[str]],
         ('version', '6.3.8'),
     )
     url = 'https://push2.eastmoney.com/api/qt/ulist.np/get'
-    json_response = session.get(url,
-                                headers=EASTMONEY_REQUEST_HEADERS,
-                                params=params).json()
+    json_response = session.get(
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+    ).json()
     rows = jsonpath(json_response, '$..diff[:]')
     if not rows:
         df = pd.DataFrame(columns=columns.values())
@@ -454,9 +442,7 @@ def get_latest_quote(quote_id_list: Union[str, List[str]],
 
 
 @to_numeric
-def get_latest_ndays_quote(code: str,
-                           ndays: int = 1,
-                           **kwargs) -> pd.DataFrame:
+def get_latest_ndays_quote(code: str, ndays: int = 1, **kwargs) -> pd.DataFrame:
     """
     获取股票、期货、债券的最近 ``ndays`` 天的1分钟K线行情
 
@@ -489,8 +475,9 @@ def get_latest_ndays_quote(code: str,
         ('secid', quote_id),
     )
 
-    json_response = session.get('http://push2his.eastmoney.com/api/qt/stock/trends2/get',
-                                params=params).json()
+    json_response = session.get(
+        'http://push2his.eastmoney.com/api/qt/stock/trends2/get', params=params
+    ).json()
 
     klines: List[str] = jsonpath(json_response, '$..trends[:]')
     if not klines:
