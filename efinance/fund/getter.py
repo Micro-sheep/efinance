@@ -1,23 +1,25 @@
-import rich
 import os
 import re
-from retry import retry
+import signal
 from typing import List, Union
+
+import multitasking
 import pandas as pd
 import requests
-from tqdm import tqdm
-import multitasking
-import signal
-from .config import EastmoneyFundHeaders
-from ..utils import to_numeric
+import rich
 from jsonpath import jsonpath
+from retry import retry
+from tqdm import tqdm
+
+from ..utils import to_numeric
+from .config import EastmoneyFundHeaders
+
 signal.signal(signal.SIGINT, multitasking.killall)
 
 
 @retry(tries=3)
 @to_numeric
-def get_quote_history(fund_code: str,
-                      pz: int = 40000) -> pd.DataFrame:
+def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     """
     根据基金代码和要获取的页码抓取基金净值信息
 
@@ -67,13 +69,10 @@ def get_quote_history(fund_code: str,
         'serverVersion': '6.2.8',
         'uToken': '1',
         'userId': '1',
-        'version': '6.2.8'
+        'version': '6.2.8',
     }
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList'
-    json_response = requests.get(
-        url,
-        headers=EastmoneyFundHeaders,
-        data=data).json()
+    json_response = requests.get(url, headers=EastmoneyFundHeaders, data=data).json()
     rows = []
     columns = ['日期', '单位净值', '累计净值', '涨跌幅']
     if json_response is None:
@@ -84,12 +83,14 @@ def get_quote_history(fund_code: str,
     rows = []
     for stock in datas:
         date = stock['FSRQ']
-        rows.append({
-            '日期': date,
-            '单位净值': stock['DWJZ'],
-            '累计净值': stock['LJJZ'],
-            '涨跌幅': stock['JZZZL']
-        })
+        rows.append(
+            {
+                '日期': date,
+                '单位净值': stock['DWJZ'],
+                '累计净值': stock['LJJZ'],
+                '涨跌幅': stock['JZZZL'],
+            }
+        )
     df = pd.DataFrame(rows)
     return df
 
@@ -147,13 +148,10 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
         'ACCNAV': '最新净值',
         'PDATE': '最新净值公开日期',
         'GZTIME': '估算时间',
-        'GSZZL': '估算涨跌幅'
+        'GSZZL': '估算涨跌幅',
     }
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo'
-    json_response = requests.get(
-        url,
-        headers=EastmoneyFundHeaders,
-        data=data).json()
+    json_response = requests.get(url, headers=EastmoneyFundHeaders, data=data).json()
     rows = jsonpath(json_response, '$..Datas[:]')
     if not rows:
         df = pd.DataFrame(columns=columns.values())
@@ -218,7 +216,8 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
         ('qdii', ''),
         ('pi', '1'),
         ('pn', '50000'),
-        ('dx', '0')]
+        ('dx', '0'),
+    ]
 
     headers = {
         'Connection': 'keep-alive',
@@ -231,10 +230,7 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
         params.append(('ft', ft))
 
     url = 'http://fund.eastmoney.com/data/rankhandler.aspx'
-    response = requests.get(
-        url,
-        headers=headers,
-        params=params)
+    response = requests.get(url, headers=headers, params=params)
 
     columns = ['基金代码', '基金简称']
     results = re.findall('"(\d{6}),(.*?),', response.text)
@@ -244,8 +240,9 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
 
 @retry(tries=3)
 @to_numeric
-def get_invest_position(fund_code: str,
-                        dates: Union[str, List[str]] = None) -> pd.DataFrame:
+def get_invest_position(
+    fund_code: str, dates: Union[str, List[str]] = None
+) -> pd.DataFrame:
     """
     获取基金持仓占比数据
 
@@ -335,9 +332,9 @@ def get_invest_position(fund_code: str,
         if date is not None:
             params.append(('DATE', date))
         url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition'
-        json_response = requests.get(url,
-                                     headers=EastmoneyFundHeaders,
-                                     params=params).json()
+        json_response = requests.get(
+            url, headers=EastmoneyFundHeaders, params=params
+        ).json()
         stocks = jsonpath(json_response, '$..fundStocks[:]')
         if not stocks:
             continue
@@ -349,8 +346,7 @@ def get_invest_position(fund_code: str,
     fields = ['基金代码'] + list(columns.values()) + ['公开日期']
     if not dfs:
         return pd.DataFrame(columns=fields)
-    df = pd.concat(dfs, axis=0, ignore_index=True).rename(
-        columns=columns)[fields]
+    df = pd.concat(dfs, axis=0, ignore_index=True).rename(columns=columns)[fields]
     return df
 
 
@@ -400,28 +396,27 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
     )
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNPeriodIncrease'
     json_response = requests.get(
-        url,
-        headers=EastmoneyFundHeaders,
-        params=params).json()
+        url, headers=EastmoneyFundHeaders, params=params
+    ).json()
     columns = {
-
         'syl': '收益率',
         'avg': '同类平均',
         'rank': '同类排行',
         'sc': '同类总数',
-        'title': '时间段'
-
+        'title': '时间段',
     }
-    titles = {'Z': '近一周',
-              'Y': '近一月',
-              '3Y': '近三月',
-              '6Y': '近六月',
-              '1N': '近一年',
-              '2Y': '近两年',
-              '3N': '近三年',
-              '5N': '近五年',
-              'JN': '今年以来',
-              'LN': '成立以来'}
+    titles = {
+        'Z': '近一周',
+        'Y': '近一月',
+        '3Y': '近三月',
+        '6Y': '近六月',
+        '1N': '近一年',
+        '2Y': '近两年',
+        '3N': '近三年',
+        '5N': '近五年',
+        'JN': '今年以来',
+        'LN': '成立以来',
+    }
     # 发行时间
     ESTABDATE = json_response['Expansion']['ESTABDATE']
     df = pd.DataFrame(json_response['Datas'])
@@ -467,9 +462,8 @@ def get_public_dates(fund_code: str) -> List[str]:
     )
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNIVInfoMultiple'
     json_response = requests.get(
-        url,
-        headers=EastmoneyFundHeaders,
-        params=params).json()
+        url, headers=EastmoneyFundHeaders, params=params
+    ).json()
     if json_response['Datas'] is None:
         return []
     return json_response['Datas']
@@ -477,8 +471,9 @@ def get_public_dates(fund_code: str) -> List[str]:
 
 @retry(tries=3)
 @to_numeric
-def get_types_percentage(fund_code: str,
-                         dates: Union[List[str], str, None] = None) -> pd.DataFrame:
+def get_types_percentage(
+    fund_code: str, dates: Union[List[str], str, None] = None
+) -> pd.DataFrame:
     """
     获取指定基金不同类型占比信息
 
@@ -513,13 +508,7 @@ def get_types_percentage(fund_code: str,
 
     """
 
-    columns = {
-        'GP': '股票比重',
-        'ZQ': '债券比重',
-        'HB': '现金比重',
-        'JZC': '总规模(亿元)',
-        'QT': '其他比重'
-    }
+    columns = {'GP': '股票比重', 'ZQ': '债券比重', 'HB': '现金比重', 'JZC': '总规模(亿元)', 'QT': '其他比重'}
     df = pd.DataFrame(columns=columns.values())
     if not isinstance(dates, List):
         dates = [dates]
@@ -541,9 +530,8 @@ def get_types_percentage(fund_code: str,
         params = tuple(params)
         url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew'
         json_response = requests.get(
-            url,
-            params=params,
-            headers=EastmoneyFundHeaders).json()
+            url, params=params, headers=EastmoneyFundHeaders
+        ).json()
 
         if len(json_response['Datas']) == 0:
             continue
@@ -580,9 +568,8 @@ def get_base_info_single(fund_code: str) -> pd.Series:
     )
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNNBasicInformation'
     json_response = requests.get(
-        url,
-        headers=EastmoneyFundHeaders,
-        params=params).json()
+        url, headers=EastmoneyFundHeaders, params=params
+    ).json()
     columns = {
         'FCODE': '基金代码',
         'SHORTNAME': '基金简称',
@@ -598,11 +585,9 @@ def get_base_info_single(fund_code: str) -> pd.Series:
         rich.print('基金代码', fund_code, '可能有误')
         return pd.Series(index=columns.values())
 
-    s = pd.Series(json_response['Datas']).rename(
-        index=columns)[columns.values()]
+    s = pd.Series(json_response['Datas']).rename(index=columns)[columns.values()]
 
-    s = s.apply(lambda x: x.replace('\n', ' ').strip()
-                if isinstance(x, str) else x)
+    s = s.apply(lambda x: x.replace('\n', ' ').strip() if isinstance(x, str) else x)
     return s
 
 
@@ -630,6 +615,7 @@ def get_base_info_muliti(fund_codes: List[str]) -> pd.Series:
         ss.append(s)
         pbar.update()
         pbar.set_description(f'Processing => {fund_code}')
+
     pbar = tqdm(total=len(fund_codes))
     for fund_code in fund_codes:
         start(fund_code)
@@ -690,8 +676,9 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
 
 
 @to_numeric
-def get_industry_distribution(fund_code: str,
-                              dates: Union[str, List[str]] = None) -> pd.DataFrame:
+def get_industry_distribution(
+    fund_code: str, dates: Union[str, List[str]] = None
+) -> pd.DataFrame:
     """
     获取指定基金行业分布信息
 
@@ -743,12 +730,7 @@ def get_industry_distribution(fund_code: str,
 
     """
 
-    columns = {
-        'HYMC': '行业名称',
-        'ZJZBL': '持仓比例',
-        'FSRQ': '公布日期',
-        'SZ': '市值'
-    }
+    columns = {'HYMC': '行业名称', 'ZJZBL': '持仓比例', 'FSRQ': '公布日期', 'SZ': '市值'}
     df = pd.DataFrame(columns=columns.values())
     if isinstance(dates, str):
         dates = [dates]
@@ -757,7 +739,6 @@ def get_industry_distribution(fund_code: str,
     for date in dates:
 
         params = [
-
             ('FCODE', fund_code),
             ('OSVersion', '14.4'),
             ('appVersion', '6.3.8'),
@@ -770,9 +751,7 @@ def get_industry_distribution(fund_code: str,
         if date is not None:
             params.append(('DATE', date))
         url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation'
-        response = requests.get(url,
-                                headers=EastmoneyFundHeaders,
-                                params=params)
+        response = requests.get(url, headers=EastmoneyFundHeaders, params=params)
         datas = response.json()['Datas']
 
         _df = pd.DataFrame(datas)
@@ -783,9 +762,7 @@ def get_industry_distribution(fund_code: str,
     return df
 
 
-def get_pdf_reports(fund_code: str,
-                    max_count: int = 12,
-                    save_dir: str = 'pdf') -> None:
+def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') -> None:
     """
     根据基金代码获取其全部 pdf 报告
 
@@ -816,10 +793,9 @@ def get_pdf_reports(fund_code: str,
 
     @multitasking.task
     @retry(tries=3, delay=1)
-    def download_file(fund_code: str,
-                      url: str,
-                      filename: str,
-                      file_type='.pdf') -> None:
+    def download_file(
+        fund_code: str, url: str, filename: str, file_type='.pdf'
+    ) -> None:
         """
         根据文件名、文件直链等参数下载文件
 
@@ -837,8 +813,8 @@ def get_pdf_reports(fund_code: str,
 
         pbar.set_description(f'Processing => {fund_code}')
         fund_code = str(fund_code)
-        if not os.path.exists(save_dir+'/'+fund_code):
-            os.mkdir(save_dir+'/'+fund_code)
+        if not os.path.exists(save_dir + '/' + fund_code):
+            os.mkdir(save_dir + '/' + fund_code)
         response = requests.get(url, headers=headers)
         path = f'{save_dir}/{fund_code}/{filename}{file_type}'
         with open(path, 'wb') as f:
@@ -847,6 +823,7 @@ def get_pdf_reports(fund_code: str,
             os.remove(path)
             return
         pbar.update(1)
+
     params = (
         ('fundcode', fund_code),
         ('pageIndex', '1'),
@@ -855,7 +832,8 @@ def get_pdf_reports(fund_code: str,
     )
 
     json_response = requests.get(
-        'http://api.fund.eastmoney.com/f10/JJGG', headers=headers, params=params).json()
+        'http://api.fund.eastmoney.com/f10/JJGG', headers=headers, params=params
+    ).json()
 
     base_link = 'http://pdf.dfcfw.com/pdf/H2_{}_1.pdf'
 

@@ -1,4 +1,5 @@
 from pathlib import Path
+
 HERE = Path(__file__).parent
 
 # 债券基本信息表头
@@ -14,6 +15,5 @@ EASTMONEY_BOND_BASE_INFO_FIELDS = {
     'LISTING_DATE': '上市日期',
     'EXPIRE_DATE': '到期日期',
     'BOND_EXPIRE': '期限(年)',
-    'INTEREST_RATE_EXPLAIN': '利率说明'
-
+    'INTEREST_RATE_EXPLAIN': '利率说明',
 }

@@ -1,12 +1,13 @@
-
 import pathlib
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
+
 here = pathlib.Path(__file__).parent
 # require = (here / "requirements.txt").read_text(encoding='utf-8').split()
-require = ['requests','rich','jsonpath', 'pandas', 'tqdm', 'retry', 'multitasking']
+require = ['requests', 'rich', 'jsonpath', 'pandas', 'tqdm', 'retry', 'multitasking']
 readme = (here / "README.md").read_text(encoding='utf-8')
 about = {}
-exec((here/'efinance'/'__version__.py').read_text(encoding='utf-8'), about)
+exec((here / 'efinance' / '__version__.py').read_text(encoding='utf-8'), about)
 setup(
     name=about['__title__'],
     version=about['__version__'],
@@ -28,5 +29,5 @@ setup(
     ],
     packages=find_packages(),
     install_requires=require,
-    project_urls=about['__project_urls__']
+    project_urls=about['__project_urls__'],
 )

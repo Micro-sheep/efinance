@@ -1,7 +1,7 @@
-
 from pathlib import Path
+
 HERE = Path(__file__).parent
-FUTURES_BASE_INFO_SAVE_PATH = HERE/'futures_info.csv'
+FUTURES_BASE_INFO_SAVE_PATH = HERE / 'futures_info.csv'
 # K 线表头映射
 EASTMONEY_KLINE_FIELDS = {
     'f51': '日期',
@@ -15,8 +15,6 @@ EASTMONEY_KLINE_FIELDS = {
     'f59': '涨跌幅',
     'f60': '涨跌额',
     'f61': '换手率',
-
-
 }
 
 EASTMONEY_REQUEST_HEADERS = {
