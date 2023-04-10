@@ -5,6 +5,7 @@ from collections import OrderedDict, namedtuple
 from functools import wraps
 from typing import Any, Callable, Dict, List, TypeVar, Union
 
+import gevent
 import pandas as pd
 import rich
 from retry.api import retry
@@ -40,12 +41,10 @@ def to_numeric(func: F) -> F:
         if isinstance(values, pd.DataFrame):
             for column in values.columns:
                 if column not in ignore:
-
                     values[column] = values[column].apply(convert)
         elif isinstance(values, pd.Series):
             for index in values.index:
                 if index not in ignore:
-
                     values[index] = convert(values[index])
         return values
 
@@ -344,6 +343,14 @@ def add_market(
         FS_DICT[category] = ','.join(OrderedDict.fromkeys(new.split(',')))
     else:
         FS_DICT[category] = new
+
+
+def gevent_task(f: Callable):
+    # TODO: 增加类型注解
+    def wrapper(*args, **kwargs):
+        return gevent.spawn(f, *args, **kwargs)
+
+    return wrapper
 
 
 __all__ = []

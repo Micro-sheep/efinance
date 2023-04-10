@@ -1,9 +1,8 @@
 import os
 import re
-import signal
 from typing import List, Union
 
-import multitasking
+import gevent
 import pandas as pd
 import requests
 import rich
@@ -11,10 +10,8 @@ from jsonpath import jsonpath
 from retry import retry
 from tqdm import tqdm
 
-from ..utils import to_numeric
+from ..utils import gevent_task, to_numeric
 from .config import EastmoneyFundHeaders
-
-signal.signal(signal.SIGINT, multitasking.killall)
 
 
 @retry(tries=3)
@@ -608,7 +605,7 @@ def get_base_info_muliti(fund_codes: List[str]) -> pd.Series:
 
     ss = []
 
-    @multitasking.task
+    @gevent_task
     @retry(tries=3, delay=1)
     def start(fund_code: str) -> None:
         s = get_base_info_single(fund_code)
@@ -617,9 +614,7 @@ def get_base_info_muliti(fund_codes: List[str]) -> pd.Series:
         pbar.set_description(f'Processing => {fund_code}')
 
     pbar = tqdm(total=len(fund_codes))
-    for fund_code in fund_codes:
-        start(fund_code)
-    multitasking.wait_for_tasks()
+    gevent.joinall([start(fund_code) for fund_code in fund_codes])
     df = pd.DataFrame(ss)
     return df
 
@@ -737,7 +732,6 @@ def get_industry_distribution(
     elif dates is None:
         dates = [None]
     for date in dates:
-
         params = [
             ('FCODE', fund_code),
             ('OSVersion', '14.4'),
@@ -791,7 +785,7 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     }
 
-    @multitasking.task
+    @gevent_task
     @retry(tries=3, delay=1)
     def download_file(
         fund_code: str, url: str, filename: str, file_type='.pdf'
@@ -840,11 +834,11 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
     pbar = tqdm(total=min(max_count, len(json_response['Data'])))
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-    for item in json_response['Data'][-max_count:]:
-
-        title = item['TITLE']
-        download_url = base_link.format(item['ID'])
-        download_file(fund_code, download_url, title)
-    multitasking.wait_for_tasks()
+    gevent.joinall(
+        [
+            download_file(fund_code, base_link.format(item['ID']), item['TITLE'])
+            for item in json_response['Data'][-max_count:]
+        ]
+    )
     pbar.close()
     print(f'{fund_code} 的 pdf 文件已存储到文件夹 {save_dir}/{fund_code} 中')

@@ -143,7 +143,6 @@ def get_quote_history(
         quote_ids, beg=beg, end=end, klt=klt, fqt=fqt, quote_id_mode=True
     )
     if isinstance(df, pd.DataFrame):
-
         df.rename(columns={'代码': '期货代码', '名称': '期货名称'}, inplace=True)
     elif isinstance(df, dict):
         for stock_code in df.keys():

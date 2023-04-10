@@ -1,8 +1,9 @@
 from typing import Dict, List, Union
 
-import multitasking
+import gevent
 import pandas as pd
 import requests
+from tqdm import tqdm
 
 from ..common import get_deal_detail as get_deal_detail_for_bond
 from ..common import get_history_bill as get_history_bill_for_bond
@@ -10,7 +11,7 @@ from ..common import get_quote_history as get_quote_history_for_bond
 from ..common import get_realtime_quotes_by_fs
 from ..common import get_today_bill as get_today_bill_for_bond
 from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig
-from ..utils import get_quote_id, process_dataframe_and_series, to_numeric
+from ..utils import get_quote_id, gevent_task, process_dataframe_and_series, to_numeric
 from .config import EASTMONEY_BOND_BASE_INFO_FIELDS
 
 
@@ -65,15 +66,17 @@ def get_base_info_multi(bond_codes: List[str]) -> pd.DataFrame:
         多只债券信息
     """
     ss = []
+    bar = tqdm(total=len(bond_codes))
 
-    @multitasking.task
+    @gevent_task
     def start(bond_code: str) -> None:
         s = get_base_info_single(bond_code)
         ss.append(s)
+        bar.set_description(f'Processing => {bond_code}')
+        bar.update(1)
 
-    for bond_code in bond_codes:
-        start(bond_code)
-    multitasking.wait_for_tasks()
+    gevent.joinall([start(bond_code) for bond_code in bond_codes])
+    bar.close()
     df = pd.DataFrame(ss)
     return df
 
@@ -291,7 +294,6 @@ def get_quote_history(
     )
 
     if isinstance(df, pd.DataFrame):
-
         df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
     elif isinstance(df, dict):
         for bond_code in df.keys():
