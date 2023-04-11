@@ -1,11 +1,9 @@
 from datetime import datetime
 from typing import Dict, List, Union
-
-import multitasking
+import gevent
+from gevent.pool import Pool
 import pandas as pd
 from jsonpath import jsonpath
-from retry import retry
-from tqdm import tqdm
 
 from ..common.config import MARKET_NUMBER_DICT
 from ..shared import BASE_INFO_CACHE, session
@@ -66,12 +64,12 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
 
 @to_numeric
 def get_quote_history_single(
-    code: str,
-    beg: str = '19000101',
-    end: str = '20500101',
-    klt: int = 101,
-    fqt: int = 1,
-    **kwargs,
+        code: str,
+        beg: str = '19000101',
+        end: str = '20500101',
+        klt: int = 101,
+        fqt: int = 1,
+        **kwargs,
 ) -> pd.DataFrame:
     """
     获取单只股票、债券 K 线数据
@@ -118,49 +116,34 @@ def get_quote_history_single(
 
 
 def get_quote_history_multi(
-    codes: List[str],
-    beg: str = '19000101',
-    end: str = '20500101',
-    klt: int = 101,
-    fqt: int = 1,
-    tries: int = 3,
-    **kwargs,
+        codes: List[str],
+        beg: str = '19000101',
+        end: str = '20500101',
+        klt: int = 101,
+        fqt: int = 1,
+        tries: int = 3,
+        **kwargs,
 ) -> Dict[str, pd.DataFrame]:
     """
     获取多只股票、债券历史行情信息
 
     """
-
-    dfs: Dict[str, pd.DataFrame] = {}
     total = len(codes)
-
-    @multitasking.task
-    @retry(tries=tries, delay=1)
-    def start(code: str):
-        _df = get_quote_history_single(
-            code, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
-        )
-        dfs[code] = _df
-        pbar.update(1)
-        pbar.set_description_str(f'Processing => {code}')
-
-    pbar = tqdm(total=total)
-    for code in codes:
-        start(code)
-    multitasking.wait_for_tasks()
-    pbar.close()
-    if kwargs.get(MagicConfig.RETURN_DF):
-        return pd.concat(dfs, axis=0, ignore_index=True)
+    pool = Pool(total)
+    coroutine_list = [pool.spawn(get_quote_history_single, x, beg=beg, end=end, klt=klt, fqt=fqt) for x in codes]
+    gevent.joinall(coroutine_list)
+    df_value = [_.value for _ in coroutine_list]
+    dfs = dict(zip(codes, df_value))
     return dfs
 
 
 def get_quote_history(
-    codes: Union[str, List[str]],
-    beg: str = '19000101',
-    end: str = '20500101',
-    klt: int = 101,
-    fqt: int = 1,
-    **kwargs,
+        codes: Union[str, List[str]],
+        beg: str = '19000101',
+        end: str = '20500101',
+        klt: int = 101,
+        fqt: int = 1,
+        **kwargs,
 ) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
     获取股票、ETF、债券的 K 线数据
@@ -308,7 +291,6 @@ def get_today_bill(code: str) -> pd.DataFrame:
 
 @to_numeric
 def get_base_info(quote_id: str) -> pd.Series:
-
     fields = ",".join(EASTMONEY_BASE_INFO_FIELDS.keys())
     params = (
         ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
