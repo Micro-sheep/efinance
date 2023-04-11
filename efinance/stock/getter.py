@@ -1,11 +1,10 @@
 import calendar
 import json
-import signal
 import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Union
 
-import multitasking
+import gevent
 import numpy as np
 import pandas as pd
 import requests
@@ -25,6 +24,7 @@ from ..common.getter import get_latest_quote as get_latest_quote_for_stock
 from ..shared import session
 from ..utils import (
     get_quote_id,
+    gevent_task,
     process_dataframe_and_series,
     search_quote,
     to_numeric,
@@ -35,7 +35,6 @@ from .config import (
     EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS,
 )
 
-signal.signal(signal.SIGINT, multitasking.killall)
 python_version = sys.version_info.major, sys.version_info.minor
 # * 适配 pythn 3.10 及其以上版本
 if python_version >= (3, 10):
@@ -81,7 +80,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
         多只股票基本信息
     """
 
-    @multitasking.task
+    @gevent_task
     @retry(tries=3, delay=1)
     def start(stock_code: str):
         s = get_base_info_single(stock_code)
@@ -91,9 +90,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
 
     series: List[pd.Series] = []
     pbar = tqdm(total=len(stock_codes))
-    for stock_code in stock_codes:
-        start(stock_code)
-    multitasking.wait_for_tasks()
+    gevent.joinall([start(stock_code) for stock_code in stock_codes])
     df = pd.DataFrame(series)
     df = df.dropna(subset=['股票代码'])
     return df
@@ -243,7 +240,6 @@ def get_quote_history(
         stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
     )
     if isinstance(df, pd.DataFrame):
-
         df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
     elif isinstance(df, dict):
         for stock_code in df.keys():
@@ -355,7 +351,6 @@ def get_realtime_quotes(fs: Union[str, List[str]] = None, **kwargs) -> pd.DataFr
         fs = [fs]
 
     if isinstance(fs, list):
-
         for f in fs:
             if not FS_DICT.get(f):
                 raise KeyError(f'指定的行情参数 `{fs}` 不正确')
@@ -996,7 +991,6 @@ def get_daily_billboard(start_date: str = None, end_date: str = None) -> pd.Data
     bar: tqdm = None
 
     while 1:
-
         dfs: List[pd.DataFrame] = []
         page = 1
         while 1:

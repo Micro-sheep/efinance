@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- 用 `gevent` 替代 `multitasking`
+
 ## v0.5.0(2023-01-08)
 
 ### Added

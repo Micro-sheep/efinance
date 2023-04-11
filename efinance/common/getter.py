@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, List, Union
 
-import multitasking
+import gevent
 import pandas as pd
 from jsonpath import jsonpath
 from retry import retry
@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from ..common.config import MARKET_NUMBER_DICT
 from ..shared import BASE_INFO_CACHE, session
-from ..utils import get_quote_id, to_numeric
+from ..utils import get_quote_id, gevent_task, to_numeric
 from .config import (
     EASTMONEY_BASE_INFO_FIELDS,
     EASTMONEY_HISTORY_BILL_FIELDS,
@@ -134,7 +134,7 @@ def get_quote_history_multi(
     dfs: Dict[str, pd.DataFrame] = {}
     total = len(codes)
 
-    @multitasking.task
+    @gevent_task
     @retry(tries=tries, delay=1)
     def start(code: str):
         _df = get_quote_history_single(
@@ -145,9 +145,7 @@ def get_quote_history_multi(
         pbar.set_description_str(f'Processing => {code}')
 
     pbar = tqdm(total=total)
-    for code in codes:
-        start(code)
-    multitasking.wait_for_tasks()
+    gevent.joinall([start(code) for code in codes])
     pbar.close()
     if kwargs.get(MagicConfig.RETURN_DF):
         return pd.concat(dfs, axis=0, ignore_index=True)
@@ -308,7 +306,6 @@ def get_today_bill(code: str) -> pd.DataFrame:
 
 @to_numeric
 def get_base_info(quote_id: str) -> pd.Series:
-
     fields = ",".join(EASTMONEY_BASE_INFO_FIELDS.keys())
     params = (
         ('ut', 'fa5fd1943c7b386f172d6893dbfba10b'),
