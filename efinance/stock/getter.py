@@ -5,6 +5,7 @@ import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Union
 
+import threading
 import multitasking
 import numpy as np
 import pandas as pd
@@ -35,7 +36,9 @@ from .config import (
     EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS,
 )
 
-signal.signal(signal.SIGINT, multitasking.killall)
+if threading.current_thread() is threading.main_thread():
+    signal.signal(signal.SIGINT, multitasking.killall)
+
 python_version = sys.version_info.major, sys.version_info.minor
 # * 适配 pythn 3.10 及其以上版本
 if python_version >= (3, 10):

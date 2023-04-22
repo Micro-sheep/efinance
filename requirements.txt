@@ -5,3 +5,4 @@ retry
 multitasking
 jsonpath
 rich
+beautifulsoup4

@@ -6,9 +6,10 @@ import pandas as pd
 from jsonpath import jsonpath
 from retry import retry
 from tqdm import tqdm
+import time
 
 from ..common.config import MARKET_NUMBER_DICT
-from ..shared import BASE_INFO_CACHE, session
+from ..shared import BASE_INFO_CACHE, session, MAX_CONNECTIONS
 from ..utils import get_quote_id, to_numeric
 from .config import (
     EASTMONEY_BASE_INFO_FIELDS,
@@ -20,6 +21,8 @@ from .config import (
     MagicConfig,
 )
 
+import warnings
+warnings.filterwarnings("once")
 
 @to_numeric
 def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
@@ -99,7 +102,7 @@ def get_quote_history_single(
     url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
 
     json_response = session.get(
-        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params, verify=False
     ).json()
     klines: List[str] = jsonpath(json_response, '$..klines[:]')
     if not klines:
@@ -146,6 +149,8 @@ def get_quote_history_multi(
 
     pbar = tqdm(total=total)
     for code in codes:
+        if len(multitasking.get_active_tasks()) > MAX_CONNECTIONS:
+            time.sleep(3)
         start(code)
     multitasking.wait_for_tasks()
     pbar.close()
