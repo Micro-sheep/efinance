@@ -7,3 +7,5 @@ DATA_DIR = HERE / '../data'
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 # 搜索词缓存位置
 SEARCH_RESULT_CACHE_PATH = str(DATA_DIR / 'search-cache.json')
+
+MAX_CONNECTIONS = 50

@@ -1,8 +1,10 @@
 import os
 import re
 import signal
-from typing import List, Union
+from typing import List, Union, Dict
 
+import threading
+from bs4 import BeautifulSoup
 import multitasking
 import pandas as pd
 import requests
@@ -10,12 +12,19 @@ import rich
 from jsonpath import jsonpath
 from retry import retry
 from tqdm import tqdm
+import time
 
 from ..utils import to_numeric
 from .config import EastmoneyFundHeaders
+from ..common.config import MagicConfig
+from ..shared import session, MAX_CONNECTIONS
+import warnings
+warnings.filterwarnings("module")
 
-signal.signal(signal.SIGINT, multitasking.killall)
+if threading.current_thread() is threading.main_thread():
+    signal.signal(signal.SIGINT, multitasking.killall)
 
+fund_session = session
 
 @retry(tries=3)
 @to_numeric
@@ -72,7 +81,7 @@ def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
         'version': '6.2.8',
     }
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList'
-    json_response = requests.get(url, headers=EastmoneyFundHeaders, data=data).json()
+    json_response = fund_session.get(url, headers=EastmoneyFundHeaders, data=data, verify=False).json()
     rows = []
     columns = ['日期', '单位净值', '累计净值', '涨跌幅']
     if json_response is None:
@@ -93,6 +102,28 @@ def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
         )
     df = pd.DataFrame(rows)
     return df
+
+def get_quote_history_multi(fund_codes: List[str], pz: int = 40000, **kwargs) -> Dict[str, pd.DataFrame]:
+    dfs: Dict[str, pd.DataFrame] = {}
+    pbar = tqdm(total=len(fund_codes))
+
+    @multitasking.task
+    @retry(tries=3, delay=1)
+    def start(fund_code: str):
+        if len(multitasking.get_active_tasks()) >= MAX_CONNECTIONS:
+            time.sleep(3)
+        _df = get_quote_history(fund_code, pz)
+        dfs[fund_code] = _df
+        pbar.update(1)
+        pbar.set_description_str(f'Processing => {fund_code}')
+
+    for f in fund_codes:
+        start(f)
+    multitasking.wait_for_tasks()
+    pbar.close()
+    if kwargs.get(MagicConfig.RETURN_DF):
+        return pd.concat(dfs, axis=0, ignore_index=True)
+    return dfs
 
 
 @retry(tries=3)
@@ -151,7 +182,7 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
         'GSZZL': '估算涨跌幅',
     }
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo'
-    json_response = requests.get(url, headers=EastmoneyFundHeaders, data=data).json()
+    json_response = fund_session.get(url, headers=EastmoneyFundHeaders, data=data).json()
     rows = jsonpath(json_response, '$..Datas[:]')
     if not rows:
         df = pd.DataFrame(columns=columns.values())
@@ -230,13 +261,29 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
         params.append(('ft', ft))
 
     url = 'http://fund.eastmoney.com/data/rankhandler.aspx'
-    response = requests.get(url, headers=headers, params=params)
+    response = fund_session.get(url, headers=headers, params=params)
 
     columns = ['基金代码', '基金简称']
     results = re.findall('"(\d{6}),(.*?),', response.text)
     df = pd.DataFrame(results, columns=columns)
     return df
 
+@retry(tries=3)
+def get_fund_manager(ft: str) -> pd.DataFrame:
+    url = f'http://fundf10.eastmoney.com/jjjl_{ft}.html'
+    response = fund_session.get(url)
+    if not response:
+        return pd.DataFrame()
+    html = response.text
+    soup = BeautifulSoup(html, 'html.parser')
+    contents = soup.find('div', class_='bs_gl').find_all('label')
+    start_date = contents[0].span.text
+    managers = ";".join([a.text for a in contents[1].find_all('a') ])
+    type_str = contents[2].span.text
+    company = contents[3].find('a').text
+    share = contents[4].span.text.replace('\r', '').replace('\n', '').replace(' ', '')
+    return pd.DataFrame( data = [[ft, start_date, company, managers, type_str, share, str(pd.to_datetime('today').date())]], 
+                         columns=["基金代码", '基金经理任职日期', '基金公司', '基金经理', '基金种类', '基金规模', '当前日期'])
 
 @retry(tries=3)
 @to_numeric
@@ -332,7 +379,7 @@ def get_invest_position(
         if date is not None:
             params.append(('DATE', date))
         url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition'
-        json_response = requests.get(
+        json_response = fund_session.get(
             url, headers=EastmoneyFundHeaders, params=params
         ).json()
         stocks = jsonpath(json_response, '$..fundStocks[:]')
@@ -395,7 +442,7 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
         ('version', '6.3.6'),
     )
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNPeriodIncrease'
-    json_response = requests.get(
+    json_response = fund_session.get(
         url, headers=EastmoneyFundHeaders, params=params
     ).json()
     columns = {
@@ -461,7 +508,7 @@ def get_public_dates(fund_code: str) -> List[str]:
         ('version', '6.3.8'),
     )
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNIVInfoMultiple'
-    json_response = requests.get(
+    json_response = fund_session.get(
         url, headers=EastmoneyFundHeaders, params=params
     ).json()
     if json_response['Datas'] is None:
@@ -529,7 +576,7 @@ def get_types_percentage(
             params.append(('DATE', date))
         params = tuple(params)
         url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew'
-        json_response = requests.get(
+        json_response = fund_session.get(
             url, params=params, headers=EastmoneyFundHeaders
         ).json()
 
@@ -567,7 +614,7 @@ def get_base_info_single(fund_code: str) -> pd.Series:
         ('version', '6.3.8'),
     )
     url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNNBasicInformation'
-    json_response = requests.get(
+    json_response = fund_session.get(
         url, headers=EastmoneyFundHeaders, params=params
     ).json()
     columns = {
@@ -751,7 +798,7 @@ def get_industry_distribution(
         if date is not None:
             params.append(('DATE', date))
         url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation'
-        response = requests.get(url, headers=EastmoneyFundHeaders, params=params)
+        response = fund_session.get(url, headers=EastmoneyFundHeaders, params=params)
         datas = response.json()['Datas']
 
         _df = pd.DataFrame(datas)
@@ -815,7 +862,7 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
         fund_code = str(fund_code)
         if not os.path.exists(save_dir + '/' + fund_code):
             os.mkdir(save_dir + '/' + fund_code)
-        response = requests.get(url, headers=headers)
+        response = fund_session.get(url, headers=headers)
         path = f'{save_dir}/{fund_code}/{filename}{file_type}'
         with open(path, 'wb') as f:
             f.write(response.content)
@@ -831,7 +878,7 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
         ('type', '3'),
     )
 
-    json_response = requests.get(
+    json_response = fund_session.get(
         'http://api.fund.eastmoney.com/f10/JJGG', headers=headers, params=params
     ).json()
 
