@@ -182,6 +182,7 @@ def get_quote_history(
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
+    lmt: int = 100,
     **kwargs,
 ) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
@@ -226,7 +227,7 @@ def get_quote_history(
 
     if isinstance(codes, str):
         return get_quote_history_single(
-            codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
+            codes, beg=beg, end=end, klt=klt, fqt=fqt, lmt=lmt, **kwargs
         )
 
     elif hasattr(codes, '__iter__'):
