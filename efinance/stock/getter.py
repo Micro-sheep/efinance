@@ -741,7 +741,9 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
     fields = {
         'SECURITY_CODE': '股票代码',
         'SECURITY_NAME_ABBR': '股票简称',
-        'NOTICE_DATE': '公告日期',
+        'REPORTDATE':'报告日期',
+        'UPDATE_DATE':'更新日期',
+        # 'NOTICE_DATE': '公告日期',
         'TOTAL_OPERATE_INCOME': '营业收入',
         'YSTZ': '营业收入同比增长',
         'YSHZ': '营业收入季度环比',
@@ -752,7 +754,9 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
         'BPS': '每股净资产',
         'WEIGHTAVG_ROE': '净资产收益率',
         'XSMLL': '销售毛利率',
-        'MGJYXJJE': '每股经营现金流量'
+        'MGJYXJJE': '每股经营现金流量',
+        'DATATYPE': '数据类型',
+        'DATAYEAR': '数据年份',
         # 'ISNEW':'是否最新'
     }
 
