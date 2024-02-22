@@ -163,6 +163,7 @@ def get_quote_history(
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
+    suppress_error: bool = False,
     **kwargs,
 ) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
@@ -243,7 +244,7 @@ def get_quote_history(
 
     """
     df = get_quote_history_for_stock(
-        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
+        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, suppress_error=suppress_error, **kwargs
     )
     if isinstance(df, pd.DataFrame):
 
