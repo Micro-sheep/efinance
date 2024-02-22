@@ -120,6 +120,7 @@ def get_quote_history_single(
 
 def get_quote_history_multi(
     codes: List[str],
+    market_type: MarketType = None,
     beg: str = '19000101',
     end: str = '20500101',
     klt: int = 101,
@@ -145,6 +146,7 @@ def get_quote_history_multi(
             end=end,
             klt=klt,
             fqt=fqt,
+            market_type=market_type,
             suppress_error=suppress_error,
             **kwargs)
         dfs[code] = _df
@@ -152,13 +154,17 @@ def get_quote_history_multi(
         pbar.set_description_str(f'Processing => {code}')
 
     pbar = tqdm(total=total)
-    for code in codes:
-        start(code)
-    multitasking.wait_for_tasks()
-    pbar.close()
-    if kwargs.get(MagicConfig.RETURN_DF):
-        return pd.concat(dfs, axis=0, ignore_index=True)
-    return dfs
+    try:
+        for code in codes:
+            start(code)
+        multitasking.wait_for_tasks()
+    except:
+        pass
+    finally:
+        pbar.close()
+        if kwargs.get(MagicConfig.RETURN_DF):
+            return pd.concat(dfs, axis=0, ignore_index=True)
+        return dfs
 
 
 def get_quote_history(codes: Union[str, List[str]],
