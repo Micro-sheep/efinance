@@ -148,15 +148,20 @@ def search_quote(
         ('input', f'{keyword}'),
         ('type', '14'),
         ('token', 'D43BF722C8E33BDC906FB84D85E326E8'),
-        ('count', '10'),
+        ('count', '5'),
     )
-    json_response = session.get(url, params=params).json()
-    items = json_response['QuotationCodeTable']['Data']
+    try:
+        json_response = session.get(url, params=params).json()
+        items = json_response['QuotationCodeTable']['Data']
+    except json.JSONDecoder:
+        RuntimeWarning("unable to parse search quote result, consider if you are blocked")
+        return None
+
     if items is not None and items:
         quotes = [
             Quote(*item.values())
             for item in items
-            if market_type is None or item['Classify'] == market_type
+            if market_type is None or item['Classify'] == market_type.value
         ]
         # NOTE 暂时仅存储第一个搜索结果
         save_search_result(keyword, quotes[:1])
@@ -187,7 +192,7 @@ def search_quote_locally(keyword: str, market_type: MarketType = None) -> Union[
     q = SEARCH_RESULT_DICT.get(keyword)
     # NOTE 兼容旧版本 给缓存加上最后修改时间
     if q is None or not q.get('last_time') \
-        or (isinstance(market_type, MarketType) and q.get('classify') != market_type):
+        or (isinstance(market_type, MarketType) and q.get('classify') != market_type.value):
         return None
 
     last_time: float = q['last_time']
