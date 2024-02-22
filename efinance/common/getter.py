@@ -85,7 +85,7 @@ def get_quote_history_single(
     if kwargs.get(MagicConfig.QUOTE_ID_MODE):
         quote_id = code
     else:
-        quote_id = get_quote_id(code, suppress_error, market_type)
+        quote_id = get_quote_id(code, market_type=market_type, suppress_error=suppress_error)
     params = (
         ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
         ('fields2', fields2),
