@@ -13,7 +13,7 @@ import requests
 import rich
 from jsonpath import jsonpath
 from retry import retry
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from ..common import get_base_info as get_base_info_for_stock
 from ..common import get_deal_detail as get_deal_detail_for_stock

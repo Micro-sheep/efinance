@@ -5,7 +5,7 @@ import multitasking
 import pandas as pd
 from jsonpath import jsonpath
 from retry import retry
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from ..common.config import MARKET_NUMBER_DICT, MarketType
 from ..shared import BASE_INFO_CACHE, session
