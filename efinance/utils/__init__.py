@@ -161,8 +161,10 @@ def search_quote(
         # NOTE 暂时仅存储第一个搜索结果
         save_search_result(keyword, quotes[:1])
         if count == 1:
-            return quotes[0]
+            return quotes[0] if len(quotes) == 1 else None
+
         return quotes
+
     return None
 
 
