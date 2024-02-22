@@ -1,7 +1,17 @@
+import enum
 from pathlib import Path
 
 HERE = Path(__file__).parent
 
+
+class MarketType(enum.Enum):
+    US_stock = "UsStock"
+    A_share = "AShare"
+    #TODO: add more available market type
+
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_ 
 
 class MagicConfig:
     EXTRA_FIELDS = 'extra_fields'

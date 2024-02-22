@@ -9,7 +9,7 @@ import pandas as pd
 import rich
 from retry.api import retry
 
-from ..common.config import FS_DICT, MARKET_NUMBER_DICT
+from ..common.config import FS_DICT, MARKET_NUMBER_DICT, MarketType
 from ..config import SEARCH_RESULT_CACHE_PATH
 from ..shared import SEARCH_RESULT_DICT, session
 
@@ -87,7 +87,7 @@ Quote = namedtuple(
 
 
 @retry(tries=3, delay=1)
-def get_quote_id(stock_code: str) -> str:
+def get_quote_id(stock_code: str, market_type: MarketType = None, suppress_error=False) -> str:
     """
     生成东方财富股票专用的行情ID
 
@@ -95,6 +95,8 @@ def get_quote_id(stock_code: str) -> str:
     ----------
     stock_code : str
         证券代码或者证券名称
+    market_type : MarketType, optional
+        市场类型，默认不筛选    #TODO: 目前只知道A股和美股
 
     Returns
     -------
@@ -102,17 +104,20 @@ def get_quote_id(stock_code: str) -> str:
         东方财富股票专用的 secid
     """
     if len(str(stock_code).strip()) == 0:
+        if suppress_error:
+            return ''
         raise Exception('证券代码应为长度不应为 0')
-    quote = search_quote(stock_code)
+    quote = search_quote(stock_code, market_type=market_type)
     if isinstance(quote, Quote):
         return quote.quote_id
     if quote is None:
-        rich.print(f'证券代码 "{stock_code}" 可能有误')
+        if not suppress_error:
+            rich.print(f'证券代码 "{stock_code}" 可能有误')
         return ''
 
 
 def search_quote(
-    keyword: str, count: int = 1, use_local: bool = True
+    keyword: str, market_type: MarketType = None, count: int = 1, use_local: bool = True
 ) -> Union[Quote, None, List[Quote]]:
     """
     根据关键词搜索以获取证券信息
@@ -121,6 +126,8 @@ def search_quote(
     ----------
     keyword : str
         搜索词(股票代码、债券代码甚至证券名称都可以)
+    market_type : MarketType, optional
+        市场类型，默认不筛选    #TODO: 目前只知道A股和美股
     count : int, optional
         最多搜索结果数, 默认为 `1`
     use_local : bool, optional
@@ -133,7 +140,7 @@ def search_quote(
     """
     # NOTE 本地仅存储第一个搜索结果
     if use_local and count == 1:
-        quote = search_quote_locally(keyword)
+        quote = search_quote_locally(keyword, market_type=market_type)
         if quote:
             return quote
     url = 'https://searchapi.eastmoney.com/api/suggest/get'
@@ -141,12 +148,16 @@ def search_quote(
         ('input', f'{keyword}'),
         ('type', '14'),
         ('token', 'D43BF722C8E33BDC906FB84D85E326E8'),
-        ('count', f'{count}'),
+        ('count', '10'),
     )
     json_response = session.get(url, params=params).json()
     items = json_response['QuotationCodeTable']['Data']
-    if items is not None:
-        quotes = [Quote(*item.values()) for item in items]
+    if items is not None and items:
+        quotes = [
+            Quote(*item.values())
+            for item in items
+            if market_type is None or item['Classify'] == market_type
+        ]
         # NOTE 暂时仅存储第一个搜索结果
         save_search_result(keyword, quotes[:1])
         if count == 1:
@@ -155,7 +166,7 @@ def search_quote(
     return None
 
 
-def search_quote_locally(keyword: str) -> Union[Quote, None]:
+def search_quote_locally(keyword: str, market_type: MarketType = None) -> Union[Quote, None]:
     """
     在本地里面使用搜索记录进行关键词搜索
 
@@ -163,6 +174,8 @@ def search_quote_locally(keyword: str) -> Union[Quote, None]:
     ----------
     keyword : str
         搜索词
+    market_type : MarketType, optional
+        市场类型，默认不筛选    #TODO: 目前只知道A股和美股
 
     Returns
     -------
@@ -171,8 +184,10 @@ def search_quote_locally(keyword: str) -> Union[Quote, None]:
     """
     q = SEARCH_RESULT_DICT.get(keyword)
     # NOTE 兼容旧版本 给缓存加上最后修改时间
-    if q is None or not q.get('last_time'):
+    if q is None or not q.get('last_time') \
+        or (isinstance(market_type, MarketType) and q.get('classify') != market_type):
         return None
+
     last_time: float = q['last_time']
     # 缓存过期秒数
     max_ts = 3600 * 24 * 3

@@ -21,7 +21,7 @@ from ..common import get_history_bill as get_history_bill_for_stock
 from ..common import get_quote_history as get_quote_history_for_stock
 from ..common import get_realtime_quotes_by_fs
 from ..common import get_today_bill as get_today_bill_for_stock
-from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig
+from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig, MarketType
 from ..common.getter import get_latest_quote as get_latest_quote_for_stock
 from ..shared import session
 from ..utils import (
@@ -159,6 +159,7 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
 
 def get_quote_history(
     stock_codes: Union[str, List[str]],
+    market_type: MarketType = None,
     beg: str = '19000101',
     end: str = '20500101',
     klt: int = 101,
@@ -173,6 +174,8 @@ def get_quote_history(
     ----------
     stock_codes : Union[str,List[str]]
         股票代码、名称 或者 股票代码、名称构成的列表
+    market_type : MarketType, optional
+        市场类型，默认不筛选    #TODO: 目前只知道A股和美股
     beg : str, optional
         开始日期，默认为 ``'19000101'`` ，表示 1900年1月1日
     end : str, optional
@@ -222,8 +225,8 @@ def get_quote_history(
     4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68
     4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51
 
-    >>> # 获取多只股票历史行情
-    >>> stock_df = ef.stock.get_quote_history(['600519','300750'])
+    >>> # 获取多只A股股票历史行情
+    >>> stock_df = ef.stock.get_quote_history(['600519','300750'], market_type=MarketType.A_share)
     >>> type(stock_df)
     <class 'dict'>
     >>> stock_df.keys()
@@ -244,10 +247,9 @@ def get_quote_history(
 
     """
     df = get_quote_history_for_stock(
-        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, suppress_error=suppress_error, **kwargs
+        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, market_type=market_type, suppress_error=suppress_error, **kwargs
     )
     if isinstance(df, pd.DataFrame):
-
         df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
     elif isinstance(df, dict):
         for stock_code in df.keys():
