@@ -120,12 +120,12 @@ def get_quote_history_single(
 
 def get_quote_history_multi(
     codes: List[str],
-    market_type: MarketType = None,
     beg: str = '19000101',
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
     tries: int = 3,
+    market_type: MarketType = None,
     suppress_error: bool = False,
     **kwargs
 ) -> Dict[str, pd.DataFrame]:
