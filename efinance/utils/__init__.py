@@ -180,7 +180,7 @@ def search_quote(
             # 支持精确查找股票代码
             if (not kwargs.get(MagicConfig.QUOTE_SYMBOL_MODE, False) or (keyword == item['Code'])) 
                 # 支持筛选股票市场
-                and market_type is None or (market_type.value == item['Classify'])
+                and (market_type is None or (market_type.value == item['Classify']))
         ]
         # NOTE 暂时仅存储第一个搜索结果
         save_search_result(keyword, quotes[:1])
