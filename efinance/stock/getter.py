@@ -165,6 +165,7 @@ def get_quote_history(
     klt: int = 101,
     fqt: int = 1,
     suppress_error: bool = False,
+    use_id_cache: bool = True,
     **kwargs,
 ) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
@@ -247,7 +248,9 @@ def get_quote_history(
 
     """
     df = get_quote_history_for_stock(
-        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, market_type=market_type, suppress_error=suppress_error, **kwargs
+        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt,
+        market_type=market_type, suppress_error=suppress_error, use_id_cache=use_id_cache
+        **kwargs
     )
     if isinstance(df, pd.DataFrame):
         df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
