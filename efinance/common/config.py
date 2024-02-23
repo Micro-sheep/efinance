@@ -18,6 +18,7 @@ class MarketType(enum.Enum):
 class MagicConfig:
     EXTRA_FIELDS = 'extra_fields'
     QUOTE_ID_MODE = 'quote_id_mode'
+    QUOTE_SYMBOL_MODE = 'exact_symbol_mode'
     RETURN_DF = 'return_df'
 
 

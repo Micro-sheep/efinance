@@ -9,7 +9,7 @@ import pandas as pd
 import rich
 from retry.api import retry
 
-from ..common.config import FS_DICT, MARKET_NUMBER_DICT, MarketType
+from ..common.config import FS_DICT, MARKET_NUMBER_DICT, MagicConfig, MarketType
 from ..config import SEARCH_RESULT_CACHE_PATH
 from ..shared import SEARCH_RESULT_DICT, session
 
@@ -91,7 +91,8 @@ def get_quote_id(
     stock_code: str,
     market_type: Union[MarketType, None] = None,
     use_local=True,
-    suppress_error=False
+    suppress_error=False,
+    **kwargs
 ) -> str:
     """
     生成东方财富股票专用的行情ID
@@ -116,7 +117,9 @@ def get_quote_id(
         if suppress_error:
             return ''
         raise Exception('证券代码应为长度不应为 0')
-    quote = search_quote(stock_code, market_type=market_type, use_local=use_local)
+    quote = search_quote(
+        stock_code, market_type=market_type, use_local=use_local, **kwargs
+    )
     if isinstance(quote, Quote):
         return quote.quote_id
     if quote is None:
@@ -129,7 +132,8 @@ def search_quote(
     keyword: str, 
     market_type: Union[MarketType, None] = None,
     count: int = 1,
-    use_local: bool = True
+    use_local: bool = True,
+    **kwargs
 ) -> Union[Quote, None, List[Quote]]:
     """
     根据关键词搜索以获取证券信息
@@ -173,8 +177,10 @@ def search_quote(
         quotes = [
             Quote(*item.values())
             for item in items
-            if keyword == item[''] and market_type is None 
-                or (item['Classify']) == (market_type.value)
+            # 支持精确查找股票代码
+            if (not kwargs.get(MagicConfig.QUOTE_SYMBOL_MODE, False) or (keyword == item['Code'])) 
+                # 支持筛选股票市场
+                and market_type is None or (market_type.value == item['Classify'])
         ]
         # NOTE 暂时仅存储第一个搜索结果
         save_search_result(keyword, quotes[:1])

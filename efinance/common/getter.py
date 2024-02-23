@@ -90,7 +90,8 @@ def get_quote_history_single(
             stock_code=code,
             market_type=market_type,
             use_local=use_id_cache,
-            suppress_error=suppress_error
+            suppress_error=suppress_error,
+            **kwargs
         )
     params = (
         ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
