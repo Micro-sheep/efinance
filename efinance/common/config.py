@@ -5,9 +5,11 @@ HERE = Path(__file__).parent
 
 
 class MarketType(enum.Enum):
-    US_stock = "UsStock"
     A_share = "AShare"
-    #TODO: add more available market type
+    Hongkong = "HK"
+    London_stock_exchange = "LSE"
+    US_stock = "UsStock"
+    # there may exists more market type
 
     @classmethod
     def has_value(cls, value):
