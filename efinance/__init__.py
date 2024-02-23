@@ -9,6 +9,6 @@ from efinance.api import (
     stock
 )
 
-from efinance.utils import MarketType
+from efinance import utils
 
-__all__ = ['stock', 'fund', 'bond', 'futures', 'MarketType']
+__all__ = ['stock', 'fund', 'bond', 'futures', 'utils']
