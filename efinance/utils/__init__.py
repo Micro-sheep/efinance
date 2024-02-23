@@ -173,7 +173,7 @@ def search_quote(
         quotes = [
             Quote(*item.values())
             for item in items
-            if keyword == item[''] and market_type is None \
+            if keyword == item[''] and market_type is None 
                 or (item['Classify']) == (market_type.value)
         ]
         # NOTE 暂时仅存储第一个搜索结果
