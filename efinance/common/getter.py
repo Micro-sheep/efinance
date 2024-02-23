@@ -70,8 +70,9 @@ def get_quote_history_single(
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
-    market_type: MarketType = None,
+    market_type: Union[MarketType, None] = None,
     suppress_error: bool = False,
+    use_id_cache: bool = True,
     **kwargs
 ) -> pd.DataFrame:
     """
@@ -85,7 +86,12 @@ def get_quote_history_single(
     if kwargs.get(MagicConfig.QUOTE_ID_MODE):
         quote_id = code
     else:
-        quote_id = get_quote_id(code, market_type=market_type, suppress_error=suppress_error)
+        quote_id = get_quote_id(
+            stock_code=code,
+            market_type=market_type,
+            use_local=use_id_cache,
+            suppress_error=suppress_error
+        )
     params = (
         ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
         ('fields2', fields2),
@@ -125,8 +131,9 @@ def get_quote_history_multi(
     klt: int = 101,
     fqt: int = 1,
     tries: int = 3,
-    market_type: MarketType = None,
+    market_type: Union[MarketType, None] = None,
     suppress_error: bool = False,
+    use_id_cache: bool = True,
     **kwargs
 ) -> Dict[str, pd.DataFrame]:
     """
@@ -148,6 +155,7 @@ def get_quote_history_multi(
             fqt=fqt,
             market_type=market_type,
             suppress_error=suppress_error,
+            use_id_cache=use_id_cache,
             **kwargs)
         dfs[code] = _df
         pbar.update(1)
@@ -173,7 +181,9 @@ def get_quote_history(codes: Union[str, List[str]],
                       klt: int = 101,
                       fqt: int = 1,
                       suppress_error: bool = False,
-                      **kwargs) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
+                      use_id_cache: bool = True,
+                      **kwargs
+) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
     获取股票、ETF、债券的 K 线数据
 
@@ -203,6 +213,10 @@ def get_quote_history(codes: Union[str, List[str]],
         - ``0`` : 不复权
         - ``1`` : 前复权
         - ``2`` : 后复权
+    suppress_error : bool, optional
+        遇到错误的股票代码，是否不报错，返回空的DataFrame
+    use_id_cache : bool, optional
+        是否使用本地缓存的东方财富股票行情ID
 
     Returns
     -------
@@ -221,6 +235,7 @@ def get_quote_history(codes: Union[str, List[str]],
                                         klt=klt,
                                         fqt=fqt,
                                         suppress_error=suppress_error,
+                                        use_id_cache=use_id_cache,
                                         **kwargs)
 
     elif hasattr(codes, '__iter__'):
@@ -231,6 +246,7 @@ def get_quote_history(codes: Union[str, List[str]],
                                        klt=klt,
                                        fqt=fqt,
                                        suppress_error=suppress_error,
+                                       use_id_cache=use_id_cache,
                                        **kwargs)
     raise TypeError(
         '代码数据类型输入不正确！'

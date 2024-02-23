@@ -87,7 +87,12 @@ Quote = namedtuple(
 
 
 @retry(tries=3, delay=1)
-def get_quote_id(stock_code: str, market_type: MarketType = None, suppress_error=False) -> str:
+def get_quote_id(
+    stock_code: str,
+    market_type: Union[MarketType, None] = None,
+    use_local=True,
+    suppress_error=False
+) -> str:
     """
     生成东方财富股票专用的行情ID
 
@@ -96,7 +101,11 @@ def get_quote_id(stock_code: str, market_type: MarketType = None, suppress_error
     stock_code : str
         证券代码或者证券名称
     market_type : MarketType, optional
-        市场类型，默认不筛选    #TODO: 目前只知道A股和美股
+        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选
+    use_local : bool, optional
+        是否使用本地缓存
+    suppress_error : bool, optional
+        遇到错误的股票代码，是否不报错，返回空字符串
 
     Returns
     -------
@@ -107,7 +116,7 @@ def get_quote_id(stock_code: str, market_type: MarketType = None, suppress_error
         if suppress_error:
             return ''
         raise Exception('证券代码应为长度不应为 0')
-    quote = search_quote(stock_code, market_type=market_type)
+    quote = search_quote(stock_code, market_type=market_type, use_local=use_local)
     if isinstance(quote, Quote):
         return quote.quote_id
     if quote is None:
@@ -117,7 +126,10 @@ def get_quote_id(stock_code: str, market_type: MarketType = None, suppress_error
 
 
 def search_quote(
-    keyword: str, market_type: MarketType = None, count: int = 1, use_local: bool = True
+    keyword: str, 
+    market_type: Union[MarketType, None] = None,
+    count: int = 1,
+    use_local: bool = True
 ) -> Union[Quote, None, List[Quote]]:
     """
     根据关键词搜索以获取证券信息
@@ -127,7 +139,7 @@ def search_quote(
     keyword : str
         搜索词(股票代码、债券代码甚至证券名称都可以)
     market_type : MarketType, optional
-        市场类型，默认不筛选    #TODO: 目前只知道A股和美股
+        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选
     count : int, optional
         最多搜索结果数, 默认为 `1`
     use_local : bool, optional
@@ -161,7 +173,8 @@ def search_quote(
         quotes = [
             Quote(*item.values())
             for item in items
-            if market_type is None or (item['Classify']) == (market_type.value)
+            if keyword == item[''] and market_type is None \
+                or (item['Classify']) == (market_type.value)
         ]
         # NOTE 暂时仅存储第一个搜索结果
         save_search_result(keyword, quotes[:1])
@@ -173,7 +186,10 @@ def search_quote(
     return None
 
 
-def search_quote_locally(keyword: str, market_type: MarketType = None) -> Union[Quote, None]:
+def search_quote_locally(
+    keyword: str,
+    market_type: Union[MarketType, None] = None
+) -> Union[Quote, None]:
     """
     在本地里面使用搜索记录进行关键词搜索
 
@@ -182,7 +198,7 @@ def search_quote_locally(keyword: str, market_type: MarketType = None) -> Union[
     keyword : str
         搜索词
     market_type : MarketType, optional
-        市场类型，默认不筛选    #TODO: 目前只知道A股和美股
+        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选
 
     Returns
     -------

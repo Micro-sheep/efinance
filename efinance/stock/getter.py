@@ -159,7 +159,7 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
 
 def get_quote_history(
     stock_codes: Union[str, List[str]],
-    market_type: MarketType = None,
+    market_type: Union[MarketType, None] = None,
     beg: str = '19000101',
     end: str = '20500101',
     klt: int = 101,
@@ -175,7 +175,7 @@ def get_quote_history(
     stock_codes : Union[str,List[str]]
         股票代码、名称 或者 股票代码、名称构成的列表
     market_type : MarketType, optional
-        市场类型，默认不筛选    #TODO: 目前只知道A股和美股
+        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选
     beg : str, optional
         开始日期，默认为 ``'19000101'`` ，表示 1900年1月1日
     end : str, optional
