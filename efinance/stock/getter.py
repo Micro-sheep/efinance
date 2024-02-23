@@ -249,7 +249,7 @@ def get_quote_history(
     """
     df = get_quote_history_for_stock(
         stock_codes, beg=beg, end=end, klt=klt, fqt=fqt,
-        market_type=market_type, suppress_error=suppress_error, use_id_cache=use_id_cache
+        market_type=market_type, suppress_error=suppress_error, use_id_cache=use_id_cache,
         **kwargs
     )
     if isinstance(df, pd.DataFrame):
