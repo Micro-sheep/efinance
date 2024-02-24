@@ -5,7 +5,7 @@ HERE = Path(__file__).parent
 
 
 class MarketType(enum.Enum):
-    A_share = "AShare"
+    A_stock = "AStock"
     Hongkong = "HK"
     London_stock_exchange = "LSE"
     US_stock = "UsStock"
