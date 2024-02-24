@@ -6,9 +6,10 @@ import pandas as pd
 from jsonpath import jsonpath
 from retry import retry
 from tqdm.auto import tqdm
+import time
 
 from ..common.config import MARKET_NUMBER_DICT, MarketType
-from ..shared import BASE_INFO_CACHE, session
+from ..shared import BASE_INFO_CACHE, session, MAX_CONNECTIONS
 from ..utils import get_quote_id, to_numeric
 from .config import (EASTMONEY_BASE_INFO_FIELDS, EASTMONEY_HISTORY_BILL_FIELDS,
                      EASTMONEY_KLINE_FIELDS, EASTMONEY_KLINE_NDAYS_FIELDS,
@@ -164,6 +165,8 @@ def get_quote_history_multi(
 
     pbar = tqdm(total=total)
     for code in codes:
+        if len(multitasking.get_active_tasks()) > MAX_CONNECTIONS:
+            time.sleep(3)
         start(code)
 
     multitasking.wait_for_tasks()
