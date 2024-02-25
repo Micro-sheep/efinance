@@ -182,6 +182,7 @@ def get_quote_history(codes: Union[str, List[str]],
                       end: str = '20500101',
                       klt: int = 101,
                       fqt: int = 1,
+                      market_type: Union[MarketType, None] = None,
                       suppress_error: bool = False,
                       use_id_cache: bool = True,
                       **kwargs
@@ -215,6 +216,15 @@ def get_quote_history(codes: Union[str, List[str]],
         - ``0`` : 不复权
         - ``1`` : 前复权
         - ``2`` : 后复权
+
+    market_type : MarketType, optional
+        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选，可选示例如下
+
+        - ``A_stock`` : A股
+        - ``Hongkong`` : 香港
+        - ``London_stock_exchange`` : 英股
+        - ``US_stock`` : 美股
+
     suppress_error : bool, optional
         遇到错误的股票代码，是否不报错，返回空的DataFrame
     use_id_cache : bool, optional
@@ -236,6 +246,7 @@ def get_quote_history(codes: Union[str, List[str]],
                                         end=end,
                                         klt=klt,
                                         fqt=fqt,
+                                        market_type=market_type,
                                         suppress_error=suppress_error,
                                         use_id_cache=use_id_cache,
                                         **kwargs)
@@ -247,6 +258,7 @@ def get_quote_history(codes: Union[str, List[str]],
                                        end=end,
                                        klt=klt,
                                        fqt=fqt,
+                                       market_type=market_type,
                                        suppress_error=suppress_error,
                                        use_id_cache=use_id_cache,
                                        **kwargs)

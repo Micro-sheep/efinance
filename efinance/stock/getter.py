@@ -159,11 +159,11 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
 
 def get_quote_history(
     stock_codes: Union[str, List[str]],
-    market_type: Union[MarketType, None] = None,
     beg: str = '19000101',
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
+    market_type: Union[MarketType, None] = None,
     suppress_error: bool = False,
     use_id_cache: bool = True,
     **kwargs,
@@ -175,8 +175,6 @@ def get_quote_history(
     ----------
     stock_codes : Union[str,List[str]]
         股票代码、名称 或者 股票代码、名称构成的列表
-    market_type : MarketType, optional
-        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选
     beg : str, optional
         开始日期，默认为 ``'19000101'`` ，表示 1900年1月1日
     end : str, optional
@@ -199,6 +197,19 @@ def get_quote_history(
         - ``0`` : 不复权
         - ``1`` : 前复权
         - ``2`` : 后复权
+
+    market_type : MarketType, optional
+        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选，可选示例如下
+
+        - ``A_stock`` : A股
+        - ``Hongkong`` : 香港
+        - ``London_stock_exchange`` : 英股
+        - ``US_stock`` : 美股
+
+    suppress_error : bool, optional
+        遇到未查到的股票代码，是否不报错，返回空的DataFrame
+    use_id_cache : bool, optional
+        是否使用本地缓存的东方财富股票行情ID
 
     Returns
     -------
