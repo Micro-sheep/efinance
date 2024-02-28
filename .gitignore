@@ -14,5 +14,6 @@ data/
 *.zip
 *.tar
 *.tar.gz
+*.gz
 
 
