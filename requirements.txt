@@ -6,3 +6,4 @@ multitasking
 jsonpath
 rich
 beautifulsoup4
+chinese_calendar

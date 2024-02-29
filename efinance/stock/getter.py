@@ -14,6 +14,7 @@ import rich
 from jsonpath import jsonpath
 from retry import retry
 from tqdm import tqdm
+from chinese_calendar import is_workday
 
 from ..common import get_base_info as get_base_info_for_stock
 from ..common import get_deal_detail as get_deal_detail_for_stock
@@ -1453,3 +1454,28 @@ def get_belong_board(stock_code: str) -> pd.DataFrame:
     df.insert(0, '股票名称', q.name)
     df.insert(1, '股票代码', q.code)
     return df
+
+def is_trading_day(date: str):
+    """
+    判断指定日期是否是交易日
+
+    Parameters
+    ----------
+    date : str
+        日期字符串, 格式: 20230630
+
+    Returns
+    -------
+    Bool
+        True: 是, False: 否
+
+    Examples
+    --------
+    >>> import efinance as ef
+    >>> ef.stock.is_trading_day('20230630')
+        True
+    """
+    if is_workday(datetime.strptime(date, '%Y%m%d')):
+        if datetime.isoweekday(date) < 6:
+            return True
+    return False
