@@ -24,6 +24,7 @@ from .config import (
 import warnings
 warnings.filterwarnings("once")
 
+
 @to_numeric
 def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
     """
@@ -36,7 +37,8 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
 
     """
 
-    columns = {**EASTMONEY_QUOTE_FIELDS, **kwargs.get(MagicConfig.EXTRA_FIELDS, {})}
+    columns = {**EASTMONEY_QUOTE_FIELDS, **
+               kwargs.get(MagicConfig.EXTRA_FIELDS, {})}
     fields = ",".join(columns.keys())
     params = (
         ('pn', '1'),
@@ -57,7 +59,8 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
     df = df.rename(columns=columns)
     df: pd.DataFrame = df[columns.values()]
     df['行情ID'] = df['市场编号'].astype(str) + '.' + df['代码'].astype(str)
-    df['市场类型'] = df['市场编号'].astype(str).apply(lambda x: MARKET_NUMBER_DICT.get(x))
+    df['市场类型'] = df['市场编号'].astype(str).apply(
+        lambda x: MARKET_NUMBER_DICT.get(x))
     df['更新时间'] = df['更新时间戳'].apply(lambda x: str(datetime.fromtimestamp(x)))
     df['最新交易日'] = pd.to_datetime(df['最新交易日'], format='%Y%m%d').astype(str)
     tmp = df['最新交易日']
@@ -74,6 +77,7 @@ def get_quote_history_single(
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
+    lmt: int = 100,
     **kwargs,
 ) -> pd.DataFrame:
     """
@@ -88,16 +92,29 @@ def get_quote_history_single(
         quote_id = code
     else:
         quote_id = get_quote_id(code)
-    params = (
-        ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
-        ('fields2', fields2),
-        ('beg', beg),
-        ('end', end),
-        ('rtntype', '6'),
-        ('secid', quote_id),
-        ('klt', f'{klt}'),
-        ('fqt', f'{fqt}'),
-    )
+    if klt < 101:
+        params = (
+            ("fields1", "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13"),
+            ("fields2", fields2),
+            # ("beg", beg),
+            ("end", "20500101"),
+            ("rtntype", "6"),
+            ("secid", quote_id),
+            ("klt", f"{klt}"),
+            ("fqt", f"{fqt}"),
+            ("lmt", f"{lmt}"),
+        )
+    else:
+        params = (
+            ('fields1', 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13'),
+            ('fields2', fields2),
+            ('beg', beg),
+            ('end', end),
+            ('rtntype', '6'),
+            ('secid', quote_id),
+            ('klt', f'{klt}'),
+            ('fqt', f'{fqt}'),
+        )
 
     url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get'
 
@@ -165,6 +182,7 @@ def get_quote_history(
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
+    lmt: int = 100,
     **kwargs,
 ) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
@@ -209,7 +227,7 @@ def get_quote_history(
 
     if isinstance(codes, str):
         return get_quote_history_single(
-            codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
+            codes, beg=beg, end=end, klt=klt, fqt=fqt, lmt=lmt, **kwargs
         )
 
     elif hasattr(codes, '__iter__'):
@@ -330,7 +348,8 @@ def get_base_info(quote_id: str) -> pd.Series:
     if not items:
         return pd.Series(index=EASTMONEY_BASE_INFO_FIELDS.values(), dtype='object')
 
-    s = pd.Series(items, dtype='object').rename(index=EASTMONEY_BASE_INFO_FIELDS)
+    s = pd.Series(items, dtype='object').rename(
+        index=EASTMONEY_BASE_INFO_FIELDS)
     return s
 
 
@@ -412,7 +431,8 @@ def get_latest_quote(quote_id_list: Union[str, List[str]], **kwargs) -> pd.DataF
         quote_id_list = [quote_id_list]
     secids: List[str] = quote_id_list
 
-    columns = {**EASTMONEY_QUOTE_FIELDS, **kwargs.get(MagicConfig.EXTRA_FIELDS, {})}
+    columns = {**EASTMONEY_QUOTE_FIELDS, **
+               kwargs.get(MagicConfig.EXTRA_FIELDS, {})}
     fields = ",".join(columns.keys())
     params = (
         ('OSVersion', '14.3'),

@@ -163,6 +163,7 @@ def get_quote_history(
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
+    lmt: int = 100,
     **kwargs,
 ) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
@@ -243,14 +244,15 @@ def get_quote_history(
 
     """
     df = get_quote_history_for_stock(
-        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
+        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, lmt=lmt, **kwargs
     )
     if isinstance(df, pd.DataFrame):
 
         df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
     elif isinstance(df, dict):
         for stock_code in df.keys():
-            df[stock_code].rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
+            df[stock_code].rename(
+                columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
     return df
 
 
@@ -592,7 +594,8 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
         url = 'https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong'
         response = requests.post(url, json=data)
         response.encoding = 'utf-8'
-        items: List[dict] = jsonpath(response.json(), f'$..ShiDaLiuTongGuDongList[:]')
+        items: List[dict] = jsonpath(
+            response.json(), f'$..ShiDaLiuTongGuDongList[:]')
         if not items:
             continue
         df = pd.DataFrame(items)
@@ -669,7 +672,8 @@ def get_all_report_dates() -> pd.DataFrame:
         ('ps', '2000'),
     )
     url = 'https://datacenter.eastmoney.com/securities/api/data/get'
-    response = requests.get(url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
+    response = requests.get(
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
     items = jsonpath(response.json(), '$..data[:]')
     if not items:
         pd.DataFrame(columns=fields.values())
@@ -777,10 +781,12 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
             ('sty', 'ALL'),
             ('token', '894050c76af8597a853f5b408b759f5d'),
             # ! 只选沪深A股
-            ('filter', f'(SECURITY_TYPE_CODE in ("058001001","058001008")){date}'),
+            ('filter',
+             f'(SECURITY_TYPE_CODE in ("058001001","058001008")){date}'),
         )
         url = 'http://datacenter-web.eastmoney.com/api/data/get'
-        response = session.get(url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
+        response = session.get(
+            url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
         items = jsonpath(response.json(), '$..data[:]')
         if not items:
             break
@@ -901,7 +907,8 @@ def get_latest_holder_number(date: str = None) -> pd.DataFrame:
 
         params = tuple(params)
         url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
-        response = session.get(url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
+        response = session.get(
+            url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
         items = jsonpath(response.json(), '$..data[:]')
         if not items:
             break
@@ -1012,7 +1019,8 @@ def get_daily_billboard(start_date: str = None, end_date: str = None) -> pd.Data
                 ('columns', 'ALL'),
                 ('source', 'WEB'),
                 ('client', 'WEB'),
-                ('filter', f"(TRADE_DATE<='{end_date}')(TRADE_DATE>='{start_date}')"),
+                ('filter',
+                 f"(TRADE_DATE<='{end_date}')(TRADE_DATE>='{start_date}')"),
             )
 
             url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
@@ -1321,7 +1329,7 @@ def get_quote_snapshot(stock_code: str) -> pd.Series:
     }
     s = pd.Series(index=columns.values(), dtype='object')
     try:
-        qd: dict = json.loads(response.text[start_index : end_index + 1])
+        qd: dict = json.loads(response.text[start_index: end_index + 1])
     except:
         return s
     if not qd.get('fivequote'):
