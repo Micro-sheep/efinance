@@ -187,7 +187,7 @@ def search_quote(
         if count == 1:
             return quotes[0] if len(quotes) >= 1 else None
 
-        return quotes[:count + 1]
+        return quotes[:count]
 
     return None
 
