@@ -43,7 +43,8 @@ python_version = sys.version_info.major, sys.version_info.minor
 # * 适配 pythn 3.10 及其以上版本
 if python_version >= (3, 10):
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
-    requests.packages.urllib3.disable_warnings()
+
+requests.packages.urllib3.disable_warnings()
 
 @to_numeric
 def get_base_info_single(stock_code: str) -> pd.Series:
