@@ -6,7 +6,9 @@ from efinance.api import (
     bond,
     fund,
     futures,
-    stock,
+    stock
 )
 
-__all__ = ['stock', 'fund', 'bond', 'futures']
+from efinance import utils
+
+__all__ = ['stock', 'fund', 'bond', 'futures', 'utils']

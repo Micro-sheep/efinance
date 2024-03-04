@@ -11,7 +11,7 @@ import requests
 import rich
 from jsonpath import jsonpath
 from retry import retry
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import time
 
 from ..utils import to_numeric

@@ -13,7 +13,7 @@ import requests
 import rich
 from jsonpath import jsonpath
 from retry import retry
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from ..common import get_base_info as get_base_info_for_stock
 from ..common import get_deal_detail as get_deal_detail_for_stock
@@ -21,7 +21,7 @@ from ..common import get_history_bill as get_history_bill_for_stock
 from ..common import get_quote_history as get_quote_history_for_stock
 from ..common import get_realtime_quotes_by_fs
 from ..common import get_today_bill as get_today_bill_for_stock
-from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig
+from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig, MarketType
 from ..common.getter import get_latest_quote as get_latest_quote_for_stock
 from ..shared import session
 from ..utils import (
@@ -44,6 +44,7 @@ python_version = sys.version_info.major, sys.version_info.minor
 if python_version >= (3, 10):
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
 
+requests.packages.urllib3.disable_warnings()
 
 @to_numeric
 def get_base_info_single(stock_code: str) -> pd.Series:
@@ -163,6 +164,9 @@ def get_quote_history(
     end: str = '20500101',
     klt: int = 101,
     fqt: int = 1,
+    market_type: Union[MarketType, None] = None,
+    suppress_error: bool = False,
+    use_id_cache: bool = True,
     **kwargs,
 ) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
@@ -194,6 +198,19 @@ def get_quote_history(
         - ``0`` : 不复权
         - ``1`` : 前复权
         - ``2`` : 后复权
+
+    market_type : MarketType, optional
+        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选，可选示例如下
+
+        - ``A_stock`` : A股
+        - ``Hongkong`` : 香港
+        - ``London_stock_exchange`` : 英股
+        - ``US_stock`` : 美股
+
+    suppress_error : bool, optional
+        遇到未查到的股票代码，是否不报错，返回空的DataFrame
+    use_id_cache : bool, optional
+        是否使用本地缓存的东方财富股票行情ID
 
     Returns
     -------
@@ -241,12 +258,46 @@ def get_quote_history(
     4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68
     4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51
 
+    >>> # 关键字查询'PG'，默认优先返回拼音缩写匹配项
+    >>> ef.stock.get_quote_history('PG')
+     股票名称  股票代码          日期      开盘      收盘      最高      最低        成交量           成交额    振幅   涨跌幅   涨跌额   换手率
+    0      苹果  AAPL  1984-09-07   -7.91   -7.91   -7.90   -7.91    2981600  0.000000e+00  0.00  0.00  0.00  0.02
+    1      苹果  AAPL  1984-09-10   -7.91   -7.91   -7.90   -7.91    2346400  0.000000e+00 -0.13  0.00  0.00  0.02
+    2      苹果  AAPL  1984-09-11   -7.90   -7.90   -7.90   -7.90    5444000  0.000000e+00  0.00  0.13  0.01  0.04
+    3      苹果  AAPL  1984-09-12   -7.90   -7.91   -7.90   -7.91    4773600  0.000000e+00 -0.13 -0.13 -0.01  0.03
+    4      苹果  AAPL  1984-09-13   -7.90   -7.90   -7.90   -7.90    7429600  0.000000e+00  0.00  0.13  0.01  0.05
+    ...   ...   ...         ...     ...     ...     ...     ...        ...           ...   ...   ...   ...   ...
+    
+    >>> # 关键字查询'PG'，限定股市为A股
+    >>> from efinance.utils import MarketType
+    >>> ef.stock.get_quote_history('PG', market_type=MarketType.A_stock)
+          股票名称    股票代码          日期     开盘     收盘     最高     最低     成交量          成交额      振幅      涨跌幅   涨跌额    换手率
+    0     平高电气  600312  2001-02-21   1.20   1.30   1.32   1.06  391577  738479000.0 -650.00  3350.00  1.34  65.26
+    1     平高电气  600312  2001-02-22   1.24   1.27   1.35   1.23  104905  202688000.0    9.23    -2.31 -0.03  17.48
+    2     平高电气  600312  2001-02-23   1.28   1.25   1.30   1.16   56734  108086000.0   11.02    -1.57 -0.02   9.46
+    3     平高电气  600312  2001-02-26   1.26   1.33   1.40   1.23   69886  136875000.0   13.60     6.40  0.08  11.65
+    4     平高电气  600312  2001-02-27   1.32   1.32   1.35   1.27   27719   53969000.0    6.02    -0.75 -0.01   4.62
+    ...   ...   ...         ...     ...     ...     ...     ...        ...           ...   ...   ...   ...   ...
+    
+    >>> # 精确匹配股票代码模式：`quote_symbol_mode`
+    >>> # 同时设置`use_id_cache=False`以防止直接使用过去相同关键字查询到的结果缓存
+    >>> ef.stock.get_quote_history('PG', quote_symbol_mode=True, use_id_cache=False)
+            股票名称  股票代码          日期      开盘      收盘      最高      最低        成交量           成交额    振幅   涨跌幅   涨跌额   换手率
+    0      宝洁   PG  1986-01-02  -51.15  -51.18  -51.15  -51.22  3772800  0.000000e+00  0.00  0.00  0.00  0.16
+    1      宝洁   PG  1986-01-03  -51.19  -51.15  -51.13  -51.19  3652800  0.000000e+00 -0.12  0.06  0.03  0.16
+    2      宝洁   PG  1986-01-06  -51.17  -51.18  -51.15  -51.19  1708800  0.000000e+00 -0.08 -0.06 -0.03  0.07
+    3      宝洁   PG  1986-01-07  -51.20  -51.20  -51.13  -51.20  7260800  0.000000e+00 -0.14 -0.04 -0.02  0.31
+    4      宝洁   PG  1986-01-08  -51.18  -51.35  -51.18  -51.39  5556800  0.000000e+00 -0.41 -0.29 -0.15  0.24
+    ...   ...   ...         ...     ...     ...     ...     ...        ...           ...   ...   ...   ...   ...
+
     """
+
     df = get_quote_history_for_stock(
-        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt, **kwargs
+        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt,
+        market_type=market_type, suppress_error=suppress_error, use_id_cache=use_id_cache,
+        **kwargs
     )
     if isinstance(df, pd.DataFrame):
-
         df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
     elif isinstance(df, dict):
         for stock_code in df.keys():

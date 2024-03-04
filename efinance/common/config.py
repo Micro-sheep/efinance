@@ -1,11 +1,33 @@
+import enum
 from pathlib import Path
 
 HERE = Path(__file__).parent
 
 
+class MarketType(enum.Enum):
+    A_stock = "AStock"  # A股
+    A_stock_index = "Index" # A股指数
+    B_stock = "BStock"  # B股
+    index = "Index" # 沪深京指数
+    STAR_market = "23"  # 科创板
+    CSI_free_float = "24" # 中证系列指数
+    NEEQ = "NEEQ"   # 京A，新三板（全国中小企业股份转让系统）
+    BK = "BK"   # 板块
+    Hongkong = "HK" # 港股
+    US_stock = "UsStock"    # 美股
+    London_stock = "LSE"   # 英股
+    London_stock_IOB = "LSEIOB"   # 伦敦交易所国际挂盘册
+    universal_index = "UniversalIndex"  # 国外指数
+    SIX_Swiss = "SIX" # SIX瑞士股市
+
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_ 
+
 class MagicConfig:
     EXTRA_FIELDS = 'extra_fields'
     QUOTE_ID_MODE = 'quote_id_mode'
+    QUOTE_SYMBOL_MODE = 'quote_symbol_mode'
     RETURN_DF = 'return_df'
 
 
