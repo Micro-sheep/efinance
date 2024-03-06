@@ -162,7 +162,7 @@ def get_all_base_info() -> pd.DataFrame:
     columns = EASTMONEY_BOND_BASE_INFO_FIELDS
     while 1:
         params = (
-            ('sortColumns', 'PUBLIC_START_DATE'),
+            ('sortColumns', 'SECURITY_CODE'),
             ('sortTypes', '-1'),
             ('pageSize', '500'),
             ('pageNumber', f'{page}'),
@@ -295,7 +295,8 @@ def get_quote_history(
         df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
     elif isinstance(df, dict):
         for bond_code in df.keys():
-            df[bond_code].rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
+            df[bond_code].rename(
+                columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
     return df
 
 
