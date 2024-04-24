@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 here = pathlib.Path(__file__).parent
 # require = (here / "requirements.txt").read_text(encoding='utf-8').split()
-require = ['requests', 'rich', 'jsonpath', 'pandas', 'tqdm', 'retry', 'multitasking']
+require = ['requests', 'rich', 'jsonpath', 'pandas', 'tqdm', 'retry', 'multitasking', 'bs4']
 readme = (here / "README.md").read_text(encoding='utf-8')
 about = {}
 exec((here / 'efinance' / '__version__.py').read_text(encoding='utf-8'), about)
