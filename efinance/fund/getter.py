@@ -19,12 +19,14 @@ from .config import EastmoneyFundHeaders
 from ..common.config import MagicConfig
 from ..shared import session, MAX_CONNECTIONS
 import warnings
+
 warnings.filterwarnings("module")
 
 if threading.current_thread() is threading.main_thread():
     signal.signal(signal.SIGINT, multitasking.killall)
 
 fund_session = session
+
 
 @retry(tries=3)
 @to_numeric
@@ -64,46 +66,51 @@ def get_quote_history(fund_code: str, pz: int = 40000) -> pd.DataFrame:
     """
 
     data = {
-        'FCODE': f'{fund_code}',
-        'IsShareNet': 'true',
-        'MobileKey': '1',
-        'appType': 'ttjj',
-        'appVersion': '6.2.8',
-        'cToken': '1',
-        'deviceid': '1',
-        'pageIndex': '1',
-        'pageSize': f'{pz}',
-        'plat': 'Iphone',
-        'product': 'EFund',
-        'serverVersion': '6.2.8',
-        'uToken': '1',
-        'userId': '1',
-        'version': '6.2.8',
+        "FCODE": f"{fund_code}",
+        "IsShareNet": "true",
+        "MobileKey": "1",
+        "appType": "ttjj",
+        "appVersion": "6.2.8",
+        "cToken": "1",
+        "deviceid": "1",
+        "pageIndex": "1",
+        "pageSize": f"{pz}",
+        "plat": "Iphone",
+        "product": "EFund",
+        "serverVersion": "6.2.8",
+        "uToken": "1",
+        "userId": "1",
+        "version": "6.2.8",
     }
-    url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList'
-    json_response = fund_session.get(url, headers=EastmoneyFundHeaders, data=data, verify=False).json()
+    url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNHisNetList"
+    json_response = fund_session.get(
+        url, headers=EastmoneyFundHeaders, data=data, verify=False
+    ).json()
     rows = []
-    columns = ['日期', '单位净值', '累计净值', '涨跌幅']
+    columns = ["日期", "单位净值", "累计净值", "涨跌幅"]
     if json_response is None:
         return pd.DataFrame(rows, columns=columns)
-    datas = json_response['Datas']
+    datas = json_response["Datas"]
     if len(datas) == 0:
         return pd.DataFrame(rows, columns=columns)
     rows = []
     for stock in datas:
-        date = stock['FSRQ']
+        date = stock["FSRQ"]
         rows.append(
             {
-                '日期': date,
-                '单位净值': stock['DWJZ'],
-                '累计净值': stock['LJJZ'],
-                '涨跌幅': stock['JZZZL'],
+                "日期": date,
+                "单位净值": stock["DWJZ"],
+                "累计净值": stock["LJJZ"],
+                "涨跌幅": stock["JZZZL"],
             }
         )
     df = pd.DataFrame(rows)
     return df
 
-def get_quote_history_multi(fund_codes: List[str], pz: int = 40000, **kwargs) -> Dict[str, pd.DataFrame]:
+
+def get_quote_history_multi(
+    fund_codes: List[str], pz: int = 40000, **kwargs
+) -> Dict[str, pd.DataFrame]:
     dfs: Dict[str, pd.DataFrame] = {}
     pbar = tqdm(total=len(fund_codes))
 
@@ -115,7 +122,7 @@ def get_quote_history_multi(fund_codes: List[str], pz: int = 40000, **kwargs) ->
         _df = get_quote_history(fund_code, pz)
         dfs[fund_code] = _df
         pbar.update(1)
-        pbar.set_description_str(f'Processing => {fund_code}')
+        pbar.set_description_str(f"Processing => {fund_code}")
 
     for f in fund_codes:
         start(f)
@@ -161,29 +168,31 @@ def get_realtime_increase_rate(fund_codes: Union[List[str], str]) -> pd.DataFram
     if not isinstance(fund_codes, list):
         fund_codes = [fund_codes]
     data = {
-        'pageIndex': '1',
-        'pageSize': '300000',
-        'Sort': '',
-        'Fcodes': ",".join(fund_codes),
-        'SortColumn': '',
-        'IsShowSE': 'false',
-        'P': 'F',
-        'deviceid': '3EA024C2-7F22-408B-95E4-383D38160FB3',
-        'plat': 'Iphone',
-        'product': 'EFund',
-        'version': '6.2.8',
+        "pageIndex": "1",
+        "pageSize": "300000",
+        "Sort": "",
+        "Fcodes": ",".join(fund_codes),
+        "SortColumn": "",
+        "IsShowSE": "false",
+        "P": "F",
+        "deviceid": "3EA024C2-7F22-408B-95E4-383D38160FB3",
+        "plat": "Iphone",
+        "product": "EFund",
+        "version": "6.2.8",
     }
     columns = {
-        'FCODE': '基金代码',
-        'SHORTNAME': '基金名称',
-        'ACCNAV': '最新净值',
-        'PDATE': '最新净值公开日期',
-        'GZTIME': '估算时间',
-        'GSZZL': '估算涨跌幅',
+        "FCODE": "基金代码",
+        "SHORTNAME": "基金名称",
+        "ACCNAV": "最新净值",
+        "PDATE": "最新净值公开日期",
+        "GZTIME": "估算时间",
+        "GSZZL": "估算涨跌幅",
     }
-    url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo'
-    json_response = fund_session.get(url, headers=EastmoneyFundHeaders, data=data).json()
-    rows = jsonpath(json_response, '$..Datas[:]')
+    url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo"
+    json_response = fund_session.get(
+        url, headers=EastmoneyFundHeaders, data=data
+    ).json()
+    rows = jsonpath(json_response, "$..Datas[:]")
     if not rows:
         df = pd.DataFrame(columns=columns.values())
         return df
@@ -237,53 +246,75 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
 
     """
     params = [
-        ('op', 'dy'),
-        ('dt', 'kf'),
-        ('rs', ''),
-        ('gs', '0'),
-        ('sc', 'qjzf'),
-        ('st', 'desc'),
-        ('es', '0'),
-        ('qdii', ''),
-        ('pi', '1'),
-        ('pn', '50000'),
-        ('dx', '0'),
+        ("op", "dy"),
+        ("dt", "kf"),
+        ("rs", ""),
+        ("gs", "0"),
+        ("sc", "qjzf"),
+        ("st", "desc"),
+        ("es", "0"),
+        ("qdii", ""),
+        ("pi", "1"),
+        ("pn", "50000"),
+        ("dx", "0"),
     ]
 
     headers = {
-        'Connection': 'keep-alive',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75',
-        'Accept': '*/*',
-        'Referer': 'http://fund.eastmoney.com/data/fundranking.html',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        "Connection": "keep-alive",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75",
+        "Accept": "*/*",
+        "Referer": "http://fund.eastmoney.com/data/fundranking.html",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
     }
     if ft is not None:
-        params.append(('ft', ft))
+        params.append(("ft", ft))
 
-    url = 'http://fund.eastmoney.com/data/rankhandler.aspx'
+    url = "http://fund.eastmoney.com/data/rankhandler.aspx"
     response = fund_session.get(url, headers=headers, params=params)
 
-    columns = ['基金代码', '基金简称']
+    columns = ["基金代码", "基金简称"]
     results = re.findall('"(\d{6}),(.*?),', response.text)
     df = pd.DataFrame(results, columns=columns)
     return df
 
+
 @retry(tries=3)
 def get_fund_manager(ft: str) -> pd.DataFrame:
-    url = f'http://fundf10.eastmoney.com/jjjl_{ft}.html'
+    url = f"http://fundf10.eastmoney.com/jjjl_{ft}.html"
     response = fund_session.get(url)
     if not response:
         return pd.DataFrame()
     html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
-    contents = soup.find('div', class_='bs_gl').find_all('label')
+    soup = BeautifulSoup(html, "html.parser")
+    contents = soup.find("div", class_="bs_gl").find_all("label")
     start_date = contents[0].span.text
-    managers = ";".join([a.text for a in contents[1].find_all('a') ])
+    managers = ";".join([a.text for a in contents[1].find_all("a")])
     type_str = contents[2].span.text
-    company = contents[3].find('a').text
-    share = contents[4].span.text.replace('\r', '').replace('\n', '').replace(' ', '')
-    return pd.DataFrame( data = [[ft, start_date, company, managers, type_str, share, str(pd.to_datetime('today').date())]], 
-                         columns=["基金代码", '基金经理任职日期', '基金公司', '基金经理', '基金种类', '基金规模', '当前日期'])
+    company = contents[3].find("a").text
+    share = contents[4].span.text.replace("\r", "").replace("\n", "").replace(" ", "")
+    return pd.DataFrame(
+        data=[
+            [
+                ft,
+                start_date,
+                company,
+                managers,
+                type_str,
+                share,
+                str(pd.to_datetime("today").date()),
+            ]
+        ],
+        columns=[
+            "基金代码",
+            "基金经理任职日期",
+            "基金公司",
+            "基金经理",
+            "基金种类",
+            "基金规模",
+            "当前日期",
+        ],
+    )
+
 
 @retry(tries=3)
 @to_numeric
@@ -355,10 +386,10 @@ def get_invest_position(
     """
 
     columns = {
-        'GPDM': '股票代码',
-        'GPJC': '股票简称',
-        'JZBL': '持仓占比',
-        'PCTNVCHG': '较上期变化',
+        "GPDM": "股票代码",
+        "GPJC": "股票简称",
+        "JZBL": "持仓占比",
+        "PCTNVCHG": "较上期变化",
     }
     df = pd.DataFrame(columns=columns.values())
     if not isinstance(dates, List):
@@ -368,29 +399,29 @@ def get_invest_position(
     dfs: List[pd.DataFrame] = []
     for date in dates:
         params = [
-            ('FCODE', fund_code),
-            ('appType', 'ttjj'),
-            ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-            ('plat', 'Iphone'),
-            ('product', 'EFund'),
-            ('serverVersion', '6.2.8'),
-            ('version', '6.2.8'),
+            ("FCODE", fund_code),
+            ("appType", "ttjj"),
+            ("deviceid", "3EA024C2-7F22-408B-95E4-383D38160FB3"),
+            ("plat", "Iphone"),
+            ("product", "EFund"),
+            ("serverVersion", "6.2.8"),
+            ("version", "6.2.8"),
         ]
         if date is not None:
-            params.append(('DATE', date))
-        url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition'
+            params.append(("DATE", date))
+        url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNInverstPosition"
         json_response = fund_session.get(
             url, headers=EastmoneyFundHeaders, params=params
         ).json()
-        stocks = jsonpath(json_response, '$..fundStocks[:]')
+        stocks = jsonpath(json_response, "$..fundStocks[:]")
         if not stocks:
             continue
-        date = json_response['Expansion']
+        date = json_response["Expansion"]
         _df = pd.DataFrame(stocks)
-        _df['公开日期'] = date
-        _df.insert(0, '基金代码', fund_code)
+        _df["公开日期"] = date
+        _df.insert(0, "基金代码", fund_code)
         dfs.append(_df)
-    fields = ['基金代码'] + list(columns.values()) + ['公开日期']
+    fields = ["基金代码"] + list(columns.values()) + ["公开日期"]
     if not dfs:
         return pd.DataFrame(columns=fields)
     df = pd.concat(dfs, axis=0, ignore_index=True).rename(columns=columns)[fields]
@@ -431,46 +462,46 @@ def get_period_change(fund_code: str) -> pd.DataFrame:
     """
 
     params = (
-        ('AppVersion', '6.3.8'),
-        ('FCODE', fund_code),
-        ('MobileKey', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-        ('OSVersion', '14.3'),
-        ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-        ('passportid', '3061335960830820'),
-        ('plat', 'Iphone'),
-        ('product', 'EFund'),
-        ('version', '6.3.6'),
+        ("AppVersion", "6.3.8"),
+        ("FCODE", fund_code),
+        ("MobileKey", "3EA024C2-7F22-408B-95E4-383D38160FB3"),
+        ("OSVersion", "14.3"),
+        ("deviceid", "3EA024C2-7F22-408B-95E4-383D38160FB3"),
+        ("passportid", "3061335960830820"),
+        ("plat", "Iphone"),
+        ("product", "EFund"),
+        ("version", "6.3.6"),
     )
-    url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNPeriodIncrease'
+    url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNPeriodIncrease"
     json_response = fund_session.get(
         url, headers=EastmoneyFundHeaders, params=params
     ).json()
     columns = {
-        'syl': '收益率',
-        'avg': '同类平均',
-        'rank': '同类排行',
-        'sc': '同类总数',
-        'title': '时间段',
+        "syl": "收益率",
+        "avg": "同类平均",
+        "rank": "同类排行",
+        "sc": "同类总数",
+        "title": "时间段",
     }
     titles = {
-        'Z': '近一周',
-        'Y': '近一月',
-        '3Y': '近三月',
-        '6Y': '近六月',
-        '1N': '近一年',
-        '2Y': '近两年',
-        '3N': '近三年',
-        '5N': '近五年',
-        'JN': '今年以来',
-        'LN': '成立以来',
+        "Z": "近一周",
+        "Y": "近一月",
+        "3Y": "近三月",
+        "6Y": "近六月",
+        "1N": "近一年",
+        "2Y": "近两年",
+        "3N": "近三年",
+        "5N": "近五年",
+        "JN": "今年以来",
+        "LN": "成立以来",
     }
     # 发行时间
-    ESTABDATE = json_response['Expansion']['ESTABDATE']
-    df = pd.DataFrame(json_response['Datas'])
+    ESTABDATE = json_response["Expansion"]["ESTABDATE"]
+    df = pd.DataFrame(json_response["Datas"])
 
     df = df[list(columns.keys())].rename(columns=columns)
-    df['时间段'] = titles.values()
-    df.insert(0, '基金代码', fund_code)
+    df["时间段"] = titles.values()
+    df.insert(0, "基金代码", fund_code)
     return df
 
 
@@ -499,21 +530,21 @@ def get_public_dates(fund_code: str) -> List[str]:
     """
 
     params = (
-        ('FCODE', fund_code),
-        ('appVersion', '6.3.8'),
-        ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-        ('plat', 'Iphone'),
-        ('product', 'EFund'),
-        ('serverVersion', '6.3.6'),
-        ('version', '6.3.8'),
+        ("FCODE", fund_code),
+        ("appVersion", "6.3.8"),
+        ("deviceid", "3EA024C2-7F22-408B-95E4-383D38160FB3"),
+        ("plat", "Iphone"),
+        ("product", "EFund"),
+        ("serverVersion", "6.3.6"),
+        ("version", "6.3.8"),
     )
-    url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNIVInfoMultiple'
+    url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNIVInfoMultiple"
     json_response = fund_session.get(
         url, headers=EastmoneyFundHeaders, params=params
     ).json()
-    if json_response['Datas'] is None:
+    if json_response["Datas"] is None:
         return []
-    return json_response['Datas']
+    return json_response["Datas"]
 
 
 @retry(tries=3)
@@ -555,7 +586,13 @@ def get_types_percentage(
 
     """
 
-    columns = {'GP': '股票比重', 'ZQ': '债券比重', 'HB': '现金比重', 'JZC': '总规模(亿元)', 'QT': '其他比重'}
+    columns = {
+        "GP": "股票比重",
+        "ZQ": "债券比重",
+        "HB": "现金比重",
+        "JZC": "总规模(亿元)",
+        "QT": "其他比重",
+    }
     df = pd.DataFrame(columns=columns.values())
     if not isinstance(dates, List):
         dates = [dates]
@@ -563,29 +600,29 @@ def get_types_percentage(
         dates = [None]
     for date in dates:
         params = [
-            ('FCODE', fund_code),
-            ('OSVersion', '14.3'),
-            ('appVersion', '6.3.8'),
-            ('deviceid', '3EA024C2-7F21-408B-95E4-383D38160FB3'),
-            ('plat', 'Iphone'),
-            ('product', 'EFund'),
-            ('serverVersion', '6.3.6'),
-            ('version', '6.3.8'),
+            ("FCODE", fund_code),
+            ("OSVersion", "14.3"),
+            ("appVersion", "6.3.8"),
+            ("deviceid", "3EA024C2-7F21-408B-95E4-383D38160FB3"),
+            ("plat", "Iphone"),
+            ("product", "EFund"),
+            ("serverVersion", "6.3.6"),
+            ("version", "6.3.8"),
         ]
         if date is not None:
-            params.append(('DATE', date))
+            params.append(("DATE", date))
         params = tuple(params)
-        url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew'
+        url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNAssetAllocationNew"
         json_response = fund_session.get(
             url, params=params, headers=EastmoneyFundHeaders
         ).json()
 
-        if len(json_response['Datas']) == 0:
+        if len(json_response["Datas"]) == 0:
             continue
-        _df = pd.DataFrame(json_response['Datas'])[columns.keys()]
+        _df = pd.DataFrame(json_response["Datas"])[columns.keys()]
         _df = _df.rename(columns=columns)
         df = pd.concat([df, _df], axis=0, ignore_index=True)
-    df.insert(0, '基金代码', fund_code)
+    df.insert(0, "基金代码", fund_code)
     return df
 
 
@@ -607,34 +644,34 @@ def get_base_info_single(fund_code: str) -> pd.Series:
     """
 
     params = (
-        ('FCODE', fund_code),
-        ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-        ('plat', 'Iphone'),
-        ('product', 'EFund'),
-        ('version', '6.3.8'),
+        ("FCODE", fund_code),
+        ("deviceid", "3EA024C2-7F22-408B-95E4-383D38160FB3"),
+        ("plat", "Iphone"),
+        ("product", "EFund"),
+        ("version", "6.3.8"),
     )
-    url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNNBasicInformation'
+    url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNNBasicInformation"
     json_response = fund_session.get(
         url, headers=EastmoneyFundHeaders, params=params
     ).json()
     columns = {
-        'FCODE': '基金代码',
-        'SHORTNAME': '基金简称',
-        'ESTABDATE': '成立日期',
-        'RZDF': '涨跌幅',
-        'DWJZ': '最新净值',
-        'JJGS': '基金公司',
-        'FSRQ': '净值更新日期',
-        'COMMENTS': '简介',
+        "FCODE": "基金代码",
+        "SHORTNAME": "基金简称",
+        "ESTABDATE": "成立日期",
+        "RZDF": "涨跌幅",
+        "DWJZ": "最新净值",
+        "JJGS": "基金公司",
+        "FSRQ": "净值更新日期",
+        "COMMENTS": "简介",
     }
-    items = json_response['Datas']
+    items = json_response["Datas"]
     if not items:
-        rich.print('基金代码', fund_code, '可能有误')
+        rich.print("基金代码", fund_code, "可能有误")
         return pd.Series(index=columns.values())
 
-    s = pd.Series(json_response['Datas']).rename(index=columns)[columns.values()]
+    s = pd.Series(json_response["Datas"]).rename(index=columns)[columns.values()]
 
-    s = s.apply(lambda x: x.replace('\n', ' ').strip() if isinstance(x, str) else x)
+    s = s.apply(lambda x: x.replace("\n", " ").strip() if isinstance(x, str) else x)
     return s
 
 
@@ -661,7 +698,7 @@ def get_base_info_muliti(fund_codes: List[str]) -> pd.Series:
         s = get_base_info_single(fund_code)
         ss.append(s)
         pbar.update()
-        pbar.set_description(f'Processing => {fund_code}')
+        pbar.set_description(f"Processing => {fund_code}")
 
     pbar = tqdm(total=len(fund_codes))
     for fund_code in fund_codes:
@@ -717,9 +754,9 @@ def get_base_info(fund_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Data
 
     if isinstance(fund_codes, str):
         return get_base_info_single(fund_codes)
-    elif hasattr(fund_codes, '__iter__'):
+    elif hasattr(fund_codes, "__iter__"):
         return get_base_info_muliti(fund_codes)
-    raise TypeError(f'所给的 {fund_codes} 不符合参数要求')
+    raise TypeError(f"所给的 {fund_codes} 不符合参数要求")
 
 
 @to_numeric
@@ -777,7 +814,12 @@ def get_industry_distribution(
 
     """
 
-    columns = {'HYMC': '行业名称', 'ZJZBL': '持仓比例', 'FSRQ': '公布日期', 'SZ': '市值'}
+    columns = {
+        "HYMC": "行业名称",
+        "ZJZBL": "持仓比例",
+        "FSRQ": "公布日期",
+        "SZ": "市值",
+    }
     df = pd.DataFrame(columns=columns.values())
     if isinstance(dates, str):
         dates = [dates]
@@ -786,30 +828,30 @@ def get_industry_distribution(
     for date in dates:
 
         params = [
-            ('FCODE', fund_code),
-            ('OSVersion', '14.4'),
-            ('appVersion', '6.3.8'),
-            ('deviceid', '3EA024C2-7F22-408B-95E4-383D38160FB3'),
-            ('plat', 'Iphone'),
-            ('product', 'EFund'),
-            ('serverVersion', '6.3.6'),
-            ('version', '6.3.8'),
+            ("FCODE", fund_code),
+            ("OSVersion", "14.4"),
+            ("appVersion", "6.3.8"),
+            ("deviceid", "3EA024C2-7F22-408B-95E4-383D38160FB3"),
+            ("plat", "Iphone"),
+            ("product", "EFund"),
+            ("serverVersion", "6.3.6"),
+            ("version", "6.3.8"),
         ]
         if date is not None:
-            params.append(('DATE', date))
-        url = 'https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation'
+            params.append(("DATE", date))
+        url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNSectorAllocation"
         response = fund_session.get(url, headers=EastmoneyFundHeaders, params=params)
-        datas = response.json()['Datas']
+        datas = response.json()["Datas"]
 
         _df = pd.DataFrame(datas)
         _df = _df.rename(columns=columns)
         df = pd.concat([df, _df], axis=0, ignore_index=True)
-    df.insert(0, '基金代码', fund_code)
+    df.insert(0, "基金代码", fund_code)
     df = df.drop_duplicates()
     return df
 
 
-def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') -> None:
+def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = "pdf") -> None:
     """
     根据基金代码获取其全部 pdf 报告
 
@@ -831,17 +873,17 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
     """
 
     headers = {
-        'Connection': 'keep-alive',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 Edg/89.0.774.77',
-        'Accept': '*/*',
-        'Referer': 'http://fundf10.eastmoney.com/',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        "Connection": "keep-alive",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 Edg/89.0.774.77",
+        "Accept": "*/*",
+        "Referer": "http://fundf10.eastmoney.com/",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
     }
 
     @multitasking.task
     @retry(tries=3, delay=1)
     def download_file(
-        fund_code: str, url: str, filename: str, file_type='.pdf'
+        fund_code: str, url: str, filename: str, file_type=".pdf"
     ) -> None:
         """
         根据文件名、文件直链等参数下载文件
@@ -858,13 +900,13 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
             文件类型, 默认为 '.pdf'
         """
 
-        pbar.set_description(f'Processing => {fund_code}')
+        pbar.set_description(f"Processing => {fund_code}")
         fund_code = str(fund_code)
-        if not os.path.exists(save_dir + '/' + fund_code):
-            os.mkdir(save_dir + '/' + fund_code)
+        if not os.path.exists(save_dir + "/" + fund_code):
+            os.mkdir(save_dir + "/" + fund_code)
         response = fund_session.get(url, headers=headers)
-        path = f'{save_dir}/{fund_code}/{filename}{file_type}'
-        with open(path, 'wb') as f:
+        path = f"{save_dir}/{fund_code}/{filename}{file_type}"
+        with open(path, "wb") as f:
             f.write(response.content)
         if os.path.getsize(path) == 0:
             os.remove(path)
@@ -872,26 +914,26 @@ def get_pdf_reports(fund_code: str, max_count: int = 12, save_dir: str = 'pdf') 
         pbar.update(1)
 
     params = (
-        ('fundcode', fund_code),
-        ('pageIndex', '1'),
-        ('pageSize', '200000'),
-        ('type', '3'),
+        ("fundcode", fund_code),
+        ("pageIndex", "1"),
+        ("pageSize", "200000"),
+        ("type", "3"),
     )
 
     json_response = fund_session.get(
-        'http://api.fund.eastmoney.com/f10/JJGG', headers=headers, params=params
+        "http://api.fund.eastmoney.com/f10/JJGG", headers=headers, params=params
     ).json()
 
-    base_link = 'http://pdf.dfcfw.com/pdf/H2_{}_1.pdf'
+    base_link = "http://pdf.dfcfw.com/pdf/H2_{}_1.pdf"
 
-    pbar = tqdm(total=min(max_count, len(json_response['Data'])))
+    pbar = tqdm(total=min(max_count, len(json_response["Data"])))
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-    for item in json_response['Data'][-max_count:]:
+    for item in json_response["Data"][-max_count:]:
 
-        title = item['TITLE']
-        download_url = base_link.format(item['ID'])
+        title = item["TITLE"]
+        download_url = base_link.format(item["ID"])
         download_file(fund_code, download_url, title)
     multitasking.wait_for_tasks()
     pbar.close()
-    print(f'{fund_code} 的 pdf 文件已存储到文件夹 {save_dir}/{fund_code} 中')
+    print(f"{fund_code} 的 pdf 文件已存储到文件夹 {save_dir}/{fund_code} 中")

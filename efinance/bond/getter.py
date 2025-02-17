@@ -31,20 +31,20 @@ def get_base_info_single(bond_code: str) -> pd.Series:
     """
     columns = EASTMONEY_BOND_BASE_INFO_FIELDS
     params = (
-        ('reportName', 'RPT_BOND_CB_LIST'),
-        ('columns', 'ALL'),
-        ('source', 'WEB'),
-        ('client', 'WEB'),
-        ('filter', f'(SECURITY_CODE="{bond_code}")'),
+        ("reportName", "RPT_BOND_CB_LIST"),
+        ("columns", "ALL"),
+        ("source", "WEB"),
+        ("client", "WEB"),
+        ("filter", f'(SECURITY_CODE="{bond_code}")'),
     )
 
-    url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
+    url = "http://datacenter-web.eastmoney.com/api/data/v1/get"
     json_response = requests.get(
         url, headers=EASTMONEY_REQUEST_HEADERS, params=params
     ).json()
-    if json_response['result'] is None:
-        return pd.Series(index=columns.values(), dtype='object')
-    items = json_response['result']['data']
+    if json_response["result"] is None:
+        return pd.Series(index=columns.values(), dtype="object")
+    items = json_response["result"]["data"]
     s = pd.Series(items[0]).rename(index=columns)
     s = s[columns.values()]
     return s
@@ -126,7 +126,7 @@ def get_base_info(bond_codes: Union[str, List[str]]) -> Union[pd.DataFrame, pd.S
     """
     if isinstance(bond_codes, str):
         return get_base_info_single(bond_codes)
-    elif hasattr(bond_codes, '__iter__'):
+    elif hasattr(bond_codes, "__iter__"):
         return get_base_info_multi(bond_codes)
 
 
@@ -162,23 +162,23 @@ def get_all_base_info() -> pd.DataFrame:
     columns = EASTMONEY_BOND_BASE_INFO_FIELDS
     while 1:
         params = (
-            ('sortColumns', 'PUBLIC_START_DATE'),
-            ('sortTypes', '-1'),
-            ('pageSize', '500'),
-            ('pageNumber', f'{page}'),
-            ('reportName', 'RPT_BOND_CB_LIST'),
-            ('columns', 'ALL'),
-            ('source', 'WEB'),
-            ('client', 'WEB'),
+            ("sortColumns", "PUBLIC_START_DATE"),
+            ("sortTypes", "-1"),
+            ("pageSize", "500"),
+            ("pageNumber", f"{page}"),
+            ("reportName", "RPT_BOND_CB_LIST"),
+            ("columns", "ALL"),
+            ("source", "WEB"),
+            ("client", "WEB"),
         )
 
-        url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
+        url = "http://datacenter-web.eastmoney.com/api/data/v1/get"
         json_response = requests.get(
             url, headers=EASTMONEY_REQUEST_HEADERS, params=params
         ).json()
-        if json_response['result'] is None:
+        if json_response["result"] is None:
             break
-        data = json_response['result']['data']
+        data = json_response["result"]["data"]
         df = pd.DataFrame(data).rename(columns=columns)[columns.values()]
         dfs.append(df)
         page += 1
@@ -187,7 +187,7 @@ def get_all_base_info() -> pd.DataFrame:
     return df
 
 
-@process_dataframe_and_series(remove_columns_and_indexes=['市场编号'])
+@process_dataframe_and_series(remove_columns_and_indexes=["市场编号"])
 @to_numeric
 def get_realtime_quotes(**kwargs) -> pd.DataFrame:
     """
@@ -216,15 +216,15 @@ def get_realtime_quotes(**kwargs) -> pd.DataFrame:
     394  123066  赛意转债   -6.0   193.08  203.999   193.08   203.0  -12.32   323.13   0.22     -   133317   261546032.0   205.4    79660753    79660753  0.123066   深A
 
     """
-    df = get_realtime_quotes_by_fs(FS_DICT['bond'], **kwargs)
-    df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
+    df = get_realtime_quotes_by_fs(FS_DICT["bond"], **kwargs)
+    df.rename(columns={"代码": "债券代码", "名称": "债券名称"}, inplace=True)
     return df
 
 
 def get_quote_history(
     bond_codes: Union[str, List[str]],
-    beg: str = '19000101',
-    end: str = '20500101',
+    beg: str = "19000101",
+    end: str = "20500101",
     klt: int = 101,
     fqt: int = 1,
     **kwargs,
@@ -292,10 +292,12 @@ def get_quote_history(
 
     if isinstance(df, pd.DataFrame):
 
-        df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
+        df.rename(columns={"代码": "债券代码", "名称": "债券名称"}, inplace=True)
     elif isinstance(df, dict):
         for bond_code in df.keys():
-            df[bond_code].rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
+            df[bond_code].rename(
+                columns={"代码": "债券代码", "名称": "债券名称"}, inplace=True
+            )
     return df
 
 
@@ -321,7 +323,7 @@ def get_history_bill(bond_code: str) -> pd.DataFrame:
     """
 
     df = get_history_bill_for_bond(bond_code)
-    df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
+    df.rename(columns={"代码": "债券代码", "名称": "债券名称"}, inplace=True)
     return df
 
 
@@ -358,7 +360,7 @@ def get_today_bill(bond_code: str) -> pd.DataFrame:
 
     """
     df = get_today_bill_for_bond(bond_code)
-    df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
+    df.rename(columns={"代码": "债券代码", "名称": "债券名称"}, inplace=True)
 
     return df
 
@@ -398,14 +400,14 @@ def get_deal_detail(bond_code: str, max_count: int = 1000000, **kwargs) -> pd.Da
 
     """
 
-    quote_id = ''
+    quote_id = ""
     if kwargs.get(MagicConfig.QUOTE_ID_MODE):
         quote_id = bond_code
     else:
         quote_id = get_quote_id(bond_code)
-    columns = ['债券名称', '债券代码', '时间', '昨收', '成交价', '成交量', '单数']
+    columns = ["债券名称", "债券代码", "时间", "昨收", "成交价", "成交量", "单数"]
     if not quote_id:
         return pd.DataFrame(columns=columns)
     df = get_deal_detail_for_bond(quote_id, max_count=max_count)
-    df.rename(columns={'代码': '债券代码', '名称': '债券名称'}, inplace=True)
+    df.rename(columns={"代码": "债券代码", "名称": "债券名称"}, inplace=True)
     return df

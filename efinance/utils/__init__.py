@@ -14,7 +14,7 @@ from ..config import SEARCH_RESULT_CACHE_PATH
 from ..shared import SEARCH_RESULT_DICT, session
 
 # 函数变量
-F = TypeVar('F')
+F = TypeVar("F")
 
 
 def to_numeric(func: F) -> F:
@@ -32,7 +32,16 @@ def to_numeric(func: F) -> F:
 
     """
 
-    ignore = ['股票代码', '基金代码', '代码', '市场类型', '市场编号', '债券代码', '行情ID', '正股代码']
+    ignore = [
+        "股票代码",
+        "基金代码",
+        "代码",
+        "市场类型",
+        "市场编号",
+        "债券代码",
+        "行情ID",
+        "正股代码",
+    ]
 
     @wraps(func)
     def run(*args, **kwargs):
@@ -50,7 +59,7 @@ def to_numeric(func: F) -> F:
         return values
 
     def convert(o: Union[str, int, float]) -> Union[str, float, int]:
-        if not re.findall('\d', str(o)):
+        if not re.findall("\d", str(o)):
             return o
         try:
             if str(o).isalnum():
@@ -66,22 +75,22 @@ def to_numeric(func: F) -> F:
 
 # 存储证券代码的实体
 Quote = namedtuple(
-    'Quote',
+    "Quote",
     [
-        'code',
-        'name',
-        'pinyin',
-        'id',
-        'jys',
-        'classify',
-        'market_type',
-        'security_typeName',
-        'security_type',
-        'mkt_num',
-        'type_us',
-        'quote_id',
-        'unified_code',
-        'inner_code',
+        "code",
+        "name",
+        "pinyin",
+        "id",
+        "jys",
+        "classify",
+        "market_type",
+        "security_typeName",
+        "security_type",
+        "mkt_num",
+        "type_us",
+        "quote_id",
+        "unified_code",
+        "inner_code",
     ],
 )
 
@@ -92,7 +101,7 @@ def get_quote_id(
     market_type: Union[MarketType, None] = None,
     use_local=True,
     suppress_error=False,
-    **kwargs
+    **kwargs,
 ) -> str:
     """
     生成东方财富股票专用的行情ID
@@ -115,8 +124,8 @@ def get_quote_id(
     """
     if len(str(stock_code).strip()) == 0:
         if suppress_error:
-            return ''
-        raise Exception('证券代码应为长度不应为 0')
+            return ""
+        raise Exception("证券代码应为长度不应为 0")
     quote = search_quote(
         stock_code, market_type=market_type, use_local=use_local, **kwargs
     )
@@ -125,15 +134,15 @@ def get_quote_id(
     if quote is None:
         if not suppress_error:
             rich.print(f'证券代码 "{stock_code}" 可能有误')
-        return ''
+        return ""
 
 
 def search_quote(
-    keyword: str, 
+    keyword: str,
     market_type: Union[MarketType, None] = None,
     count: int = 1,
     use_local: bool = True,
-    **kwargs
+    **kwargs,
 ) -> Union[Quote, None, List[Quote]]:
     """
     根据关键词搜索以获取证券信息
@@ -159,18 +168,20 @@ def search_quote(
         quote = search_quote_locally(keyword, market_type=market_type)
         if quote:
             return quote
-    url = 'https://searchapi.eastmoney.com/api/suggest/get'
+    url = "https://searchapi.eastmoney.com/api/suggest/get"
     params = (
-        ('input', f'{keyword}'),
-        ('type', '14'),
-        ('token', 'D43BF722C8E33BDC906FB84D85E326E8'),
-        ('count', f'{max(count, 5)}'),
+        ("input", f"{keyword}"),
+        ("type", "14"),
+        ("token", "D43BF722C8E33BDC906FB84D85E326E8"),
+        ("count", f"{max(count, 5)}"),
     )
     try:
         json_response = session.get(url, params=params).json()
-        items = json_response['QuotationCodeTable']['Data']
+        items = json_response["QuotationCodeTable"]["Data"]
     except json.JSONDecodeError:
-        RuntimeWarning("unable to parse search quote result, consider if you are blocked")
+        RuntimeWarning(
+            "unable to parse search quote result, consider if you are blocked"
+        )
         return None
 
     if items is not None and items:
@@ -178,9 +189,12 @@ def search_quote(
             Quote(*item.values())
             for item in items
             # 支持精确查找股票代码
-            if (not kwargs.get(MagicConfig.QUOTE_SYMBOL_MODE, False) or (keyword == item['Code'])) 
-                # 支持筛选股票市场
-                and (market_type is None or (market_type.value == item['Classify']))
+            if (
+                not kwargs.get(MagicConfig.QUOTE_SYMBOL_MODE, False)
+                or (keyword == item["Code"])
+            )
+            # 支持筛选股票市场
+            and (market_type is None or (market_type.value == item["Classify"]))
         ]
         # NOTE 暂时仅存储第一个搜索结果
         save_search_result(keyword, quotes[:1])
@@ -193,8 +207,7 @@ def search_quote(
 
 
 def search_quote_locally(
-    keyword: str,
-    market_type: Union[MarketType, None] = None
+    keyword: str, market_type: Union[MarketType, None] = None
 ) -> Union[Quote, None]:
     """
     在本地里面使用搜索记录进行关键词搜索
@@ -213,11 +226,17 @@ def search_quote_locally(
     """
     q = SEARCH_RESULT_DICT.get(keyword)
     # NOTE 兼容旧版本 给缓存加上最后修改时间
-    if q is None or not q.get('last_time') \
-        or (isinstance(market_type, MarketType) and (q.get('classify')) != (market_type.value)):
+    if (
+        q is None
+        or not q.get("last_time")
+        or (
+            isinstance(market_type, MarketType)
+            and (q.get("classify")) != (market_type.value)
+        )
+    ):
         return None
 
-    last_time: float = q['last_time']
+    last_time: float = q["last_time"]
     # 缓存过期秒数
     max_ts = 3600 * 24 * 3
     now = time.time()
@@ -227,7 +246,7 @@ def search_quote_locally(
     # NOTE 一定要拷贝 否则改变源对象
     _q = q.copy()
     # NOTE 一定要删除它 否则会构造错误
-    del _q['last_time']
+    del _q["last_time"]
     quote = Quote(**_q)
     return quote
 
@@ -243,12 +262,12 @@ def save_search_result(keyword: str, quotes: List[Quote]):
     quotes : List[Quote]
         搜索结果
     """
-    with open(SEARCH_RESULT_CACHE_PATH, 'w', encoding='utf-8') as f:
+    with open(SEARCH_RESULT_CACHE_PATH, "w", encoding="utf-8") as f:
         # TODO考虑如何存储多个搜索结果
         for quote in quotes:
             now = time.time()
             d = dict(quote._asdict())
-            d['last_time'] = now
+            d["last_time"] = now
             SEARCH_RESULT_DICT[keyword] = d
             break
         json.dump(SEARCH_RESULT_DICT.copy(), f)
@@ -333,7 +352,7 @@ def process_dataframe_and_series(
     return decorator
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def to_type(f: Callable[[str], T], value: Any, default: T = None) -> T:
@@ -382,10 +401,10 @@ def add_market(
         是否去重, 默认为 ``True``
     """
     MARKET_NUMBER_DICT[market_number] = market_name
-    old = FS_DICT.get(category, '')
-    new = f'{old},m:{market_number}'
+    old = FS_DICT.get(category, "")
+    new = f"{old},m:{market_number}"
     if drop_duplicate:
-        FS_DICT[category] = ','.join(OrderedDict.fromkeys(new.split(',')))
+        FS_DICT[category] = ",".join(OrderedDict.fromkeys(new.split(",")))
     else:
         FS_DICT[category] = new
 

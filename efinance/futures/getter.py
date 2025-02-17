@@ -40,7 +40,7 @@ def get_futures_base_info() -> pd.DataFrame:
     这里的 行情ID 主要作用是为使用函数 ``efinance.futures.get_quote_history``
     获取期货行情信息提供参数
     """
-    columns = ['期货代码', '期货名称', '行情ID', '市场类型']
+    columns = ["期货代码", "期货名称", "行情ID", "市场类型"]
     df = get_realtime_quotes()
     df = df[columns]
     return df
@@ -48,8 +48,8 @@ def get_futures_base_info() -> pd.DataFrame:
 
 def get_quote_history(
     quote_ids: Union[str, List[str]],
-    beg: str = '19000101',
-    end: str = '20500101',
+    beg: str = "19000101",
+    end: str = "20500101",
     klt: int = 101,
     fqt: int = 1,
     **kwargs
@@ -144,17 +144,19 @@ def get_quote_history(
     )
     if isinstance(df, pd.DataFrame):
 
-        df.rename(columns={'代码': '期货代码', '名称': '期货名称'}, inplace=True)
+        df.rename(columns={"代码": "期货代码", "名称": "期货名称"}, inplace=True)
     elif isinstance(df, dict):
         for stock_code in df.keys():
-            df[stock_code].rename(columns={'代码': '期货代码', '名称': '期货名称'}, inplace=True)
+            df[stock_code].rename(
+                columns={"代码": "期货代码", "名称": "期货名称"}, inplace=True
+            )
             # NOTE 扩展接口 设定此关键词即返回 DataFrame 而不是 dict
-        if kwargs.get('return_df'):
+        if kwargs.get("return_df"):
             df: pd.DataFrame = pd.concat(df, axis=0, ignore_index=True)
     return df
 
 
-@process_dataframe_and_series(remove_columns_and_indexes=['市场编号'])
+@process_dataframe_and_series(remove_columns_and_indexes=["市场编号"])
 def get_realtime_quotes() -> pd.DataFrame:
     """
     获取期货最新行情总体情况
@@ -188,9 +190,9 @@ def get_realtime_quotes() -> pd.DataFrame:
     来获取期货 K 线数据
 
     """
-    fs = FS_DICT['futures']
+    fs = FS_DICT["futures"]
     df = get_realtime_quotes_by_fs(fs)
-    df = df.rename(columns={'代码': '期货代码', '名称': '期货名称'})
+    df = df.rename(columns={"代码": "期货代码", "名称": "期货名称"})
     return df
 
 
@@ -225,5 +227,5 @@ def get_deal_detail(quote_id: str, max_count: int = 1000000) -> pd.DataFrame:
 
     """
     df = get_deal_detail_for_futures(quote_id, max_count=max_count)
-    df.rename(columns={'代码': '期货代码', '名称': '期货名称'}, inplace=True)
+    df.rename(columns={"代码": "期货代码", "名称": "期货名称"}, inplace=True)
     return df

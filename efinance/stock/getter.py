@@ -42,9 +42,10 @@ if threading.current_thread() is threading.main_thread():
 python_version = sys.version_info.major, sys.version_info.minor
 # * 适配 pythn 3.10 及其以上版本
 if python_version >= (3, 10):
-    requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
+    requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = "ALL:@SECLEVEL=1"
 
 requests.packages.urllib3.disable_warnings()
+
 
 @to_numeric
 def get_base_info_single(stock_code: str) -> pd.Series:
@@ -65,9 +66,11 @@ def get_base_info_single(stock_code: str) -> pd.Series:
     secid = get_quote_id(stock_code)
     if not secid:
         return pd.Series(
-            index=EASTMONEY_STOCK_BASE_INFO_FIELDS.values(), dtype='object'
+            index=EASTMONEY_STOCK_BASE_INFO_FIELDS.values(), dtype="object"
         )
-    return get_base_info_for_stock(secid).rename(index={'代码': '股票代码', '名称': '股票名称'})
+    return get_base_info_for_stock(secid).rename(
+        index={"代码": "股票代码", "名称": "股票名称"}
+    )
 
 
 def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
@@ -91,7 +94,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
         s = get_base_info_single(stock_code)
         series.append(s)
         pbar.update()
-        pbar.set_description(f'Processing => {stock_code}')
+        pbar.set_description(f"Processing => {stock_code}")
 
     series: List[pd.Series] = []
     pbar = tqdm(total=len(stock_codes))
@@ -99,7 +102,7 @@ def get_base_info_muliti(stock_codes: List[str]) -> pd.DataFrame:
         start(stock_code)
     multitasking.wait_for_tasks()
     df = pd.DataFrame(series)
-    df = df.dropna(subset=['股票代码'])
+    df = df.dropna(subset=["股票代码"])
     return df
 
 
@@ -152,16 +155,16 @@ def get_base_info(stock_codes: Union[str, List[str]]) -> Union[pd.Series, pd.Dat
 
     if isinstance(stock_codes, str):
         return get_base_info_single(stock_codes)
-    elif hasattr(stock_codes, '__iter__'):
+    elif hasattr(stock_codes, "__iter__"):
         return get_base_info_muliti(stock_codes)
 
-    raise TypeError(f'所给的 {stock_codes} 不符合参数要求')
+    raise TypeError(f"所给的 {stock_codes} 不符合参数要求")
 
 
 def get_quote_history(
     stock_codes: Union[str, List[str]],
-    beg: str = '19000101',
-    end: str = '20500101',
+    beg: str = "19000101",
+    end: str = "20500101",
     klt: int = 101,
     fqt: int = 1,
     market_type: Union[MarketType, None] = None,
@@ -267,7 +270,7 @@ def get_quote_history(
     3      苹果  AAPL  1984-09-12   -7.90   -7.91   -7.90   -7.91    4773600  0.000000e+00 -0.13 -0.13 -0.01  0.03
     4      苹果  AAPL  1984-09-13   -7.90   -7.90   -7.90   -7.90    7429600  0.000000e+00  0.00  0.13  0.01  0.05
     ...   ...   ...         ...     ...     ...     ...     ...        ...           ...   ...   ...   ...   ...
-    
+
     >>> # 关键字查询'PG'，限定股市为A股
     >>> from efinance.utils import MarketType
     >>> ef.stock.get_quote_history('PG', market_type=MarketType.A_stock)
@@ -278,7 +281,7 @@ def get_quote_history(
     3     平高电气  600312  2001-02-26   1.26   1.33   1.40   1.23   69886  136875000.0   13.60     6.40  0.08  11.65
     4     平高电气  600312  2001-02-27   1.32   1.32   1.35   1.27   27719   53969000.0    6.02    -0.75 -0.01   4.62
     ...   ...   ...         ...     ...     ...     ...     ...        ...           ...   ...   ...   ...   ...
-    
+
     >>> # 精确匹配股票代码模式：`quote_symbol_mode`
     >>> # 同时设置`use_id_cache=False`以防止直接使用过去相同关键字查询到的结果缓存
     >>> ef.stock.get_quote_history('PG', quote_symbol_mode=True, use_id_cache=False)
@@ -293,19 +296,27 @@ def get_quote_history(
     """
 
     df = get_quote_history_for_stock(
-        stock_codes, beg=beg, end=end, klt=klt, fqt=fqt,
-        market_type=market_type, suppress_error=suppress_error, use_id_cache=use_id_cache,
-        **kwargs
+        stock_codes,
+        beg=beg,
+        end=end,
+        klt=klt,
+        fqt=fqt,
+        market_type=market_type,
+        suppress_error=suppress_error,
+        use_id_cache=use_id_cache,
+        **kwargs,
     )
     if isinstance(df, pd.DataFrame):
-        df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
+        df.rename(columns={"代码": "股票代码", "名称": "股票名称"}, inplace=True)
     elif isinstance(df, dict):
         for stock_code in df.keys():
-            df[stock_code].rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
+            df[stock_code].rename(
+                columns={"代码": "股票代码", "名称": "股票名称"}, inplace=True
+            )
     return df
 
 
-@process_dataframe_and_series(remove_columns_and_indexes=['市场编号'])
+@process_dataframe_and_series(remove_columns_and_indexes=["市场编号"])
 @to_numeric
 def get_realtime_quotes(fs: Union[str, List[str]] = None, **kwargs) -> pd.DataFrame:
     """
@@ -403,7 +414,7 @@ def get_realtime_quotes(fs: Union[str, List[str]] = None, **kwargs) -> pd.DataFr
     """
     fs_list: List[str] = []
     if fs is None:
-        fs_list.append(FS_DICT['stock'])
+        fs_list.append(FS_DICT["stock"])
 
     if isinstance(fs, str):
         fs = [fs]
@@ -412,14 +423,14 @@ def get_realtime_quotes(fs: Union[str, List[str]] = None, **kwargs) -> pd.DataFr
 
         for f in fs:
             if not FS_DICT.get(f):
-                raise KeyError(f'指定的行情参数 `{fs}` 不正确')
+                raise KeyError(f"指定的行情参数 `{fs}` 不正确")
             fs_list.append(FS_DICT[f])
         # 给空列表时 试用沪深A股行情
         if not fs_list:
-            fs_list.append(FS_DICT['stock'])
-    fs_str = ','.join(fs_list)
+            fs_list.append(FS_DICT["stock"])
+    fs_str = ",".join(fs_list)
     df = get_realtime_quotes_by_fs(fs_str, **kwargs)
-    df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
+    df.rename(columns={"代码": "股票代码", "名称": "股票名称"}, inplace=True)
 
     return df
 
@@ -458,7 +469,7 @@ def get_history_bill(stock_code: str) -> pd.DataFrame:
 
     """
     df = get_history_bill_for_stock(stock_code)
-    df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
+    df.rename(columns={"代码": "股票代码", "名称": "股票名称"}, inplace=True)
     return df
 
 
@@ -496,7 +507,7 @@ def get_today_bill(stock_code: str) -> pd.DataFrame:
 
     """
     df = get_today_bill_for_stock(stock_code)
-    df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
+    df.rename(columns={"代码": "股票代码", "名称": "股票名称"}, inplace=True)
     return df
 
 
@@ -589,13 +600,13 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
         str
             指定格式的字符串
         """
-        _type, stock_code = get_quote_id(stock_code).split('.')
+        _type, stock_code = get_quote_id(stock_code).split(".")
         _type = int(_type)
         # 深市
         if _type == 0:
-            return f'{stock_code}02'
+            return f"{stock_code}02"
         # 沪市
-        return f'{stock_code}01'
+        return f"{stock_code}01"
 
     def get_public_dates(stock_code: str) -> List[str]:
         """
@@ -613,44 +624,44 @@ def get_top10_stock_holder_info(stock_code: str, top: int = 4) -> pd.DataFrame:
         """
 
         quote_id = get_quote_id(stock_code)
-        stock_code = quote_id.split('.')[-1]
+        stock_code = quote_id.split(".")[-1]
         fc = gen_fc(stock_code)
         data = {"fc": fc}
-        url = 'https://emh5.eastmoney.com/api/GuBenGuDong/GetFirstRequest2Data'
+        url = "https://emh5.eastmoney.com/api/GuBenGuDong/GetFirstRequest2Data"
         json_response = requests.post(url, json=data).json()
-        dates = jsonpath(json_response, f'$..BaoGaoQi')
+        dates = jsonpath(json_response, f"$..BaoGaoQi")
         if not dates:
             return []
         return dates
 
     fields = {
-        'GuDongDaiMa': '股东代码',
-        'GuDongMingCheng': '股东名称',
-        'ChiGuShu': '持股数',
-        'ChiGuBiLi': '持股比例',
-        'ZengJian': '增减',
-        'BianDongBiLi': '变动率',
+        "GuDongDaiMa": "股东代码",
+        "GuDongMingCheng": "股东名称",
+        "ChiGuShu": "持股数",
+        "ChiGuBiLi": "持股比例",
+        "ZengJian": "增减",
+        "BianDongBiLi": "变动率",
     }
     quote_id = get_quote_id(stock_code)
-    stock_code = quote_id.split('.')[-1]
+    stock_code = quote_id.split(".")[-1]
     fc = gen_fc(stock_code)
     dates = get_public_dates(stock_code)
     dfs: List[pd.DataFrame] = []
-    empty_df = pd.DataFrame(columns=['股票代码', '日期'] + list(fields.values()))
+    empty_df = pd.DataFrame(columns=["股票代码", "日期"] + list(fields.values()))
 
     for date in dates[:top]:
         data = {"fc": fc, "BaoGaoQi": date}
-        url = 'https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong'
+        url = "https://emh5.eastmoney.com/api/GuBenGuDong/GetShiDaLiuTongGuDong"
         response = requests.post(url, json=data)
-        response.encoding = 'utf-8'
-        items: List[dict] = jsonpath(response.json(), f'$..ShiDaLiuTongGuDongList[:]')
+        response.encoding = "utf-8"
+        items: List[dict] = jsonpath(response.json(), f"$..ShiDaLiuTongGuDongList[:]")
         if not items:
             continue
         df = pd.DataFrame(items)
         df.rename(columns=fields, inplace=True)
-        df.insert(0, '股票代码', [stock_code for _ in range(len(df))])
-        df.insert(1, '更新日期', [date for _ in range(len(df))])
-        del df['IsLink']
+        df.insert(0, "股票代码", [stock_code for _ in range(len(df))])
+        df.insert(1, "更新日期", [date for _ in range(len(df))])
+        del df["IsLink"]
         dfs.append(df)
     if len(dfs) == 0:
         return empty_df
@@ -712,21 +723,21 @@ def get_all_report_dates() -> pd.DataFrame:
     39  2011-09-30  2011年 三季报
 
     """
-    fields = {'REPORT_DATE': '报告日期', 'DATATYPE': '季报名称'}
+    fields = {"REPORT_DATE": "报告日期", "DATATYPE": "季报名称"}
     params = (
-        ('type', 'RPT_LICO_FN_CPD_BBBQ'),
-        ('sty', ','.join(fields.keys())),
-        ('p', '1'),
-        ('ps', '2000'),
+        ("type", "RPT_LICO_FN_CPD_BBBQ"),
+        ("sty", ",".join(fields.keys())),
+        ("p", "1"),
+        ("ps", "2000"),
     )
-    url = 'https://datacenter.eastmoney.com/securities/api/data/get'
+    url = "https://datacenter.eastmoney.com/securities/api/data/get"
     response = requests.get(url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
-    items = jsonpath(response.json(), '$..data[:]')
+    items = jsonpath(response.json(), "$..data[:]")
     if not items:
         pd.DataFrame(columns=fields.values())
     df = pd.DataFrame(items)
     df = df.rename(columns=fields)
-    df['报告日期'] = df['报告日期'].apply(lambda x: x.split()[0])
+    df["报告日期"] = df["报告日期"].apply(lambda x: x.split()[0])
     return df
 
 
@@ -790,49 +801,49 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
     """
     # TODO 加速
     fields = {
-        'SECURITY_CODE': '股票代码',
-        'SECURITY_NAME_ABBR': '股票简称',
-        'NOTICE_DATE': '公告日期',
-        'TOTAL_OPERATE_INCOME': '营业收入',
-        'YSTZ': '营业收入同比增长',
-        'YSHZ': '营业收入季度环比',
-        'PARENT_NETPROFIT': '净利润',
-        'SJLTZ': '净利润同比增长',
-        'SJLHZ': '净利润季度环比',
-        'BASIC_EPS': '每股收益',
-        'BPS': '每股净资产',
-        'WEIGHTAVG_ROE': '净资产收益率',
-        'XSMLL': '销售毛利率',
-        'MGJYXJJE': '每股经营现金流量'
+        "SECURITY_CODE": "股票代码",
+        "SECURITY_NAME_ABBR": "股票简称",
+        "NOTICE_DATE": "公告日期",
+        "TOTAL_OPERATE_INCOME": "营业收入",
+        "YSTZ": "营业收入同比增长",
+        "YSHZ": "营业收入季度环比",
+        "PARENT_NETPROFIT": "净利润",
+        "SJLTZ": "净利润同比增长",
+        "SJLHZ": "净利润季度环比",
+        "BASIC_EPS": "每股收益",
+        "BPS": "每股净资产",
+        "WEIGHTAVG_ROE": "净资产收益率",
+        "XSMLL": "销售毛利率",
+        "MGJYXJJE": "每股经营现金流量",
         # 'ISNEW':'是否最新'
     }
 
-    dates = get_all_report_dates()['报告日期'].to_list()
+    dates = get_all_report_dates()["报告日期"].to_list()
     if date is None:
         date = dates[0]
     if date not in dates:
-        rich.print('日期输入有误，可选日期如下:')
+        rich.print("日期输入有误，可选日期如下:")
         rich.print(dates)
         return pd.DataFrame(columns=fields.values())
 
-    date = f"(REPORTDATE=\'{date}\')"
+    date = f"(REPORTDATE='{date}')"
     page = 1
     dfs: List[pd.DataFrame] = []
     while 1:
         params = (
-            ('st', 'NOTICE_DATE,SECURITY_CODE'),
-            ('sr', '-1,-1'),
-            ('ps', '500'),
-            ('p', f'{page}'),
-            ('type', 'RPT_LICO_FN_CPD'),
-            ('sty', 'ALL'),
-            ('token', '894050c76af8597a853f5b408b759f5d'),
+            ("st", "NOTICE_DATE,SECURITY_CODE"),
+            ("sr", "-1,-1"),
+            ("ps", "500"),
+            ("p", f"{page}"),
+            ("type", "RPT_LICO_FN_CPD"),
+            ("sty", "ALL"),
+            ("token", "894050c76af8597a853f5b408b759f5d"),
             # ! 只选沪深A股
-            ('filter', f'(SECURITY_TYPE_CODE in ("058001001","058001008")){date}'),
+            ("filter", f'(SECURITY_TYPE_CODE in ("058001001","058001008")){date}'),
         )
-        url = 'http://datacenter-web.eastmoney.com/api/data/get'
+        url = "http://datacenter-web.eastmoney.com/api/data/get"
         response = session.get(url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
-        items = jsonpath(response.json(), '$..data[:]')
+        items = jsonpath(response.json(), "$..data[:]")
         if not items:
             break
         df = pd.DataFrame(items)
@@ -900,7 +911,7 @@ def get_latest_holder_number(date: str = None) -> pd.DataFrame:
     """
     dfs: List[pd.DataFrame] = []
     if date is not None:
-        date: datetime = datetime.strptime(date, '%Y-%m-%d')
+        date: datetime = datetime.strptime(date, "%Y-%m-%d")
         year = date.year
         month = date.month
         if month % 3 != 0:
@@ -912,48 +923,48 @@ def get_latest_holder_number(date: str = None) -> pd.DataFrame:
             month = 12
         _, last_day = calendar.monthrange(year, month)
         date: str = datetime.strptime(
-            f'{year}-{month}-{last_day}', '%Y-%m-%d'
-        ).strftime('%Y-%m-%d')
+            f"{year}-{month}-{last_day}", "%Y-%m-%d"
+        ).strftime("%Y-%m-%d")
     page = 1
     fields = {
-        'SECURITY_CODE': '股票代码',
-        'SECURITY_NAME_ABBR': '股票名称',
-        'HOLDER_NUM': '股东人数',
-        'HOLDER_NUM_RATIO': '股东人数增减',
-        'HOLDER_NUM_CHANGE': '较上期变化百分比',
-        'END_DATE': '股东户数统计截止日',
-        'AVG_MARKET_CAP': '户均持股市值',
-        'AVG_HOLD_NUM': '户均持股数量',
-        'TOTAL_MARKET_CAP': '总市值',
-        'TOTAL_A_SHARES': '总股本',
-        'HOLD_NOTICE_DATE': '公告日期',
+        "SECURITY_CODE": "股票代码",
+        "SECURITY_NAME_ABBR": "股票名称",
+        "HOLDER_NUM": "股东人数",
+        "HOLDER_NUM_RATIO": "股东人数增减",
+        "HOLDER_NUM_CHANGE": "较上期变化百分比",
+        "END_DATE": "股东户数统计截止日",
+        "AVG_MARKET_CAP": "户均持股市值",
+        "AVG_HOLD_NUM": "户均持股数量",
+        "TOTAL_MARKET_CAP": "总市值",
+        "TOTAL_A_SHARES": "总股本",
+        "HOLD_NOTICE_DATE": "公告日期",
     }
 
     while 1:
         params = [
-            ('sortColumns', 'HOLD_NOTICE_DATE,SECURITY_CODE'),
-            ('sortTypes', '-1,-1'),
-            ('pageSize', '500'),
-            ('pageNumber', page),
+            ("sortColumns", "HOLD_NOTICE_DATE,SECURITY_CODE"),
+            ("sortTypes", "-1,-1"),
+            ("pageSize", "500"),
+            ("pageNumber", page),
             (
-                'columns',
-                'SECURITY_CODE,SECURITY_NAME_ABBR,END_DATE,INTERVAL_CHRATE,AVG_MARKET_CAP,AVG_HOLD_NUM,TOTAL_MARKET_CAP,TOTAL_A_SHARES,HOLD_NOTICE_DATE,HOLDER_NUM,PRE_HOLDER_NUM,HOLDER_NUM_CHANGE,HOLDER_NUM_RATIO,END_DATE,PRE_END_DATE',
+                "columns",
+                "SECURITY_CODE,SECURITY_NAME_ABBR,END_DATE,INTERVAL_CHRATE,AVG_MARKET_CAP,AVG_HOLD_NUM,TOTAL_MARKET_CAP,TOTAL_A_SHARES,HOLD_NOTICE_DATE,HOLDER_NUM,PRE_HOLDER_NUM,HOLDER_NUM_CHANGE,HOLDER_NUM_RATIO,END_DATE,PRE_END_DATE",
             ),
-            ('quoteColumns', 'f2,f3'),
-            ('source', 'WEB'),
-            ('client', 'WEB'),
+            ("quoteColumns", "f2,f3"),
+            ("source", "WEB"),
+            ("client", "WEB"),
         ]
         if date is not None:
             # NOTE 注意不能漏 \'
-            params.append(('filter', f'(END_DATE=\'{date}\')'))
-            params.append(('reportName', 'RPT_HOLDERNUM_DET'))
+            params.append(("filter", f"(END_DATE='{date}')"))
+            params.append(("reportName", "RPT_HOLDERNUM_DET"))
         else:
-            params.append(('reportName', 'RPT_HOLDERNUMLATEST'))
+            params.append(("reportName", "RPT_HOLDERNUMLATEST"))
 
         params = tuple(params)
-        url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
+        url = "http://datacenter-web.eastmoney.com/api/data/v1/get"
         response = session.get(url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
-        items = jsonpath(response.json(), '$..data[:]')
+        items = jsonpath(response.json(), "$..data[:]")
         if not items:
             break
         df = pd.DataFrame(items)
@@ -1033,7 +1044,7 @@ def get_daily_billboard(start_date: str = None, end_date: str = None) -> pd.Data
 
     """
     today = datetime.today().date()
-    mode = 'auto'
+    mode = "auto"
     if start_date is None:
         start_date = today
 
@@ -1041,11 +1052,11 @@ def get_daily_billboard(start_date: str = None, end_date: str = None) -> pd.Data
         end_date = today
 
     if isinstance(start_date, str):
-        mode = 'user'
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        mode = "user"
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
     if isinstance(end_date, str):
-        mode = 'user'
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        mode = "user"
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
     fields = EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS
     bar: tqdm = None
 
@@ -1055,22 +1066,22 @@ def get_daily_billboard(start_date: str = None, end_date: str = None) -> pd.Data
         page = 1
         while 1:
             params = (
-                ('sortColumns', 'TRADE_DATE,SECURITY_CODE'),
-                ('sortTypes', '-1,1'),
-                ('pageSize', '500'),
-                ('pageNumber', page),
-                ('reportName', 'RPT_DAILYBILLBOARD_DETAILS'),
-                ('columns', 'ALL'),
-                ('source', 'WEB'),
-                ('client', 'WEB'),
-                ('filter', f"(TRADE_DATE<='{end_date}')(TRADE_DATE>='{start_date}')"),
+                ("sortColumns", "TRADE_DATE,SECURITY_CODE"),
+                ("sortTypes", "-1,1"),
+                ("pageSize", "500"),
+                ("pageNumber", page),
+                ("reportName", "RPT_DAILYBILLBOARD_DETAILS"),
+                ("columns", "ALL"),
+                ("source", "WEB"),
+                ("client", "WEB"),
+                ("filter", f"(TRADE_DATE<='{end_date}')(TRADE_DATE>='{start_date}')"),
             )
 
-            url = 'http://datacenter-web.eastmoney.com/api/data/v1/get'
+            url = "http://datacenter-web.eastmoney.com/api/data/v1/get"
 
             response = session.get(url, params=params)
             if bar is None:
-                pages = jsonpath(response.json(), '$..pages')
+                pages = jsonpath(response.json(), "$..pages")
 
                 if pages and pages[0] != 1:
                     total = pages[0]
@@ -1078,13 +1089,13 @@ def get_daily_billboard(start_date: str = None, end_date: str = None) -> pd.Data
             if bar is not None:
                 bar.update()
 
-            items = jsonpath(response.json(), '$..data[:]')
+            items = jsonpath(response.json(), "$..data[:]")
             if not items:
                 break
             page += 1
             df = pd.DataFrame(items).rename(columns=fields)[fields.values()]
             dfs.append(df)
-        if mode == 'user':
+        if mode == "user":
             break
         if len(dfs) == 0:
             start_date = start_date - timedelta(1)
@@ -1097,7 +1108,7 @@ def get_daily_billboard(start_date: str = None, end_date: str = None) -> pd.Data
         return df
 
     df = pd.concat(dfs, ignore_index=True)
-    df['上榜日期'] = df['上榜日期'].astype('str').apply(lambda x: x.split(' ')[0])
+    df["上榜日期"] = df["上榜日期"].astype("str").apply(lambda x: x.split(" ")[0])
     return df
 
 
@@ -1153,40 +1164,40 @@ def get_members(index_code: str) -> pd.DataFrame:
 
     """
     fields = {
-        'IndexCode': '指数代码',
-        'IndexName': '指数名称',
-        'StockCode': '股票代码',
-        'StockName': '股票名称',
-        'MARKETCAPPCT': '股票权重',
+        "IndexCode": "指数代码",
+        "IndexName": "指数名称",
+        "StockCode": "股票代码",
+        "StockName": "股票名称",
+        "MARKETCAPPCT": "股票权重",
     }
     qs = search_quote(index_code, count=10)
     df = pd.DataFrame(columns=fields.values())
     if not qs:
         return df
     for q in qs:
-        if q.security_typeName == '指数':
+        if q.security_typeName == "指数":
             params = (
-                ('IndexCode', f'{q.code}'),
-                ('pageIndex', '1'),
-                ('pageSize', '10000'),
-                ('deviceid', '1234567890'),
-                ('version', '6.9.9'),
-                ('product', 'EFund'),
-                ('plat', 'Iphone'),
-                ('ServerVersion', '6.9.9'),
+                ("IndexCode", f"{q.code}"),
+                ("pageIndex", "1"),
+                ("pageSize", "10000"),
+                ("deviceid", "1234567890"),
+                ("version", "6.9.9"),
+                ("product", "EFund"),
+                ("plat", "Iphone"),
+                ("ServerVersion", "6.9.9"),
             )
-            url = 'https://fundztapi.eastmoney.com/FundSpecialApiNew/FundSpecialZSB30ZSCFG'
+            url = "https://fundztapi.eastmoney.com/FundSpecialApiNew/FundSpecialZSB30ZSCFG"
             json_response = requests.get(
                 url, params=params, headers=EASTMONEY_REQUEST_HEADERS
             ).json()
-            items = json_response['Datas']
+            items = json_response["Datas"]
             # NOTE 这是为了跳过排在前面但无法获取成分股的指数 例如搜索 白酒 时排在前面的 980031
             if not items:
                 continue
             df: pd.DataFrame = pd.DataFrame(items).rename(columns=fields)[
                 fields.values()
             ]
-            df['股票权重'] = pd.to_numeric(df['股票权重'], errors='coerce')
+            df["股票权重"] = pd.to_numeric(df["股票权重"], errors="coerce")
             return df
     return df
 
@@ -1220,38 +1231,38 @@ def get_latest_ipo_info() -> pd.DataFrame:
     """
     fields = {
         # 'ORG_CODE':'发行人代码',
-        'ISSUER_NAME': '发行人全称',
-        'CHECK_STATUS': '审核状态',
-        'REG_ADDRESS': '注册地',
-        'CSRC_INDUSTRY': '证监会行业',
-        'RECOMMEND_ORG': '保荐机构',
-        'ACCOUNT_FIRM': '会计师事务所',
-        'UPDATE_DATE': '更新日期',
-        'ACCEPT_DATE': '受理日期',
-        'TOLIST_MARKET': '拟上市地点',
+        "ISSUER_NAME": "发行人全称",
+        "CHECK_STATUS": "审核状态",
+        "REG_ADDRESS": "注册地",
+        "CSRC_INDUSTRY": "证监会行业",
+        "RECOMMEND_ORG": "保荐机构",
+        "ACCOUNT_FIRM": "会计师事务所",
+        "UPDATE_DATE": "更新日期",
+        "ACCEPT_DATE": "受理日期",
+        "TOLIST_MARKET": "拟上市地点",
     }
     df = pd.DataFrame(columns=fields.values())
     dfs: List[pd.DataFrame] = []
     page = 1
     while 1:
         params = (
-            ('st', 'UPDATE_DATE,SECURITY_CODE'),
-            ('sr', '-1,-1'),
-            ('ps', '500'),
-            ('p', page),
-            ('type', 'RPT_REGISTERED_INFO'),
+            ("st", "UPDATE_DATE,SECURITY_CODE"),
+            ("sr", "-1,-1"),
+            ("ps", "500"),
+            ("p", page),
+            ("type", "RPT_REGISTERED_INFO"),
             (
-                'sty',
-                'ORG_CODE,ISSUER_NAME,CHECK_STATUS,CHECK_STATUS_CODE,REG_ADDRESS,CSRC_INDUSTRY,RECOMMEND_ORG,LAW_FIRM,ACCOUNT_FIRM,UPDATE_DATE,ACCEPT_DATE,TOLIST_MARKET,SECURITY_CODE',
+                "sty",
+                "ORG_CODE,ISSUER_NAME,CHECK_STATUS,CHECK_STATUS_CODE,REG_ADDRESS,CSRC_INDUSTRY,RECOMMEND_ORG,LAW_FIRM,ACCOUNT_FIRM,UPDATE_DATE,ACCEPT_DATE,TOLIST_MARKET,SECURITY_CODE",
             ),
-            ('token', '894050c76af8597a853f5b408b759f5d'),
-            ('client', 'WEB'),
+            ("token", "894050c76af8597a853f5b408b759f5d"),
+            ("client", "WEB"),
         )
-        url = 'http://datacenter-web.eastmoney.com/api/data/get'
+        url = "http://datacenter-web.eastmoney.com/api/data/get"
         json_response = requests.get(
             url, headers=EASTMONEY_REQUEST_HEADERS, params=params
         ).json()
-        items = jsonpath(json_response, '$..data[:]')
+        items = jsonpath(json_response, "$..data[:]")
         if not items:
             break
         page += 1
@@ -1322,67 +1333,67 @@ def get_quote_snapshot(stock_code: str) -> pd.Series:
     """
 
     params = (
-        ('id', stock_code),
-        ('callback', 'jQuery183026310160411569883_1646052793441'),
+        ("id", stock_code),
+        ("callback", "jQuery183026310160411569883_1646052793441"),
     )
 
     response = requests.get(
-        'https://hsmarketwg.eastmoney.com/api/SHSZQuoteSnapshot', params=params
+        "https://hsmarketwg.eastmoney.com/api/SHSZQuoteSnapshot", params=params
     )
-    start_index = response.text.find('{')
-    end_index = response.text.rfind('}')
+    start_index = response.text.find("{")
+    end_index = response.text.rfind("}")
     columns = {
-        'code': '代码',
-        'name': '名称',
-        'time': '时间',
-        'zd': '涨跌额',
-        'zdf': '涨跌幅',
-        'currentPrice': '最新价',
-        'yesClosePrice': '昨收',
-        'openPrice': '今开',
-        'open': '开盘',
-        'high': '最高',
-        'low': '最低',
-        'avg': '均价',
-        'topprice': '涨停价',
-        'bottomprice': '跌停价',
-        'turnover': '换手率',
-        'volume': '成交量',
-        'amount': '成交额',
-        'sale1': '卖1价',
-        'sale2': '卖2价',
-        'sale3': '卖3价',
-        'sale4': '卖4价',
-        'sale5': '卖5价',
-        'buy1': '买1价',
-        'buy2': '买2价',
-        'buy3': '买3价',
-        'buy4': '买4价',
-        'buy5': '买5价',
-        'sale1_count': '卖1数量',
-        'sale2_count': '卖2数量',
-        'sale3_count': '卖3数量',
-        'sale4_count': '卖4数量',
-        'sale5_count': '卖5数量',
-        'buy1_count': '买1数量',
-        'buy2_count': '买2数量',
-        'buy3_count': '买3数量',
-        'buy4_count': '买4数量',
-        'buy5_count': '买5数量',
+        "code": "代码",
+        "name": "名称",
+        "time": "时间",
+        "zd": "涨跌额",
+        "zdf": "涨跌幅",
+        "currentPrice": "最新价",
+        "yesClosePrice": "昨收",
+        "openPrice": "今开",
+        "open": "开盘",
+        "high": "最高",
+        "low": "最低",
+        "avg": "均价",
+        "topprice": "涨停价",
+        "bottomprice": "跌停价",
+        "turnover": "换手率",
+        "volume": "成交量",
+        "amount": "成交额",
+        "sale1": "卖1价",
+        "sale2": "卖2价",
+        "sale3": "卖3价",
+        "sale4": "卖4价",
+        "sale5": "卖5价",
+        "buy1": "买1价",
+        "buy2": "买2价",
+        "buy3": "买3价",
+        "buy4": "买4价",
+        "buy5": "买5价",
+        "sale1_count": "卖1数量",
+        "sale2_count": "卖2数量",
+        "sale3_count": "卖3数量",
+        "sale4_count": "卖4数量",
+        "sale5_count": "卖5数量",
+        "buy1_count": "买1数量",
+        "buy2_count": "买2数量",
+        "buy3_count": "买3数量",
+        "buy4_count": "买4数量",
+        "buy5_count": "买5数量",
     }
-    s = pd.Series(index=columns.values(), dtype='object')
+    s = pd.Series(index=columns.values(), dtype="object")
     try:
         qd: dict = json.loads(response.text[start_index : end_index + 1])
     except:
         return s
-    if not qd.get('fivequote'):
+    if not qd.get("fivequote"):
         return s
-    d = {**qd.pop('fivequote'), **qd.pop('realtimequote'), **qd}
+    d = {**qd.pop("fivequote"), **qd.pop("realtimequote"), **qd}
     s = pd.Series(d).rename(index=columns)[columns.values()]
-    str_type_list = ['代码', '名称', '时间']
+    str_type_list = ["代码", "名称", "时间"]
     all_type_list = columns.values()
     for column in set(all_type_list) - set(str_type_list):
-        s[column] = to_type(float, str(s[column]).strip('%'), np.nan)
+        s[column] = to_type(float, str(s[column]).strip("%"), np.nan)
 
     return s
 
@@ -1423,8 +1434,8 @@ def get_deal_detail(
     4596  贵州茅台  600519  1794.92  15:00:00  1835.00  893  406
 
     """
-    columns = ['股票名称', '股票代码', '时间', '昨收', '成交价', '成交量', '单数']
-    quote_id = ''
+    columns = ["股票名称", "股票代码", "时间", "昨收", "成交价", "成交量", "单数"]
+    quote_id = ""
     if kwargs.get(MagicConfig.QUOTE_ID_MODE):
         quote_id = stock_code
     else:
@@ -1432,7 +1443,7 @@ def get_deal_detail(
     if not quote_id:
         return pd.DataFrame(columns=columns)
     df = get_deal_detail_for_stock(quote_id, max_count=max_count)
-    df.rename(columns={'代码': '股票代码', '名称': '股票名称'}, inplace=True)
+    df.rename(columns={"代码": "股票代码", "名称": "股票名称"}, inplace=True)
     return df
 
 
@@ -1475,32 +1486,34 @@ def get_belong_board(stock_code: str) -> pd.DataFrame:
     """
     q = search_quote(stock_code)
     if not q:
-        return pd.DataFrame(columns=['股票代码', '股票名称', '板块代码', '板块名称', '板块涨幅'])
+        return pd.DataFrame(
+            columns=["股票代码", "股票名称", "板块代码", "板块名称", "板块涨幅"]
+        )
     params = (
-        ('forcect', '1'),
-        ('spt', '3'),
-        ('fields', 'f1,f12,f152,f3,f14,f128,f136'),
-        ('pi', '0'),
-        ('pz', '1000'),
-        ('po', '1'),
-        ('fid', 'f3'),
-        ('fid0', 'f4003'),
-        ('invt', '2'),
-        ('secid', q.quote_id),
+        ("forcect", "1"),
+        ("spt", "3"),
+        ("fields", "f1,f12,f152,f3,f14,f128,f136"),
+        ("pi", "0"),
+        ("pz", "1000"),
+        ("po", "1"),
+        ("fid", "f3"),
+        ("fid0", "f4003"),
+        ("invt", "2"),
+        ("secid", q.quote_id),
     )
 
     response = session.get(
-        'https://push2.eastmoney.com/api/qt/slist/get', params=params
+        "https://push2.eastmoney.com/api/qt/slist/get", params=params
     )
-    df = pd.DataFrame(response.json()['data']['diff']).T
+    df = pd.DataFrame(response.json()["data"]["diff"]).T
     df.index = range(len(df))
     filelds = {
-        'f12': '板块代码',
-        'f14': '板块名称',
-        'f3': '板块涨幅',
+        "f12": "板块代码",
+        "f14": "板块名称",
+        "f3": "板块涨幅",
     }
     df: pd.DataFrame = df.rename(columns=filelds)[filelds.values()]
-    df['板块涨幅'] = df['板块涨幅'].apply(lambda x: to_type(float, x, np.nan) / 100)
-    df.insert(0, '股票名称', q.name)
-    df.insert(1, '股票代码', q.code)
+    df["板块涨幅"] = df["板块涨幅"].apply(lambda x: to_type(float, x, np.nan) / 100)
+    df.insert(0, "股票名称", q.name)
+    df.insert(1, "股票代码", q.code)
     return df
