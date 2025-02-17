@@ -7,6 +7,7 @@ from jsonpath import jsonpath
 from retry import retry
 from tqdm.auto import tqdm
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 from ..common.config import MARKET_NUMBER_DICT, MarketType
 from ..shared import BASE_INFO_CACHE, session, MAX_CONNECTIONS
@@ -36,24 +37,40 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
 
     columns = {**EASTMONEY_QUOTE_FIELDS, **kwargs.get(MagicConfig.EXTRA_FIELDS, {})}
     fields = ",".join(columns.keys())
-    params = (
-        ("pn", "1"),
-        ("pz", "1000000"),
-        ("po", "1"),
-        ("np", "1"),
-        ("fltt", "2"),
-        ("invt", "2"),
-        ("fid", "f3"),
-        ("fs", fs),
-        ("fields", fields),
-    )
-    url = "http://push2.eastmoney.com/api/qt/clist/get"
-    json_response = session.get(
-        url, headers=EASTMONEY_REQUEST_HEADERS, params=params
-    ).json()
-    df = pd.DataFrame(json_response["data"]["diff"])
-    df = df.rename(columns=columns)
-    df: pd.DataFrame = df[columns.values()]
+    pz = 200
+
+    def get_by_page(pn: int):
+        params = (
+            ("pn", f"{pn}"),
+            ("pz", f"{pz}"),
+            ("po", "1"),
+            ("np", "1"),
+            ("fltt", "2"),
+            ("invt", "2"),
+            ("fid", "f3"),
+            ("fs", fs),
+            ("fields", fields),
+        )
+        url = "http://push2.eastmoney.com/api/qt/clist/get"
+        json_response = session.get(
+            url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+        ).json()
+        return json_response
+
+    json_response = get_by_page(1)
+    total = json_response["data"]["total"]
+    div, mod = divmod(total, pz)
+    pages = div + 1 if mod else div
+    with ThreadPoolExecutor() as executor:
+        tasks = executor.map(get_by_page, range(1, pages + 1))
+        responses = list(tasks)
+    dfs = [
+        pd.DataFrame(response["data"]["diff"])[list(columns.keys())]
+        for response in responses
+    ]
+    df = pd.concat(dfs, axis=0, ignore_index=True).rename(columns=columns)[
+        columns.values()
+    ]
     df["行情ID"] = df["市场编号"].astype(str) + "." + df["代码"].astype(str)
     df["市场类型"] = (
         df["市场编号"].astype(str).apply(lambda x: MARKET_NUMBER_DICT.get(x))

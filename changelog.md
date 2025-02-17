@@ -1,4 +1,11 @@
 # Changelog
+
+## v0.5.3(2025-02-17)
+
+### Fixed
+
+- `get_realtime_quotes` 自动分页以获取完整数据
+
 ## v0.5.2(2024-04-24)
 
 ### Fixed
