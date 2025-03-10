@@ -37,9 +37,8 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
 
     columns = {**EASTMONEY_QUOTE_FIELDS, **kwargs.get(MagicConfig.EXTRA_FIELDS, {})}
     fields = ",".join(columns.keys())
-    pz = 200
 
-    def get_by_page(pn: int):
+    def get_by_page(pn: int, pz: int):
         params = (
             ("pn", f"{pn}"),
             ("pz", f"{pz}"),
@@ -57,13 +56,16 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
         ).json()
         return json_response
 
-    json_response = get_by_page(1)
+    json_response = get_by_page(1, pz=200)
     total = json_response["data"]["total"]
+    pz = len(json_response["data"]["diff"])
     div, mod = divmod(total, pz)
     pages = div + 1 if mod else div
+
     with ThreadPoolExecutor() as executor:
-        tasks = executor.map(get_by_page, range(1, pages + 1))
+        tasks = executor.map(get_by_page, range(1, pages + 1), [pz] * pages)
         responses = list(tasks)
+
     dfs = [
         pd.DataFrame(response["data"]["diff"])[list(columns.keys())]
         for response in responses

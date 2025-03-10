@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.4(2025-03-10)
+
+### Fixed
+
+- `get_realtime_quotes` 分页更加智能
+
 ## v0.5.3(2025-02-17)
 
 ### Fixed
