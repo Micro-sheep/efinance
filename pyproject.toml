@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "efinance"
+version = "0.5.5.2"
+description = "A finance tool to get stock,fund and futures data base on eastmoney"
+readme = "README.md"
+authors = [{ name = "micro sheep", email = "micro-sheep@outlook.com" }]
+license = { text = "MIT" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["finance", "quant", "stock", "fund", "futures"]
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/Micro-sheep/efinance"
+Documentation = "https://efinance.readthedocs.io"
+Source = "https://github.com/Micro-sheep/efinance"
+
+[tool.setuptools]
+packages = ["efinance"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
