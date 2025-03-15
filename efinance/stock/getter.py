@@ -4,6 +4,7 @@ import signal
 import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Union
+from concurrent.futures import ThreadPoolExecutor
 
 import threading
 import multitasking
@@ -827,14 +828,13 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
         return pd.DataFrame(columns=fields.values())
 
     date = f"(REPORTDATE='{date}')"
-    page = 1
-    dfs: List[pd.DataFrame] = []
-    while 1:
+
+    def get_by_page(pn: int, pz: int):
         params = (
             ("st", "NOTICE_DATE,SECURITY_CODE"),
             ("sr", "-1,-1"),
-            ("ps", "500"),
-            ("p", f"{page}"),
+            ("ps", pz),
+            ("p", pn),
             ("type", "RPT_LICO_FN_CPD"),
             ("sty", "ALL"),
             ("token", "894050c76af8597a853f5b408b759f5d"),
@@ -842,13 +842,23 @@ def get_all_company_performance(date: str = None) -> pd.DataFrame:
             ("filter", f'(SECURITY_TYPE_CODE in ("058001001","058001008")){date}'),
         )
         url = "http://datacenter-web.eastmoney.com/api/data/get"
-        response = session.get(url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
-        items = jsonpath(response.json(), "$..data[:]")
-        if not items:
-            break
-        df = pd.DataFrame(items)
-        dfs.append(df)
-        page += 1
+        json_response = session.get(
+            url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+        ).json()
+        return json_response
+
+    json_response = get_by_page(1, pz=500)
+    total = json_response["result"]["count"]
+    pz = len(jsonpath(json_response, "$..data[:]"))
+    div, mod = divmod(total, pz)
+    pages = div + 1 if mod else div
+
+    with ThreadPoolExecutor() as executor:
+        tasks = executor.map(get_by_page, range(1, pages + 1), [pz] * pages)
+        responses = list(tasks)
+
+    dfs = [pd.DataFrame(jsonpath(response, "$..data[:]")) for response in responses]
+
     if len(dfs) == 0:
         df = pd.DataFrame(columns=fields.values())
         return df
@@ -940,12 +950,12 @@ def get_latest_holder_number(date: str = None) -> pd.DataFrame:
         "HOLD_NOTICE_DATE": "公告日期",
     }
 
-    while 1:
+    def get_by_page(pn: int, pz: int):
         params = [
             ("sortColumns", "HOLD_NOTICE_DATE,SECURITY_CODE"),
             ("sortTypes", "-1,-1"),
-            ("pageSize", "500"),
-            ("pageNumber", page),
+            ("pageSize", pz),
+            ("pageNumber", pn),
             (
                 "columns",
                 "SECURITY_CODE,SECURITY_NAME_ABBR,END_DATE,INTERVAL_CHRATE,AVG_MARKET_CAP,AVG_HOLD_NUM,TOTAL_MARKET_CAP,TOTAL_A_SHARES,HOLD_NOTICE_DATE,HOLDER_NUM,PRE_HOLDER_NUM,HOLDER_NUM_CHANGE,HOLDER_NUM_RATIO,END_DATE,PRE_END_DATE",
@@ -963,18 +973,26 @@ def get_latest_holder_number(date: str = None) -> pd.DataFrame:
 
         params = tuple(params)
         url = "http://datacenter-web.eastmoney.com/api/data/v1/get"
-        response = session.get(url, headers=EASTMONEY_REQUEST_HEADERS, params=params)
-        items = jsonpath(response.json(), "$..data[:]")
-        if not items:
-            break
-        df = pd.DataFrame(items)
-        df = df.rename(columns=fields)[fields.values()]
-        page += 1
-        dfs.append(df)
-    if len(dfs) == 0:
-        df = pd.DataFrame(columns=fields.values())
-        return df
-    df = pd.concat(dfs, ignore_index=True)
+        json_response = session.get(
+            url, headers=EASTMONEY_REQUEST_HEADERS, params=params
+        ).json()
+        return json_response
+
+    json_response = get_by_page(1, pz=500)
+    total = json_response["result"]["count"]
+    pz = len(jsonpath(json_response, "$..data[:]"))
+    div, mod = divmod(total, pz)
+    pages = div + 1 if mod else div
+
+    if total == 0:
+        return pd.DataFrame(columns=fields.values())
+
+    with ThreadPoolExecutor() as executor:
+        tasks = executor.map(get_by_page, range(1, pages + 1), [pz] * pages)
+        responses = list(tasks)
+
+    dfs = [pd.DataFrame(jsonpath(response, "$..data[:]")) for response in responses]
+    df = pd.concat(dfs, ignore_index=True).rename(columns=fields)[fields.values()]
     return df
 
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Dict, List, Union
-
+import numpy as np
 import multitasking
 import pandas as pd
 from jsonpath import jsonpath
@@ -40,13 +40,14 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
 
     def get_by_page(pn: int, pz: int):
         params = (
-            ("pn", f"{pn}"),
-            ("pz", f"{pz}"),
+            ("pn", pn),
+            ("pz", pz),
             ("po", "1"),
             ("np", "1"),
             ("fltt", "2"),
             ("invt", "2"),
-            ("fid", "f3"),
+            # NOTE 按代码排序。避免多次请求顺序不一致
+            ("fid", "f12"),
             ("fs", fs),
             ("fields", fields),
         )
@@ -55,6 +56,17 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
             url, headers=EASTMONEY_REQUEST_HEADERS, params=params
         ).json()
         return json_response
+
+    def mixed_sort_key(series: pd.Series):
+        sort_keys = pd.Series(index=series.index, dtype=float)
+
+        for idx, val in series.items():
+            if isinstance(val, str):
+                sort_keys[idx] = np.nan
+            else:
+                sort_keys[idx] = val
+
+        return sort_keys
 
     json_response = get_by_page(1, pz=200)
     total = json_response["data"]["total"]
@@ -70,9 +82,17 @@ def get_realtime_quotes_by_fs(fs: str, **kwargs) -> pd.DataFrame:
         pd.DataFrame(response["data"]["diff"])[list(columns.keys())]
         for response in responses
     ]
-    df = pd.concat(dfs, axis=0, ignore_index=True).rename(columns=columns)[
-        columns.values()
-    ]
+    df = (
+        pd.concat(dfs, axis=0, ignore_index=True)
+        .rename(columns=columns)[columns.values()]
+        .sort_values(
+            by="涨跌幅",
+            ascending=False,
+            ignore_index=True,
+            key=mixed_sort_key,
+        )
+    )
+
     df["行情ID"] = df["市场编号"].astype(str) + "." + df["代码"].astype(str)
     df["市场类型"] = (
         df["市场编号"].astype(str).apply(lambda x: MARKET_NUMBER_DICT.get(x))
