@@ -598,3 +598,157 @@ def get_latest_ndays_quote(code: str, ndays: int = 1, **kwargs) -> pd.DataFrame:
     df.insert(0, "名称", name)
 
     return df
+
+@to_numeric
+def get_quote_week_single(# added 20250515
+    code: str,
+    beg: str = "20180101",
+    end: str = "20500101",
+    klt: int = 102,
+    fqt: int = 1,
+    market_type: Union[MarketType, None] = None,
+    suppress_error: bool = False,
+    use_id_cache: bool = True,
+    **kwargs,
+) -> pd.DataFrame:
+    """
+    获取单只股票、债券 周 K 线数据 added 20250515
+
+    """
+
+    fields = list(EASTMONEY_KLINE_FIELDS.keys())
+    columns = list(EASTMONEY_KLINE_FIELDS.values())
+    fields2 = ",".join(fields)
+    if kwargs.get(MagicConfig.QUOTE_ID_MODE):
+        quote_id = code
+    else:
+        quote_id = get_quote_id(
+            stock_code=code,
+            market_type=market_type,
+            use_local=use_id_cache,
+            suppress_error=suppress_error,
+            **kwargs,
+        )
+    params = (
+        ("fields1", "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13"),
+        ("fields2", fields2),
+        ("beg", beg),
+        ("end", end),
+        ("rtntype", "6"),
+        ("secid", quote_id),
+        ("klt", f"{klt}"),
+        ("fqt", f"{fqt}"),
+    )
+
+    url = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
+
+    json_response = session.get(
+        url, headers=EASTMONEY_REQUEST_HEADERS, params=params, verify=False
+    ).json()
+    klines: List[str] = jsonpath(json_response, "$..klines[:]")
+    if not klines:
+        columns.insert(0, "代码")
+        columns.insert(0, "名称")
+        return pd.DataFrame(columns=columns)
+
+    rows = [kline.split(",") for kline in klines]
+    name = json_response["data"]["name"]
+    code = quote_id.split(".")[-1]
+    df = pd.DataFrame(rows, columns=columns)
+    df.insert(0, "代码", code)
+    df.insert(0, "名称", name)
+
+    return df
+
+
+def get_quote_week(
+    codes: Union[str, List[str]],
+    beg: str = "20180101",
+    end: str = "20500101",
+    klt: int = 102,
+    fqt: int = 1,
+    market_type: Union[MarketType, None] = None,
+    suppress_error: bool = False,
+    use_id_cache: bool = True,
+    **kwargs,
+) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
+    """
+    获取股票、ETF、债券的 K 线数据
+
+    Parameters
+    ----------
+    codes : Union[str,List[str]]
+        股票、债券代码 或者 代码构成的列表
+    beg : str, optional
+        开始日期，默认为 ``'19000101'`` ，表示 1900年1月1日
+    end : str, optional
+        结束日期，默认为 ``'20500101'`` ，表示 2050年1月1日
+    klt : int, optional
+        行情之间的时间间隔，默认为 ``101`` ，可选示例如下
+
+        - ``1`` : 分钟
+        - ``5`` : 5 分钟
+        - ``15`` : 15 分钟
+        - ``30`` : 30 分钟
+        - ``60`` : 60 分钟
+        - ``101`` : 日
+        - ``102`` : 周
+        - ``103`` : 月
+
+    fqt : int, optional
+        复权方式，默认为 ``1`` ，可选示例如下
+
+        - ``0`` : 不复权
+        - ``1`` : 前复权
+        - ``2`` : 后复权
+
+    market_type : MarketType, optional
+        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选，可选示例如下
+
+        - ``A_stock`` : A股
+        - ``Hongkong`` : 香港
+        - ``London_stock_exchange`` : 英股
+        - ``US_stock`` : 美股
+
+    suppress_error : bool, optional
+        遇到错误的股票代码，是否不报错，返回空的DataFrame
+    use_id_cache : bool, optional
+        是否使用本地缓存的东方财富股票行情ID
+
+    Returns
+    -------
+    Union[DataFrame, Dict[str, DataFrame]]
+        股票、债券的 K 线数据
+
+        - ``DataFrame`` : 当 ``codes`` 是 ``str`` 时
+        - ``Dict[str, DataFrame]`` : 当 ``codes`` 是 ``List[str]`` 时
+
+    """
+
+    if isinstance(codes, str):
+        return get_quote_week_single(  # added 20250515
+            codes,
+            beg=beg,
+            end=end,
+            klt=klt,
+            fqt=fqt,
+            market_type=market_type,
+            suppress_error=suppress_error,
+            use_id_cache=use_id_cache,
+            **kwargs,
+        )
+
+    elif hasattr(codes, "__iter__"):
+        codes = list(codes)
+        return get_quote_history_multi(
+            codes,
+            beg=beg,
+            end=end,
+            klt=klt,
+            fqt=fqt,
+            market_type=market_type,
+            suppress_error=suppress_error,
+            use_id_cache=use_id_cache,
+            **kwargs,
+        )
+    raise TypeError("代码数据类型输入不正确！")
