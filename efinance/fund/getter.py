@@ -273,7 +273,7 @@ def get_fund_codes(ft: str = None) -> pd.DataFrame:
     response = fund_session.get(url, headers=headers, params=params)
 
     columns = ["基金代码", "基金简称"]
-    results = re.findall('"(\d{6}),(.*?),', response.text)
+    results = re.findall(r'"(\d{6}),(.*?),', response.text)
     df = pd.DataFrame(results, columns=columns)
     return df
 
