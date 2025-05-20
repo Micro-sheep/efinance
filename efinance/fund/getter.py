@@ -21,7 +21,6 @@ from ..shared import session, MAX_CONNECTIONS
 import warnings
 
 warnings.filterwarnings("module")
-
 if threading.current_thread() is threading.main_thread():
     signal.signal(signal.SIGINT, multitasking.killall)
 
