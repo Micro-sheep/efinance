@@ -4,7 +4,6 @@ from .getter import (
     get_history_bill,
     get_latest_quote,
     get_quote_history,
-    get_quote_week,
     get_realtime_quotes_by_fs,
     get_today_bill,
 )
