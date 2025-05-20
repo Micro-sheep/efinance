@@ -583,7 +583,6 @@ def get_latest_ndays_quote(code: str, ndays: int = 1, **kwargs) -> pd.DataFrame:
     json_response = session.get(
         "http://push2his.eastmoney.com/api/qt/stock/trends2/get", params=params
     ).json()
-
     klines: List[str] = jsonpath(json_response, "$..trends[:]")
     if not klines:
         columns.insert(0, "代码")
