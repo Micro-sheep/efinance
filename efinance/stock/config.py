@@ -36,3 +36,14 @@ EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS = {
     "FREE_MARKET_CAP": "流通市值",
     "EXPLANATION": "上榜原因",
 }
+
+EASTMONEY_STOCK_BLOCK_TRADE = {  # added
+    "SECURITY_CODE": "股票代码",
+    "SECURITY_NAME_ABBR": "股票名称",
+    "TRADE_DATE": "交易日期",
+    "DEAL_PRICE": "成交价格",
+    "DEAL_VOLUME": "成交量",
+    "DEAL_AMT": "成交金额",
+    "BUYER_NAME": "买方营业部",
+    "SELLER_NAME": "卖方营业部",
+}

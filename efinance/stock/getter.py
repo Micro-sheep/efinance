@@ -2,6 +2,7 @@ import calendar
 import json
 import signal
 import sys
+
 from datetime import datetime, timedelta
 from typing import Dict, List, Union
 from concurrent.futures import ThreadPoolExecutor
@@ -20,7 +21,6 @@ from ..common import get_base_info as get_base_info_for_stock
 from ..common import get_deal_detail as get_deal_detail_for_stock
 from ..common import get_history_bill as get_history_bill_for_stock
 from ..common import get_quote_history as get_quote_history_for_stock
-from ..common import get_quote_week as get_quote_week_for_stock
 from ..common import get_realtime_quotes_by_fs
 from ..common import get_today_bill as get_today_bill_for_stock
 from ..common.config import EASTMONEY_REQUEST_HEADERS, FS_DICT, MagicConfig, MarketType
@@ -36,6 +36,7 @@ from ..utils import (
 from .config import (
     EASTMONEY_STOCK_BASE_INFO_FIELDS,
     EASTMONEY_STOCK_DAILY_BILL_BOARD_FIELDS,
+    EASTMONEY_STOCK_BLOCK_TRADE,  # added
 )
 
 if threading.current_thread() is threading.main_thread():
@@ -1086,7 +1087,7 @@ def get_daily_billboard(start_date: str = None, end_date: str = None) -> pd.Data
         while 1:
             params = (
                 ("sortColumns", "TRADE_DATE,SECURITY_CODE"),
-                ("sortTypes", "-1,1"),
+                ("sortTypes", "-1"),
                 ("pageSize", "500"),
                 ("pageNumber", page),
                 ("reportName", "RPT_DAILYBILLBOARD_DETAILS"),
@@ -1537,158 +1538,136 @@ def get_belong_board(stock_code: str) -> pd.DataFrame:
     df.insert(1, "股票代码", q.code)
     return df
 
-
-def get_quote_week(#added 20250516
-    stock_codes: Union[str, List[str]],
-    beg: str = "20180101",
-    end: str = "20500101",
-    klt: int = 102,
-    fqt: int = 1,
-    market_type: Union[MarketType, None] = None,
-    suppress_error: bool = False,
-    use_id_cache: bool = True,
-    **kwargs,
-) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
+@to_numeric
+@retry(tries=3)  #add 20250529
+def get_block_trade(start_date: str = None, end_date: str = None) -> pd.DataFrame:
     """
-    获取股票的 K 线数据
+    获取指定日期区间的龙虎榜详情数据
 
     Parameters
     ----------
-    stock_codes : Union[str,List[str]]
-        股票代码、名称 或者 股票代码、名称构成的列表
-    beg : str, optional
-        开始日期，默认为 ``'19000101'`` ，表示 1900年1月1日
-    end : str, optional
-        结束日期，默认为 ``'20500101'`` ，表示 2050年1月1日
-    klt : int, optional
-        行情之间的时间间隔，默认为 ``101`` ，可选示例如下
+    start_date : str, optional
+        开始日期
+        部分可选示例如下
 
-        - ``1`` : 分钟
-        - ``5`` : 5 分钟
-        - ``15`` : 15 分钟
-        - ``30`` : 30 分钟
-        - ``60`` : 60 分钟
-        - ``101`` : 日
-        - ``102`` : 周
-        - ``103`` : 月
+        - ``None`` 最新一个榜单公开日(默认值)
+        - ``"2021-08-27"`` 2021年8月27日
 
-    fqt : int, optional
-        复权方式，默认为 ``1`` ，可选示例如下
+    end_date : str, optional
+        结束日期
+        部分可选示例如下
 
-        - ``0`` : 不复权
-        - ``1`` : 前复权
-        - ``2`` : 后复权
-
-    market_type : MarketType, optional
-        市场类型，目前可筛选A股，港股，美股和英股。默认不筛选，可选示例如下
-
-        - ``A_stock`` : A股
-        - ``Hongkong`` : 香港
-        - ``London_stock_exchange`` : 英股
-        - ``US_stock`` : 美股
-
-    suppress_error : bool, optional
-        遇到未查到的股票代码，是否不报错，返回空的DataFrame
-    use_id_cache : bool, optional
-        是否使用本地缓存的东方财富股票行情ID
+        - ``None`` 最新一个榜单公开日(默认值)
+        - ``"2021-08-31"`` 2021年8月31日
 
     Returns
     -------
-    Union[DataFrame, Dict[str, DataFrame]]
-        股票的 K 线数据
-
-        - ``DataFrame`` : 当 ``stock_codes`` 是 ``str`` 时
-        - ``Dict[str, DataFrame]`` : 当 ``stock_codes`` 是 ``List[str]`` 时
+    DataFrame
+        大宗交易详情数据
 
     Examples
     --------
     >>> import efinance as ef
-    >>> # 获取单只股票日 K 行情数据
-    >>> ef.stock.get_quote_week('600519')
-        股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量           成交额    振幅   涨跌幅    涨跌额    换手率
-    0     贵州茅台  600519  2001-08-27   -89.74   -89.53   -89.08   -90.07  406318  1.410347e+09 -1.10  0.92   0.83  56.83
-    1     贵州茅台  600519  2001-08-28   -89.64   -89.27   -89.24   -89.72  129647  4.634630e+08 -0.54  0.29   0.26  18.13
-    2     贵州茅台  600519  2001-08-29   -89.24   -89.36   -89.24   -89.42   53252  1.946890e+08 -0.20 -0.10  -0.09   7.45
-    3     贵州茅台  600519  2001-08-30   -89.38   -89.22   -89.14   -89.44   48013  1.775580e+08 -0.34  0.16   0.14   6.72
-    4     贵州茅台  600519  2001-08-31   -89.21   -89.24   -89.12   -89.28   23231  8.623100e+07 -0.18 -0.02  -0.02   3.25
-    ...    ...     ...         ...      ...      ...      ...      ...     ...           ...   ...   ...    ...    ...
-    4756  贵州茅台  600519  2021-07-23  1937.82  1900.00  1937.82  1895.09   47585  9.057762e+09  2.20 -2.06 -40.01   0.38
-    4757  贵州茅台  600519  2021-07-26  1879.00  1804.11  1879.00  1780.00   98619  1.789436e+10  5.21 -5.05 -95.89   0.79
-    4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577  1.523081e+10  5.93 -5.06 -91.22   0.69
-    4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68
-    4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51
+    >>> # 获取最新一个公开的龙虎榜数据(后面还有获取指定日期区间的示例代码)
+    >>> ef.stock.get_block_trade()
+       股票代码    股票名称        交易日期   成交价格        成交量        成交金额                     买方营业部                    卖方营业部
+0    508000  张江REIT  2025-05-28   2.82  3480000.0   9799700.0         东莞证券股份有限公司北京朝阳营业部        华金证券股份有限公司客户资产管理部
+1    688582    芯动联科  2025-05-28  62.01   100000.0   6201000.0  东兴证券股份有限公司成都都江堰市迎宾路证券营业部  海通证券股份有限公司上海黄浦区合肥路证券营业部
+2    508068  京保REIT  2025-05-28   4.28  2500000.0  10690000.0         东莞证券股份有限公司北京朝阳营业部        华金证券股份有限公司客户资产管理部
+3    688616    西力科技  2025-05-28  10.28   260000.0   2672800.0         中国中金财富证券有限公司深圳分公司    国金证券股份有限公司杭州天目山路证券营业部
+4    688618    三旺通信  2025-05-28  17.70   677000.0  11982900.0       兴业证券股份有限公司深圳后海证券营业部  中信建投证券股份有限公司深圳滨海大道证券营业部
+..      ...     ...         ...    ...        ...         ...                       ...                      ...
+128  002756    永兴材料  2025-05-28  27.77    72100.0   2002200.0    国投证券股份有限公司连云港郁州北路证券营业部     财通证券股份有限公司长兴明珠路证券营业部
+129  002756    永兴材料  2025-05-28  27.77   360000.0   9997200.0    国泰海通证券股份有限公司深圳登良路证券营业部     财通证券股份有限公司长兴明珠路证券营业部
+130  002756    永兴材料  2025-05-28  27.77    85000.0   2360500.0                      机构专用     财通证券股份有限公司长兴明珠路证券营业部
+131  002756    永兴材料  2025-05-28  27.77    72100.0   2002200.0                      机构专用     财通证券股份有限公司长兴明珠路证券营业部
+132  002756    永兴材料  2025-05-28  27.77   200000.0   5554000.0     中信证券股份有限公司南京双龙大道证券营业部     财通证券股份有限公司长兴明珠路证券营业部
 
-    >>> # 获取多只股票历史行情
-    >>> stock_df = ef.stock.get_quote_week(['600519','300750'])#added 20250516
-    >>> type(stock_df)
-    <class 'dict'>
-    >>> stock_df.keys()
-    dict_keys(['300750', '600519'])
-    >>> stock_df['600519']
-        股票名称    股票代码          日期       开盘       收盘       最高       最低     成交量           成交额    振幅   涨跌幅    涨跌额    换手率
-    0     贵州茅台  600519  2001-08-27   -89.74   -89.53   -89.08   -90.07  406318  1.410347e+09 -1.10  0.92   0.83  56.83
-    1     贵州茅台  600519  2001-08-28   -89.64   -89.27   -89.24   -89.72  129647  4.634630e+08 -0.54  0.29   0.26  18.13
-    2     贵州茅台  600519  2001-08-29   -89.24   -89.36   -89.24   -89.42   53252  1.946890e+08 -0.20 -0.10  -0.09   7.45
-    3     贵州茅台  600519  2001-08-30   -89.38   -89.22   -89.14   -89.44   48013  1.775580e+08 -0.34  0.16   0.14   6.72
-    4     贵州茅台  600519  2001-08-31   -89.21   -89.24   -89.12   -89.28   23231  8.623100e+07 -0.18 -0.02  -0.02   3.25
-    ...    ...     ...         ...      ...      ...      ...      ...     ...           ...   ...   ...    ...    ...
-    4756  贵州茅台  600519  2021-07-23  1937.82  1900.00  1937.82  1895.09   47585  9.057762e+09  2.20 -2.06 -40.01   0.38
-    4757  贵州茅台  600519  2021-07-26  1879.00  1804.11  1879.00  1780.00   98619  1.789436e+10  5.21 -5.05 -95.89   0.79
-    4758  贵州茅台  600519  2021-07-27  1803.00  1712.89  1810.00  1703.00   86577  1.523081e+10  5.93 -5.06 -91.22   0.69
-    4759  贵州茅台  600519  2021-07-28  1703.00  1768.90  1788.20  1682.12   85369  1.479247e+10  6.19  3.27  56.01   0.68
-    4760  贵州茅台  600519  2021-07-29  1810.01  1749.79  1823.00  1734.34   63864  1.129957e+10  5.01 -1.08 -19.11   0.51
 
-    >>> # 关键字查询'PG'，默认优先返回拼音缩写匹配项
-    >>> ef.stock.get_quote_week('PG') #added 20250516
-     股票名称  股票代码          日期      开盘      收盘      最高      最低        成交量           成交额    振幅   涨跌幅   涨跌额   换手率
-    0      苹果  AAPL  1984-09-07   -7.91   -7.91   -7.90   -7.91    2981600  0.000000e+00  0.00  0.00  0.00  0.02
-    1      苹果  AAPL  1984-09-10   -7.91   -7.91   -7.90   -7.91    2346400  0.000000e+00 -0.13  0.00  0.00  0.02
-    2      苹果  AAPL  1984-09-11   -7.90   -7.90   -7.90   -7.90    5444000  0.000000e+00  0.00  0.13  0.01  0.04
-    3      苹果  AAPL  1984-09-12   -7.90   -7.91   -7.90   -7.91    4773600  0.000000e+00 -0.13 -0.13 -0.01  0.03
-    4      苹果  AAPL  1984-09-13   -7.90   -7.90   -7.90   -7.90    7429600  0.000000e+00  0.00  0.13  0.01  0.05
-    ...   ...   ...         ...     ...     ...     ...     ...        ...           ...   ...   ...   ...   ...
+    >>> # 获取指定日期区间的龙虎榜数据
+    >>> start_date = '2025-05-21' # 开始日期
+    >>> end_date = '2021-05-22' # 结束日期
+    >>> ef.stock.get_block_trade(start_date = start_date,end_date = end_date)
+        股票代码  股票名称        上榜日期                解读     收盘价      涨跌幅      换手率        龙虎榜净买额        龙虎榜买入额        龙虎榜卖出额        龙虎榜成交额      市场总成交额   净买额占总成交比    成交额占总成交比          流通市值                           上榜原因
+       股票代码  股票名称        交易日期   成交价格     成交量      成交金额                     买方营业部                    卖方营业部
+0    688582  芯动联科  2025-05-28  62.01  100000   6201000  东兴证券股份有限公司成都都江堰市迎宾路证券营业部  海通证券股份有限公司上海黄浦区合肥路证券营业部
+1    688616  西力科技  2025-05-28  10.28  260000   2672800         中国中金财富证券有限公司深圳分公司    国金证券股份有限公司杭州天目山路证券营业部
+2    688618  三旺通信  2025-05-28  17.70  677000  11982900       兴业证券股份有限公司深圳后海证券营业部  中信建投证券股份有限公司深圳滨海大道证券营业部
+3    688567  孚能科技  2025-05-28  12.86  760000   9773600           华泰证券股份有限公司湖南分公司          华泰证券股份有限公司湖南分公司
+4    688166  博瑞医药  2025-05-28  46.11  348500  16069300             申万宏源证券有限公司国际部   中国银河证券股份有限公司上海上南路证券营业部
+..      ...   ...         ...    ...     ...       ...                       ...                      ...
+113  002756  永兴材料  2025-05-28  27.77   72100   2002200    国投证券股份有限公司连云港郁州北路证券营业部     财通证券股份有限公司长兴明珠路证券营业部
+114  002756  永兴材料  2025-05-28  27.77  360000   9997200    国泰海通证券股份有限公司深圳登良路证券营业部     财通证券股份有限公司长兴明珠路证券营业部
+115  002756  永兴材料  2025-05-28  27.77   85000   2360500                      机构专用     财通证券股份有限公司长兴明珠路证券营业部
+116  002756  永兴材料  2025-05-28  27.77   72100   2002200                      机构专用     财通证券股份有限公司长兴明珠路证券营业部
+117  002756  永兴材料  2025-05-28  27.77  200000   5554000     中信证券股份有限公司南京双龙大道证券营业部     财通证券股份有限公司长兴明珠路证券营业部
 
-    >>> # 关键字查询'PG'，限定股市为A股
-    >>> from efinance.utils import MarketType
-    >>> ef.stock.get_quote_week('PG', market_type=MarketType.A_stock) #added 20250516
-          股票名称    股票代码          日期     开盘     收盘     最高     最低     成交量          成交额      振幅      涨跌幅   涨跌额    换手率
-    0     平高电气  600312  2001-02-21   1.20   1.30   1.32   1.06  391577  738479000.0 -650.00  3350.00  1.34  65.26
-    1     平高电气  600312  2001-02-22   1.24   1.27   1.35   1.23  104905  202688000.0    9.23    -2.31 -0.03  17.48
-    2     平高电气  600312  2001-02-23   1.28   1.25   1.30   1.16   56734  108086000.0   11.02    -1.57 -0.02   9.46
-    3     平高电气  600312  2001-02-26   1.26   1.33   1.40   1.23   69886  136875000.0   13.60     6.40  0.08  11.65
-    4     平高电气  600312  2001-02-27   1.32   1.32   1.35   1.27   27719   53969000.0    6.02    -0.75 -0.01   4.62
-    ...   ...   ...         ...     ...     ...     ...     ...        ...           ...   ...   ...   ...   ...
-
-    >>> # 精确匹配股票代码模式：`quote_symbol_mode`
-    >>> # 同时设置`use_id_cache=False`以防止直接使用过去相同关键字查询到的结果缓存
-    >>> ef.stock.get_quote_week('PG', quote_symbol_mode=True, use_id_cache=False) #added 20250516
-            股票名称  股票代码          日期      开盘      收盘      最高      最低        成交量           成交额    振幅   涨跌幅   涨跌额   换手率
-    0      宝洁   PG  1986-01-02  -51.15  -51.18  -51.15  -51.22  3772800  0.000000e+00  0.00  0.00  0.00  0.16
-    1      宝洁   PG  1986-01-03  -51.19  -51.15  -51.13  -51.19  3652800  0.000000e+00 -0.12  0.06  0.03  0.16
-    2      宝洁   PG  1986-01-06  -51.17  -51.18  -51.15  -51.19  1708800  0.000000e+00 -0.08 -0.06 -0.03  0.07
-    3      宝洁   PG  1986-01-07  -51.20  -51.20  -51.13  -51.20  7260800  0.000000e+00 -0.14 -0.04 -0.02  0.31
-    4      宝洁   PG  1986-01-08  -51.18  -51.35  -51.18  -51.39  5556800  0.000000e+00 -0.41 -0.29 -0.15  0.24
-    ...   ...   ...         ...     ...     ...     ...     ...        ...           ...   ...   ...   ...   ...
 
     """
+    today = datetime.today().date()
+    mode = "auto"
+    if start_date is None:
+        start_date = today
 
-    df = get_quote_week_for_stock(#added 20250516
-        stock_codes,
-        beg=beg,
-        end=end,
-        klt=klt,
-        fqt=fqt,
-        market_type=market_type,
-        suppress_error=suppress_error,
-        use_id_cache=use_id_cache,
-        **kwargs,
-    )
-    if isinstance(df, pd.DataFrame):
-        df.rename(columns={"代码": "股票代码", "名称": "股票名称"}, inplace=True)
-    elif isinstance(df, dict):
-        for stock_code in df.keys():
-            df[stock_code].rename(
-                columns={"代码": "股票代码", "名称": "股票名称"}, inplace=True
+    if end_date is None:
+        end_date = today
+
+    if isinstance(start_date, str):
+        mode = "user"
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    if isinstance(end_date, str):
+        mode = "user"
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    fields = EASTMONEY_STOCK_BLOCK_TRADE
+    bar: tqdm = None
+
+    while 1:
+
+        dfs: List[pd.DataFrame] = []
+        page = 1
+        while 1:
+            params = (
+                ("sortColumns", "TRADE_DATE"),
+                ("sortTypes", "-1"),
+                ("pageSize", "10000"),
+                ("pageNumber", page),
+                ("reportName", "RPT_DATA_BLOCKTRADE"),
+                ("columns", "ALL"),
+                ("source", "WEB"),
+                ("client", "WEB"),
+                ("filter", f"(SECURITY_TYPE_WEB=1)(TRADE_DATE<='{end_date}')(TRADE_DATE>='{start_date}')"),
             )
-    return df
 
+            url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+
+            response = session.get(url, params=params)
+            if bar is None:
+                pages = jsonpath(response.json(), "$..pages")
+
+                if pages and pages[0] != 1:
+                    total = pages[0]
+                    bar = tqdm(total=int(total))
+            if bar is not None:
+                bar.update()
+
+            items = jsonpath(response.json(), "$..data[:]")
+            if not items:
+                break
+            page += 1
+            df = pd.DataFrame(items).rename(columns=fields)[fields.values()]
+            dfs.append(df)
+        if mode == "user":
+            break
+        if len(dfs) == 0:
+            start_date = start_date - timedelta(1)
+            end_date = end_date - timedelta(1)
+
+        if len(dfs) > 0:
+            break
+    if len(dfs) == 0:
+        df = pd.DataFrame(columns=fields.values())
+        return df
+
+    df = pd.concat(dfs, ignore_index=True)
+    df["交易日期"] = df["交易日期"].astype("str").apply(lambda x: x.split(" ")[0])
+    return df

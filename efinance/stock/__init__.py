@@ -11,11 +11,11 @@ from .getter import (
     get_latest_quote,
     get_members,
     get_quote_history,
-    get_quote_week,  #added 20250515
     get_quote_snapshot,
     get_realtime_quotes,
     get_today_bill,
     get_top10_stock_holder_info,
+    get_block_trade,  # added
 )
 
 __all__ = [
@@ -23,7 +23,6 @@ __all__ = [
     "get_today_bill",
     "get_latest_quote",
     "get_quote_history",
-    "get_quote_week", # added 20250516
     "get_realtime_quotes",
     "get_top10_stock_holder_info",
     "get_base_info",
@@ -36,4 +35,5 @@ __all__ = [
     "get_quote_snapshot",
     "get_deal_detail",
     "get_belong_board",
+    "get_block_trade",  # added
 ]
