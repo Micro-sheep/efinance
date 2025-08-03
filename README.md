@@ -9,6 +9,8 @@
 
 [`efinance`](https://github.com/Micro-sheep/efinance) 是由个人打造的用于获取股票、基金、期货数据的免费开源 Python 库，你可以使用它很方便地获取数据以便更好地服务于个人的交易系统需求。
 
+**郑重声明：本项目仅供学习交流使用，不得用于商业用途。**
+
 - [`Source Code`](https://github.com/Micro-sheep/efinance)
 - [`Docs`](https://efinance.readthedocs.io)
 - [`Changelog`](https://github.com/Micro-sheep/efinance/blob/main/changelog.md)
@@ -542,6 +544,5 @@ pdoc . -d numpy
 
 ## Contact
 
-[![zhihu](https://img.shields.io/badge/知乎-blue)](https://www.zhihu.com/people/la-ge-lang-ri-96-69)
 [![Github](https://img.shields.io/badge/Github-blue?style=social&logo=github)](https://github.com/Micro-sheep)
 [![Email](https://img.shields.io/badge/Email-blue)](mailto:micro-sheep@outlook.com)
