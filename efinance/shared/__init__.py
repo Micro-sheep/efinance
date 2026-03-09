@@ -6,15 +6,8 @@ import pandas as pd
 import requests
 
 from ..config import SEARCH_RESULT_CACHE_PATH, MAX_CONNECTIONS
+from .tickflow_prompt import session
 
-
-class CustomedSession(requests.Session):
-    def request(self, *args, **kwargs):
-        kwargs.setdefault("timeout", 180)  # 3min
-        return super(CustomedSession, self).request(*args, **kwargs)
-
-
-session = CustomedSession()
 adapter = requests.adapters.HTTPAdapter(
     pool_connections=MAX_CONNECTIONS, pool_maxsize=MAX_CONNECTIONS, max_retries=5
 )
