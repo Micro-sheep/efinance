@@ -11,6 +11,9 @@
 
 **郑重声明：本项目仅供学习交流使用，不得用于商业用途。**
 
+> **💡 遇到限流或网络报错？** 使用过程中若遇到限流、连接超时等网络相关报错，可尝试 **[TickFlow](https://tickflow.org?utm_source=efinance&utm_medium=readme)** 作为替代数据源：  
+> [https://tickflow.org](https://tickflow.org?utm_source=efinance&utm_medium=readme)
+
 - [`Source Code`](https://github.com/Micro-sheep/efinance)
 - [`Docs`](https://efinance.readthedocs.io)
 - [`Changelog`](https://github.com/Micro-sheep/efinance/blob/main/changelog.md)

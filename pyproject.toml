@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "efinance"
-version = "0.5.5.2"
+version = "0.5.7"
 description = "A finance tool to get stock,fund and futures data base on eastmoney"
 readme = "README.md"
 authors = [{ name = "micro sheep", email = "micro-sheep@outlook.com" }]
@@ -28,7 +28,7 @@ Documentation = "https://efinance.readthedocs.io"
 Source = "https://github.com/Micro-sheep/efinance"
 
 [tool.setuptools]
-packages = ["efinance"]
+packages = { find = { where = ["."], include = ["efinance*"] } }
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
