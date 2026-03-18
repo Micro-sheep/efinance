@@ -59,7 +59,7 @@ def to_numeric(func: F) -> F:
         return values
 
     def convert(o: Union[str, int, float]) -> Union[str, float, int]:
-        if not re.findall("\d", str(o)):
+        if not re.findall(r"\d", str(o)):
             return o
         try:
             if str(o).isalnum():

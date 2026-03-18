@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "efinance"
-version = "0.5.7"
+version = "0.5.8"
 description = "A finance tool to get stock,fund and futures data base on eastmoney"
 readme = "README.md"
 authors = [{ name = "micro sheep", email = "micro-sheep@outlook.com" }]
