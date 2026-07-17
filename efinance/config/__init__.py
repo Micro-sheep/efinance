@@ -6,7 +6,7 @@ DATA_DIR = HERE / "../data"
 # 创建数据缓存文件目录
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 # 搜索词缓存位置
-SEARCH_RESULT_CACHE_PATH = str(DATA_DIR / "search-cache.json")
+SEARCH_RESULT_CACHE_PATH = str(DATA_DIR / "search-cache-v2.json")
 
 MAX_CONNECTIONS = 50
 

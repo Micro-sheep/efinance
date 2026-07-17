@@ -80,19 +80,32 @@ Quote = namedtuple(
         "code",
         "name",
         "pinyin",
-        "id",
-        "jys",
+        "market",
         "classify",
-        "market_type",
         "security_typeName",
-        "security_type",
-        "mkt_num",
-        "type_us",
         "quote_id",
-        "unified_code",
         "inner_code",
     ],
 )
+
+# 新接口 securityTypeName -> 旧 Classify（兼容 MarketType 枚举筛选）
+_SECURITY_TYPE_NAME_TO_CLASSIFY = {
+    "沪A": "AStock",
+    "深A": "AStock",
+    "京A": "AStock",
+    "沪B": "BStock",
+    "深B": "BStock",
+    "指数": "Index",
+    "港股": "HK",
+    "美股": "UsStock",
+    "英股": "LSE",
+    "行业": "BK",
+    "概念": "BK",
+    "地域": "BK",
+    "板块": "BK",
+    "基金": "Fund",
+    "期货": "Futures",
+}
 
 
 @retry(tries=3, delay=1)
@@ -168,34 +181,51 @@ def search_quote(
         quote = search_quote_locally(keyword, market_type=market_type)
         if quote:
             return quote
-    url = "https://searchapi.eastmoney.com/api/suggest/get"
-    params = (
-        ("input", f"{keyword}"),
-        ("type", "14"),
-        ("token", "D43BF722C8E33BDC906FB84D85E326E8"),
-        ("count", f"{max(count, 5)}"),
-    )
+    url = "https://search-codetable.eastmoney.com/codetable/search/web"
+    params = {
+        "client": "web",
+        "clientType": "webSuggest",
+        "clientVersion": "lastest",
+        "keyword": keyword,
+        "pageIndex": 1,
+        "pageSize": max(count, 5),
+    }
     try:
         json_response = session.get(url, params=params).json()
-        items = json_response["QuotationCodeTable"]["Data"]
+        items = json_response.get("result")
     except json.JSONDecodeError:
         RuntimeWarning(
             "unable to parse search quote result, consider if you are blocked"
         )
         return None
 
-    if items is not None and items:
-        quotes = [
-            Quote(*item.values())
-            for item in items
+    if items:
+        quotes = []
+        for item in items:
+            classify = _SECURITY_TYPE_NAME_TO_CLASSIFY.get(
+                item["securityTypeName"], item["securityTypeName"]
+            )
             # 支持精确查找股票代码
             if (
-                not kwargs.get(MagicConfig.QUOTE_SYMBOL_MODE, False)
-                or (keyword == item["Code"])
-            )
+                kwargs.get(MagicConfig.QUOTE_SYMBOL_MODE, False)
+                and keyword != item["code"]
+            ):
+                continue
             # 支持筛选股票市场
-            and (market_type is None or (market_type.value == item["Classify"]))
-        ]
+            if market_type is not None and market_type.value != classify:
+                continue
+            quotes.append(
+                Quote(
+                    code=item["code"],
+                    name=item["shortName"],
+                    pinyin=item["pinyin"],
+                    market=item["market"],
+                    classify=classify,
+                    security_typeName=item["securityTypeName"],
+                    quote_id=f'{item["market"]}.{item["code"]}',
+                    inner_code=item["innerCode"],
+                )
+            )
         # NOTE 暂时仅存储第一个搜索结果
         save_search_result(keyword, quotes[:1])
         if count == 1:
