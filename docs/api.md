@@ -33,4 +33,12 @@ Futures
     :undoc-members:
     :show-inheritance:
     :inherited-members:
+
+Macro
+-----
+.. automodule:: efinance.macro
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :inherited-members:
 ```

@@ -1,5 +1,42 @@
 ## Examples
 
+### Macro
+
+- 获取 FXMacroData 宏观数据目录、经济日历和最新公告
+
+```python
+>>> import efinance as ef
+>>> ef.macro.get_data_catalogue("usd").head()
+>>> ef.macro.get_calendar("usd").head()
+>>> ef.macro.get_latest_announcements("usd").head()
+```
+
+- 获取指定宏观指标、预测、外汇、COT、商品和市场时段数据
+
+```python
+>>> import efinance as ef
+>>> ef.macro.get_indicator("usd", "cpi").head()
+>>> ef.macro.get_predictions("usd", "cpi").head()
+>>> ef.macro.get_forex("eur", "usd").head()
+>>> ef.macro.get_cot("usd").head()
+>>> ef.macro.get_commodities("xau_usd").head()
+>>> ef.macro.get_market_sessions().head()
+```
+
+FXMacroData 的 USD 公开数据可直接使用。受保护的数据会自动读取环境变量
+`FXMD_API_KEY` 或 `FXMACRODATA_API_KEY`。
+
+| FXMacroData capability | efinance surface | Status |
+| --- | --- | --- |
+| Discovery/catalogue | `ef.macro.get_data_catalogue` | Native DataFrame helper |
+| Macro indicator history | `ef.macro.get_indicator` | Native DataFrame helper |
+| Release calendar | `ef.macro.get_calendar` | Native DataFrame helper |
+| Event predictions | `ef.macro.get_predictions` | Native DataFrame helper |
+| FX spot history | `ef.macro.get_forex` | Native DataFrame helper |
+| FX market sessions | `ef.macro.get_market_sessions` | Native DataFrame helper |
+| COT positioning | `ef.macro.get_cot` | Native DataFrame helper |
+| Commodities | `ef.macro.get_commodities` | Native DataFrame helper |
+
 ### Stock
 
 - 获取股票历史日 K 线数据
